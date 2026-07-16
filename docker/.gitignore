@@ -1,0 +1,6 @@
+# Directory-scoped ignores for the Docker/Phase-1 work (the root .gitignore
+# is deliberately untouched - see the web-docker branch's zero-modification rule).
+reference/
+runs/
+*.tar
+*.log

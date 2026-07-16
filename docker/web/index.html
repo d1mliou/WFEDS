@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>WFEDS · Σύμβουλος εκκένωσης</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <span class="logo">🔥</span>
+    <div>
+      <h1>WFEDS</h1>
+      <p>Σύμβουλος αποφάσεων εκκένωσης · Βόρεια Εύβοια</p>
+    </div>
+  </div>
+  <div class="tools">
+    <div class="mode-toggle" role="group" aria-label="Τρόπος εισαγωγής γεωμετρίας">
+      <button id="modePin" class="active" title="Κλικ στον χάρτη προσθέτει pin">📍 Pin</button>
+      <button id="modePoly" title="Κλικ προσθέτει κορυφές, κλείσε το πολύγωνο όταν τελειώσεις">⬠ Πολύγωνο</button>
+    </div>
+    <button id="btnFinishPoly" class="accent" hidden>Κλείσιμο πολυγώνου</button>
+    <button id="btnCancelPoly" hidden>Άκυρο</button>
+    <button id="btnClear" title="Καθαρίζει pins, πολύγωνα και συνομιλία">Καθαρισμός</button>
+  </div>
+</header>
+
+<div id="geomStatus" class="idle">Κλικ στον χάρτη για να δηλώσεις πού παρατηρήθηκε η φωτιά.</div>
+
+<main>
+  <div id="map" aria-label="Χάρτης"></div>
+
+  <aside id="panel">
+    <div id="chatLog" aria-live="polite">
+      <div class="msg agent">
+        <p>Δήλωσε τη γεωμετρία της φωτιάς στον χάρτη (pins ή πολύγωνο) και γράψε τι θέλεις να δούμε.
+        Παραδείγματα:</p>
+        <p class="hint">«Τι θα κάψει σε 6 ώρες;»<br>
+        «Τρέξε 12 ώρες με παράθυρο 20 km»<br>
+        «Ίδιο σημείο για τις 10 Αυγούστου 2024 το μεσημέρι»</p>
+        <p class="hint">Οι ώρες που γράφεις είναι ώρα Ελλάδας. Χωρίς ώρα, χρησιμοποιείται η τωρινή (ζωντανή φωτιά).</p>
+      </div>
+    </div>
+    <form id="chatForm">
+      <textarea id="chatText" rows="2" placeholder="π.χ. Τι θα κάψει σε 6 ώρες;"
+                autocomplete="off"></textarea>
+      <button id="btnSend" type="submit">Αποστολή</button>
+    </form>
+  </aside>
+</main>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="app.js"></script>
+</body>
+</html>
