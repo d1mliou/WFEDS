@@ -26,7 +26,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         python3 python3-venv python3-pip \
     && rm -rf /var/lib/apt/lists/*
 
-# Clean upstream clone at the exact base commit the WFEDS patches target.
+# The engine source is NOT part of the WFEDS repository: it is downloaded
+# here, at the exact original Cell2Fire version the WFEDS patches target,
+# then patched and compiled below.
 RUN git clone https://github.com/cell2fire/Cell2Fire /opt/Cell2Fire \
     && cd /opt/Cell2Fire \
     && git checkout b860bcc

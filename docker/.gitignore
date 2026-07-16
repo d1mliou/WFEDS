@@ -1,5 +1,5 @@
-# Directory-scoped ignores for the Docker/Phase-1 work (the root .gitignore
-# is deliberately untouched - see the web-docker branch's zero-modification rule).
+# Directory-scoped ignores for the Docker work (the root .gitignore is
+# deliberately untouched - the Docker layer never modifies pre-existing files).
 reference/
 runs/
 *.tar

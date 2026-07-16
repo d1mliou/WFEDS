@@ -69,8 +69,8 @@ container, so Docker is the only real dependency.
 Either clone with git:
 
 ```powershell
-git clone https://github.com/d1mliou/LLM---WFEDS.git
-cd LLM---WFEDS
+git clone https://github.com/d1mliou/WFEDS.git
+cd WFEDS
 ```
 
 or, without git: on the GitHub page press **Code → Download ZIP**, extract it,
@@ -165,7 +165,7 @@ python -m pytest          # 237 tests, all mocked - no real engine/network
 
 | Component | Description |
 |---|---|
-| Fire spread | **Cell2Fire**, hourly, free-burning. The engine is not vendored: upstream pinned @ `b860bcc` + two small patches in `scripts/cell2fire/engine_patch/` (observed-front seeding, fireline-intensity diagnostic), rebuilt reproducibly by the Dockerfile - verified byte-identical to the reference setup. |
+| Fire spread | **Cell2Fire** - the actual fire-spread simulator, run hour by hour, free-burning (worst case: no firefighting assumed). Its source code is not copied into this repository. Instead, the repo only records which exact version of the original Cell2Fire project to use (commit `b860bcc`) plus two small changes made for this thesis, in `scripts/cell2fire/engine_patch/` (let the fire start from an observed front line; report flame intensity). Every time the Docker image is built, that exact version is automatically downloaded and compiled from scratch - checked to produce identical results to the original (non-Docker) setup it replaced. |
 | Network & exposure | Edges crossing the perimeter removed; survivors friction-penalised by distance; per-hour re-routing to nearest safe refuge; settlements flagged routed / cut off / impacted. |
 | LLM layer | One coarse tool wraps the whole pipeline; user times are Greece-local (the tool owns the UTC conversion); geometry only ever comes from the user (pins/polygon - never guessed). |
 | Web backend | FastAPI in the same container: cookie sessions, SSE progress, GIS export generation, same-origin UI (vanilla JS + Leaflet). |

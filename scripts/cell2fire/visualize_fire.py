@@ -184,7 +184,7 @@ def main():
         for name, (st, ref, km) in cur_state.items():
             if name not in prev_state:
                 if st == "ok":
-                    events.append({"c": "ok", "t": f"Σε κίνδυνο: {name} — εκκενώνεται προς "
+                    events.append({"c": "ok", "t": f"Σε κίνδυνο: {name} - εκκενώνεται προς "
                                                    f"{ref} ({km} km)"})
                 elif st == "cut_off":
                     events.append({"c": "cut", "t": f"Σε κίνδυνο και ΑΠΟΚΛΕΙΣΜΕΝΟΣ: {name}"})
@@ -296,7 +296,7 @@ TEMPLATE = r"""<!DOCTYPE html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Βόρεια Εύβοια 2021 — φωτιά & εκκένωση ανά ώρα</title>
+<title>Βόρεια Εύβοια 2021 - φωτιά & εκκένωση ανά ώρα</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
@@ -371,7 +371,7 @@ TEMPLATE = r"""<!DOCTYPE html>
 <div id="app">
   <div id="map"></div>
   <div id="side">
-    <h1>Βόρεια Εύβοια 2021 — φωτιά &amp; εκκένωση</h1>
+    <h1>Βόρεια Εύβοια 2021 - φωτιά &amp; εκκένωση</h1>
     <div class="sub">Πρόβλεψη Cell2Fire (σπορά από το παρατηρημένο μέτωπο) έναντι
       της πραγματικής εξέλιξης · έναρξη <span id="t0"></span> UTC</div>
 
@@ -421,7 +421,7 @@ TEMPLATE = r"""<!DOCTYPE html>
     </div>
 
     <div class="card">
-      <details><summary><b>Επικύρωση</b> — συνολική αξιολόγηση της πρόβλεψης</summary>
+      <details><summary><b>Επικύρωση</b> - συνολική αξιολόγηση της πρόβλεψης</summary>
         <div id="valBody" style="margin-top:8px"></div>
       </details>
     </div>
@@ -445,14 +445,14 @@ map.createPane('settle'); map.getPane('settle').style.zIndex = 415;  // all sett
 const settleLayer = L.layerGroup((D.settlements || []).map(s =>
   L.circleMarker([s.lat, s.lon], { pane:'settle', radius:3, color:'#8a897f',
       weight:1, fillColor:'#8a897f', fillOpacity:.85 })
-    .bindTooltip(s.n + ' (' + (s.p === null ? '—' : s.p.toLocaleString('el')) + ')',
+    .bindTooltip(s.n + ' (' + (s.p === null ? '-' : s.p.toLocaleString('el')) + ')',
                  { permanent:true, direction:'right', offset:[4, 0],
                    className:'settleTip' }))).addTo(map);
 
 L.geoJSON({type:'Feature',geometry:D.window}, { pane:'scar',
   style: {color:'#52514e', weight:1.5, dashArray:'4 7', fill:false} })
   .bindTooltip('Όριο παραθύρου προσομοίωσης (' + D.windowKm + '×' + D.windowKm +
-    ' km) — η πρόβλεψη δεν μπορεί να βγει έξω από αυτό· όπου το μέτωπο το ' +
+    ' km) - η πρόβλεψη δεν μπορεί να βγει έξω από αυτό· όπου το μέτωπο το ' +
     'ακουμπά, κόβεται τεχνητά ίσιο', {sticky:true}).addTo(map);
 /* the 2021 real-event overlays exist only when rendering the reference scenario */
 const HAS_REAL = !!D.scar;
@@ -532,10 +532,10 @@ function setHour(h, keepView) {
       ' (+' + d.stats.imp + ' στο μέτωπο)' : '');
   villTable.innerHTML = d.atRisk.slice().sort((a, b) => a.s.localeCompare(b.s))
     .map(a => '<tr><td><span class="dot" style="background:' + stCol[a.s] + '"></span>' +
-      a.n + '</td><td style="text-align:right">' + (a.p ?? '—') + '</td><td>' +
+      a.n + '</td><td style="text-align:right">' + (a.p ?? '-') + '</td><td>' +
       (a.s === 'ok' ? '→ ' + a.r + ' (' + a.k + ' km)' : stName[a.s]) + '</td></tr>')
     .join('');
-  const evs = d.events.length ? d.events : [{c:'road', t:'— καμία αλλαγή'}];
+  const evs = d.events.length ? d.events : [{c:'road', t:'- καμία αλλαγή'}];
   evList.innerHTML = evs.map(e => '<div class="ev-' + e.c + '">' + e.t + '</div>').join('');
   drawCursor();
 }
@@ -581,7 +581,7 @@ tg.onAdd = () => {
     '<div style="color:#898781;max-width:180px;border-top:1px solid #e1e0d9;' +
     'margin-top:4px;padding-top:4px"><span style="display:inline-block;width:14px;' +
     'height:9px;border:1.5px dashed #52514e;margin-right:5px"></span>όριο του μοντέλου ' +
-    '— έξω από αυτό η πρόβλεψη δεν μπορεί να συνεχίσει</div>';
+    '- έξω από αυτό η πρόβλεψη δεν μπορεί να συνεχίσει</div>';
   L.DomEvent.disableClickPropagation(div);
   return div;
 };
@@ -660,12 +660,12 @@ svg.addEventListener('click', e => {
     '<div class="kv"><span class="k">Απόσταση από τις ανιχνεύσεις (διάμεσος)</span><b>' +
     f.nn_median_km + ' km</b></div>' +
     '<div class="kv"><span class="k">Χρονισμός (διάμεσος)</span><b>' +
-    (a.timing_median_h ?? '—') + ' ώρες</b></div>' +
+    (a.timing_median_h ?? '-') + ' ώρες</b></div>' +
     '<div class="kv"><span class="k">Μέσα στον τελικό πραγματικό κάμπο</span><b>' +
     v.containment_final_scar_pct + '%</b></div>' +
     '<div style="margin-top:6px;color:var(--ink2)"><i>Συμπέρασμα: σωστή γεωγραφία ' +
-    '(μόλις ' + (a.outside_final_scar_km2 ?? '—') + ' km² εκτός κάμπου), αλλά πολύ ' +
-    'γρήγορος ρυθμός — η πραγματική φωτιά δεχόταν κατάσβεση που το μοντέλο δεν ' +
+    '(μόλις ' + (a.outside_final_scar_km2 ?? '-') + ' km² εκτός κάμπου), αλλά πολύ ' +
+    'γρήγορος ρυθμός - η πραγματική φωτιά δεχόταν κατάσβεση που το μοντέλο δεν ' +
     'προσομοιώνει. Οι μετρικές είναι οι δίκαιες (χωρίς το αρχικό μέτωπο/σπόρο).</i></div>';
 })();
 

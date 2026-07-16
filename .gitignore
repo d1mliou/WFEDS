@@ -8,12 +8,12 @@ __pycache__/
 # OSMnx HTTP cache (created in the working dir when scripts run)
 cache/
 
-# Thesis proposal — kept local, not pushed
+# Thesis proposal - kept local, not pushed
 Proposal.docx
 
-# Obsidian vault — kept locally (synced separately, e.g. OneDrive), no longer
+# Obsidian vault - kept locally (synced separately, e.g. OneDrive), no longer
 # git-tracked/pushed as of 2026-07-15 (kept code and vault pushes independent)
 LLM-WFEDS/
 
-# Third-party Claude Code skills (kepano/obsidian-skills) — local-only, not synced via git
+# Third-party Claude Code skills (kepano/obsidian-skills) - local-only, not synced via git
 .claude/skills/

@@ -62,10 +62,10 @@ def _red_ramp(t):
 def _fmt_pop(v):
     try:
         if v is None or (isinstance(v, float) and pd.isna(v)):
-            return "—"
+            return "-"
         return f"{int(float(str(v).replace(',', ''))):,}".replace(",", ".")
     except (ValueError, TypeError):
-        return "—"
+        return "-"
 
 
 class RunContext:

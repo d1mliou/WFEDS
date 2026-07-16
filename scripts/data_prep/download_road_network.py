@@ -7,11 +7,11 @@ on purpose: evacuation/exit routes often leave the originating municipality, so 
 network must not be clipped at a single municipal line.
 
 All analysis and outputs are in EPSG:2100 (Greek Grid, metric). OpenStreetMap is
-queried in EPSG:4326 — the only CRS the Overpass API accepts — so the boundary is
+queried in EPSG:4326 - the only CRS the Overpass API accepts - so the boundary is
 reprojected to 4326 *only* to run the download; the resulting graph is then
 projected to EPSG:2100 before any measurement or saving.
 
-Scope: data acquisition only — no routing, no fire perimeters, no LLM code.
+Scope: data acquisition only - no routing, no fire perimeters, no LLM code.
 
 Outputs (written to DATA_DIR/Roads in OneDrive, see config below):
     road_graph.graphml   full graph (nodes + edges), EPSG:2100

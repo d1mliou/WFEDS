@@ -1,16 +1,18 @@
 # Cell2Fire engine modifications (WFEDS)
 
-Two **optional** WFEDS modifications to the Cell2Fire C++ engine, maintained as
-sequential patches on top of a clean clone. Every in-code change is tagged with the
-comment marker **`WFEDS`**.
+The Cell2Fire engine source is NOT copied into this repository. The repo only
+records the exact original version to use (below) plus these two **optional**
+WFEDS modifications, maintained as sequential patches on top of a clean clone;
+the Docker build downloads, patches and compiles the engine automatically.
+Every in-code change is tagged with the comment marker **`WFEDS`**.
 
 - **Base engine:** `github.com/cell2fire/Cell2Fire` @ commit **`b860bcc`** (clean clone).
-- **Patch 1:** `cell2fire_initialburned.patch` — seed an observed burned front at t=0.
-- **Patch 2:** `cell2fire_intensity.patch` — dump per-period fireline-intensity grids
-  (`--out-intensity`). A **diagnostic only** — it never changes fire spread.
+- **Patch 1:** `cell2fire_initialburned.patch` - seed an observed burned front at t=0.
+- **Patch 2:** `cell2fire_intensity.patch` - dump per-period fireline-intensity grids
+  (`--out-intensity`). A **diagnostic only** - it never changes fire spread.
 
 > **History:** patch 2 briefly also carried a `--SuppressionFactors` ROS-damping
-> "brake". That physical suppression model was **dropped 2026-07-03** — the fire is
+> "brake". That physical suppression model was **dropped 2026-07-03** - the fire is
 > modelled as free-burning (worst credible case) and suppression/evacuation *measures*
 > are handled as decisions in the Phase-5 LLM layer, not as engine physics. Only the
 > intensity output (which is calibration-free and feeds the LLM's "where is intervention
@@ -22,23 +24,23 @@ cd <Cell2Fire repo>            # base commit b860bcc
 git apply /path/to/cell2fire_initialburned.patch
 git apply /path/to/cell2fire_intensity.patch
 cd cell2fire/Cell2FireC
-rm -f *.o *.gch && make       # FULL rebuild — see the gotcha below
+rm -f *.o *.gch && make       # FULL rebuild - see the gotcha below
 ```
 **GOTCHA (cost us a debugging round):** patch 1 adds a field to the `arguments` struct
 and patch 2 changes `manageFire`'s signature, both read by several `.o` files. The repo
 Makefile's dependency tracking is incomplete, so `make` alone recompiles only the changed
 files and leaves an **ABI mismatch** (other objects read the struct at the old offsets →
 garbage wind/ROS → negative ROS → the fire won't spread). **Always `rm -f *.o *.gch`
-(full rebuild)** — the stale `CellsFBP.h.gch` precompiled header would likewise shadow
+(full rebuild)** - the stale `CellsFBP.h.gch` precompiled header would likewise shadow
 header changes. (`make clean` also fails because its target lists a non-existent
 `Forest.o`.)
 
 ---
 
-# Patch 1 — `--InitialBurned` (observed front seeding)
+# Patch 1 - `--InitialBurned` (observed front seeding)
 
 ## Why
-Operationally we rarely detect a wildfire at its exact ignition — we usually observe it
+Operationally we rarely detect a wildfire at its exact ignition - we usually observe it
 **already spread** (e.g. from satellite/VIIRS). A decision-support tool should therefore
 be able to start from the **current observed perimeter** and forecast forward N hours,
 not only from a point. It also enables a fair **validation**: seed the real fire front at
@@ -46,8 +48,8 @@ the end of day N and check whether the model reproduces day N+1.
 
 **Not hardcoded / LLM-selectable:** the feature is a plain optional flag. The analyst (or
 the Phase-5 LLM) chooses per run:
-- **one point** — fire caught early → `IgnitionPoints.csv` (unchanged default), or
-- **a front** — fire caught mid-event → `--InitialBurned <file>`.
+- **one point** - fire caught early → `IgnitionPoints.csv` (unchanged default), or
+- **a front** - fire caught mid-event → `--InitialBurned <file>`.
 
 The **forecast horizon** ("hours since detection") is the normal run duration
 (hourly weather rows / grids), independent of this flag.
@@ -77,17 +79,17 @@ Default (flag absent) = unchanged point-ignition behaviour.
 
 ---
 
-# Patch 2 — fireline-intensity output (`--out-intensity`)
+# Patch 2 - fireline-intensity output (`--out-intensity`)
 
 ## Why
 Base Cell2Fire emits no intensity raster, but its FBP module computes Byram fireline
 intensity internally all along. This patch simply **exports** it, per period, as a grid.
-It is a **diagnostic** — "how intense / how fightable is the fire here" — that never
+It is a **diagnostic** - "how intense / how fightable is the fire here" - that never
 changes fire behaviour. The Phase-5 LLM layer uses it to reason about response *measures*
 (where holding a line is feasible); the fire itself stays free-burning (worst case).
 
-(The suppressability **classes** — `<350` direct attack · `350–1750` mechanical/aerial ·
-`1750–3500` serious control problems · `>3500` indirect only, kW/m — are applied
+(The suppressability **classes** - `<350` direct attack · `350–1750` mechanical/aerial ·
+`1750–3500` serious control problems · `>3500` indirect only, kW/m - are applied
 **downstream in Python**, `cell2fire_adapter.SUPP_THRESHOLDS`, not in the engine.)
 
 ## What the flag does
@@ -107,7 +109,7 @@ changes fire behaviour. The Phase-5 LLM layer uses it to reason about response *
 | `Cell2FireC/CellsFBP.cpp` | record max free `headstruct.fi` into `FIgrid` in `manageFire` AND `manageFireBBO` (no ROS change) |
 | `Cell2FireC/Cell2Fire.h` | member `std::vector<double> maxFI` |
 | `Cell2FireC/Cell2Fire.cpp` | `maxFI.assign` in `reset()`; pass `&maxFI` at both call sites; `Intensity<NN>.csv` dump in `outputGrid()` |
-| `Cell2FireC/WriteCSV.h/.cpp` | `printCSVDoubleGrid()` — plain row-major `%.1f` grid writer |
+| `Cell2FireC/WriteCSV.h/.cpp` | `printCSVDoubleGrid()` - plain row-major `%.1f` grid writer |
 | `Cell2FireC_class.py` + `utils/ParseInputs.py` | forward / add `--out-intensity` |
 
 ## Note on the dropped suppression brake
@@ -118,6 +120,6 @@ suppression as a Phase-5 decision concern (not engine physics), the damping was 
 See `LLM-WFEDS/Decisions/Decision log.md` 2026-07-03.
 
 ## Reverting
-- Day-to-day: just omit `--out-intensity` — the engine is then bit-identical to unpatched.
+- Day-to-day: just omit `--out-intensity` - the engine is then bit-identical to unpatched.
 - Source: the WSL clone has the InitialBurned state temp-committed
   (`WFEDS: initialburned baseline`); `git checkout -- .` drops the intensity edits.
