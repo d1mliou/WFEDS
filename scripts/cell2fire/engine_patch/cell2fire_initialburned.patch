@@ -1,0 +1,147 @@
+diff --git a/cell2fire/Cell2FireC/Cell2Fire.cpp b/cell2fire/Cell2FireC/Cell2Fire.cpp
+index 951fb9b..f886303 100644
+--- a/cell2fire/Cell2FireC/Cell2Fire.cpp
++++ b/cell2fire/Cell2FireC/Cell2Fire.cpp
+@@ -17,6 +17,7 @@ __maintainer__ = "Jaime Carrasco, Cristobal Pais, David Woodruff"
+ // Include libraries
+ #include <omp.h>
+ #include <stdexcept>
++#include <fstream>   // WFEDS: read InitialBurned cell list
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string>
+@@ -229,6 +230,17 @@ Cell2Fire::Cell2Fire(arguments _args) : CSVWeather(_args.InFolder + "Weather.csv
+ 		std::cout << std::endl;
+ 	}
+ 	
++	// WFEDS: observed burned FRONT (initial burned cell ids, 1-based) -> seeded at t=0 in RunIgnition
++	if(strcmp(this->args.InitialBurnedFile.c_str(), EM) != 0){
++		std::ifstream wfeds_ibf(this->args.InitialBurnedFile);
++		std::string wfeds_ibline;
++		while (std::getline(wfeds_ibf, wfeds_ibline)){
++			try { this->InitialBurnedCells.push_back(std::stoi(wfeds_ibline)); }
++			catch(...) {}
++		}
++		std::cout << "\nWFEDS InitialBurned: read " << this->InitialBurnedCells.size() << " front cells from " << this->args.InitialBurnedFile << std::endl;
++	}
++
+ 	// Relevant sets: Initialization
+ 	this->availCells.clear();
+ 	this->nonBurnableCells.clear();
+@@ -705,6 +717,33 @@ bool Cell2Fire::RunIgnition(std::default_random_engine generator){
+ 		}
+ 	}
+ 		
++	// WFEDS: seed the observed burned FRONT so the sim starts from a fire already in
++	// progress (fire detected mid-event). Ignite each initial-burned cell like a normal
++	// ignition so it spreads at t=0. Active only when --InitialBurned is given.
++	if (!this->InitialBurnedCells.empty()){
++		int wfeds_seeded = 0;
++		std::unordered_map<int, CellsFBP>::iterator wfeds_it;
++		for (int wfeds_cell : this->InitialBurnedCells){
++			if (wfeds_cell < 1 || wfeds_cell > this->nCells) continue;
++			if (this->burntCells.find(wfeds_cell) != this->burntCells.end()) continue;
++			if (this->statusCells[wfeds_cell-1] >= 3) continue;   // harvested / non-burnable
++			if (this->Cells_Obj.find(wfeds_cell) == this->Cells_Obj.end()) this->InitCell(wfeds_cell);
++			wfeds_it = this->Cells_Obj.find(wfeds_cell);
++			if (wfeds_it->second.getStatus() == "Available" && wfeds_it->second.fType != 0){
++				std::vector<int> wfeds_ign = {wfeds_cell};
++				if (wfeds_it->second.ignition(this->fire_period[this->year-1], this->year, wfeds_ign, & df[wfeds_cell-1], this->coef_ptr, this->args_ptr, &wdf[this->weatherPeriod])){
++					this->statusCells[wfeds_cell-1] = 1;
++					this->burningCells.insert(wfeds_cell);
++					this->burntCells.insert(wfeds_cell);
++					this->availCells.erase(wfeds_cell);
++					wfeds_seeded++;
++				}
++			}
++		}
++		if (wfeds_seeded > 0) this->noIgnition = false;
++		std::cout << "WFEDS InitialBurned: ignited " << wfeds_seeded << " front cells at period 0" << std::endl;
++	}
++
+ 	// Plotter placeholder
+ 	if (this->args.OutputGrids){
+ 		//DEBUGstd::cout << "Grid post ignition" << std::endl;
+diff --git a/cell2fire/Cell2FireC/Cell2Fire.h b/cell2fire/Cell2FireC/Cell2Fire.h
+index eec1785..f53979e 100644
+--- a/cell2fire/Cell2FireC/Cell2Fire.h
++++ b/cell2fire/Cell2FireC/Cell2Fire.h
+@@ -78,6 +78,7 @@ class Cell2Fire {
+ 		 std::vector<string> fTypeCells2; // (long int&, const char [9]);
+ 		 std::vector<std::vector<std::string>> WeatherDF;
+ 		 std::vector<int> IgnitionPoints;
++		 std::vector<int> InitialBurnedCells;   // WFEDS: observed burned front seed
+ 		 vector<int> burnedOutList;
+ 		 std::vector<double> FSCell;
+ 		 //std::vector<unordered_set<int>> IgnitionSets;
+diff --git a/cell2fire/Cell2FireC/ReadArgs.cpp b/cell2fire/Cell2FireC/ReadArgs.cpp
+index c4439d4..bc80a04 100644
+--- a/cell2fire/Cell2FireC/ReadArgs.cpp
++++ b/cell2fire/Cell2FireC/ReadArgs.cpp
+@@ -62,6 +62,13 @@ void parseArgs(int argc, char * argv[], arguments * args_ptr)
+         printf("HarvestPlan: %s \n", input_hplan);
+     }
+ 	else input_hplan = &empty;
++
++	//--InitialBurned (WFEDS: seed an observed burned front)
++	char * input_initburned = getCmdOption(argv, argv + argc, "--InitialBurned");
++    if (input_initburned){
++        printf("InitialBurned: %s \n", input_initburned);
++    }
++	else input_initburned = &empty;
+ 		
+ 	// Booleans
+ 	bool out_messages = false;
+@@ -321,6 +328,11 @@ void parseArgs(int argc, char * argv[], arguments * args_ptr)
+ 		args_ptr->HarvestPlan = ""; 
+ 	}
+ 	else args_ptr->HarvestPlan = input_hplan; 
++
++	if (input_initburned == &empty){
++		args_ptr->InitialBurnedFile = "";
++	}
++	else args_ptr->InitialBurnedFile = input_initburned;
+ 		
+ 	// booleans
+ 	args_ptr->OutMessages = out_messages;
+diff --git a/cell2fire/Cell2FireC/ReadArgs.h b/cell2fire/Cell2FireC/ReadArgs.h
+index a121685..5b90d4b 100644
+--- a/cell2fire/Cell2FireC/ReadArgs.h
++++ b/cell2fire/Cell2FireC/ReadArgs.h
+@@ -14,7 +14,7 @@
+ *   Args structure
+ */
+ typedef struct{ 
+-	std::string InFolder, OutFolder, WeatherOpt, HarvestPlan;
++	std::string InFolder, OutFolder, WeatherOpt, HarvestPlan, InitialBurnedFile;   // WFEDS
+ 	bool OutMessages, Trajectories, NoOutput, verbose, Ignitions, OutputGrids, FinalGrid, PromTuned, Stats, BBOTuning;
+ 	float ROSCV, ROSThreshold, HFIThreshold, HFactor, FFactor, BFactor, EFactor, FirePeriodLen;
+ 	int MinutesPerWP, MaxFirePeriods, TotalYears, TotalSims, NWeatherFiles, IgnitionRadius, SpreadRadius, seed;
+diff --git a/cell2fire/Cell2FireC_class.py b/cell2fire/Cell2FireC_class.py
+index 5e7a0db..a8c216f 100644
+--- a/cell2fire/Cell2FireC_class.py
++++ b/cell2fire/Cell2FireC_class.py
+@@ -74,6 +74,7 @@ class Cell2FireC:
+                    '--HFI-Threshold', str(self.args.HFI_Threshold),
+                    '--bbo' if (self.args.BBO) else '',
+                    '--HarvestPlan', self.args.HCells if(self.args.HCells is not None) else '',
++                   '--InitialBurned', self.args.InitialBurned if (getattr(self.args, 'InitialBurned', None) is not None) else '',
+ 				   '--verbose' if (self.args.verbose) else '',]
+         
+         # Output log
+diff --git a/cell2fire/utils/ParseInputs.py b/cell2fire/utils/ParseInputs.py
+index 5cf6f0c..1bb8b4b 100644
+--- a/cell2fire/utils/ParseInputs.py
++++ b/cell2fire/utils/ParseInputs.py
+@@ -98,6 +98,11 @@ def make_parser():
+                         dest="HCells",
+                         type=str,
+                         default=None)
++    parser.add_argument("--InitialBurned",
++                        help="WFEDS: file with already-burned cell ids (one per line, 1-based) to seed an observed fire FRONT at t=0 (start mid-event instead of a point). Default: none.",
++                        dest="InitialBurned",
++                        type=str,
++                        default=None)
+     parser.add_argument("--msgheur",
+                         help="Path to messages needed for Heuristics",
+                         dest="msgHeur",

@@ -1,0 +1,380 @@
+diff --git a/cell2fire/Cell2FireC/Cell2Fire.cpp b/cell2fire/Cell2FireC/Cell2Fire.cpp
+index f886303..ccba33e 100644
+--- a/cell2fire/Cell2FireC/Cell2Fire.cpp
++++ b/cell2fire/Cell2FireC/Cell2Fire.cpp
+@@ -523,10 +523,11 @@ void Cell2Fire::reset(int rnumber, double rnumber2){
+ 	std::unordered_map<int, CellsFBP>::iterator it;
+ 	   
+ 	// Reset status 
+-	this->fTypeCells = std::vector<int> (this->nCells, 1); 
+-	this->fTypeCells2 = std::vector<string> (this->nCells, "Burnable"); 
++	this->fTypeCells = std::vector<int> (this->nCells, 1);
++	this->fTypeCells2 = std::vector<string> (this->nCells, "Burnable");
+ 	this->statusCells = std::vector<int> (this->nCells, 0);
+ 	this->FSCell.clear();
++	this->maxFI.assign(this->nCells, 0.0);   // WFEDS: reset intensity grid
+ 	
+ 	// Non burnable types: populate relevant fields such as status and ftype
+ 	std::string NoFuel = "NF ";
+@@ -840,17 +841,17 @@ std::unordered_map<int, std::vector<int>> Cell2Fire::SendMessages(){
+ 		if (it->second.ROSAngleDir.size() > 0) {
+ 			//std::cout << "Entra a Manage Fire" << std::endl;
+ 			if (!this->args.BBOTuning){
+-				aux_list = it->second.manageFire(this->fire_period[this->year-1], this->availCells,  & df[cell-1], this->coef_ptr, 
++				aux_list = it->second.manageFire(this->fire_period[this->year-1], this->availCells,  & df[cell-1], this->coef_ptr,
+ 															   this->coordCells, this->Cells_Obj, this->args_ptr, &wdf[this->weatherPeriod],
+-															   &this->FSCell, this->ROSRV);								
++															   &this->FSCell, this->ROSRV, &this->maxFI);   // WFEDS
+ 			}
+-												
+-			
++
++
+ 			else{
+ 				auto factors = BBOFactors.find(NFTypesCells[cell-1]);
+-				aux_list = it->second.manageFireBBO(this->fire_period[this->year-1], this->availCells,  & df[cell-1], this->coef_ptr, 
++				aux_list = it->second.manageFireBBO(this->fire_period[this->year-1], this->availCells,  & df[cell-1], this->coef_ptr,
+ 																		this->coordCells, this->Cells_Obj, this->args_ptr, &wdf[this->weatherPeriod],
+-																		&this->FSCell, this->ROSRV, factors->second);								
++																		&this->FSCell, this->ROSRV, factors->second, &this->maxFI);   // WFEDS
+ 			}
+ 			//std::cout << "Sale de Manage Fire" << std::endl;
+ 		} 
+@@ -1218,17 +1219,33 @@ void Cell2Fire::outputGrid(){
+ 	if (this->gridNumber < 10){
+ 			gridName = this->gridFolder+ "ForestGrid0" + std::to_string(this->gridNumber) + ".csv";
+ 	}
+-	
++
+ 	else {
+ 			gridName = this->gridFolder+ "ForestGrid" + std::to_string(this->gridNumber) + ".csv";
+ 	}
+-	
++
+ 	if(this->args.verbose){
+ 		std::cout  << "We are plotting the current forest to a csv file " << gridName << std::endl;
+ 	}
+-	
++
+ 	CSVWriter CSVPloter(gridName, ",");
+ 	CSVPloter.printCSV_V2(this->rows, this->cols, statusCells2);
++
++	// WFEDS: dump the free-intensity grid alongside the ForestGrid (same number ->
++	// period-aligned). Cell value = max FREE Byram head FI (kW/m) seen while the
++	// cell was actively burning up to this period; 0 = never burned / never active.
++	if (this->args.OutIntensity){
++		std::string fiName;
++		if (this->gridNumber < 10){
++				fiName = this->gridFolder + "Intensity0" + std::to_string(this->gridNumber) + ".csv";
++		}
++		else {
++				fiName = this->gridFolder + "Intensity" + std::to_string(this->gridNumber) + ".csv";
++		}
++		CSVWriter FIPloter(fiName, ",");
++		FIPloter.printCSVDoubleGrid(this->rows, this->cols, this->maxFI);
++	}
++
+ 	this->gridNumber++;
+ }
+ 
+diff --git a/cell2fire/Cell2FireC/Cell2Fire.h b/cell2fire/Cell2FireC/Cell2Fire.h
+index f53979e..535d486 100644
+--- a/cell2fire/Cell2FireC/Cell2Fire.h
++++ b/cell2fire/Cell2FireC/Cell2Fire.h
+@@ -81,6 +81,7 @@ class Cell2Fire {
+ 		 std::vector<int> InitialBurnedCells;   // WFEDS: observed burned front seed
+ 		 vector<int> burnedOutList;
+ 		 std::vector<double> FSCell;
++		 std::vector<double> maxFI;             // WFEDS: max FREE Byram FI (kW/m) per cell while burning
+ 		 //std::vector<unordered_set<int>> IgnitionSets;
+ 		 std::vector<std::vector<int>> IgnitionSets;
+ 		 
+diff --git a/cell2fire/Cell2FireC/CellsFBP.cpp b/cell2fire/Cell2FireC/CellsFBP.cpp
+index dfdce78..d787833 100644
+--- a/cell2fire/Cell2FireC/CellsFBP.cpp
++++ b/cell2fire/Cell2FireC/CellsFBP.cpp
+@@ -268,15 +268,15 @@ double CellsFBP::allocate(double offset, double base, double ros1, double ros2)
+     Cells_Obj         dictionary of cells objects
+ */
+         
+-std::vector<int> CellsFBP::manageFire(int period, std::unordered_set<int> & AvailSet,      
+-                                                          inputs * df_ptr, fuel_coefs * coef, 
+-														  std::vector<std::vector<int>> & coordCells, std::unordered_map<int, CellsFBP> & Cells_Obj, 
++std::vector<int> CellsFBP::manageFire(int period, std::unordered_set<int> & AvailSet,
++                                                          inputs * df_ptr, fuel_coefs * coef,
++														  std::vector<std::vector<int>> & coordCells, std::unordered_map<int, CellsFBP> & Cells_Obj,
+ 														  arguments * args, weatherDF * wdf_ptr, std::vector<double> * FSCell,
+-														  double randomROS) 
++														  double randomROS, std::vector<double> * FIgrid)   // WFEDS: FIgrid
+ 	{
+ 	// Special flag for repetition (False = -99 for the record)
+ 	int repeat = -99;
+-	
++
+     // msg lists contains integers (True = -100)
+     std::vector<int> msg_list_aux;
+ 	msg_list_aux.push_back(0);
+@@ -285,8 +285,8 @@ std::vector<int> CellsFBP::manageFire(int period, std::unordered_set<int> & Avai
+ 	df_ptr->waz = wdf_ptr->waz;
+ 	df_ptr->ws = wdf_ptr->ws;
+ 	df_ptr->ffmc = wdf_ptr->ffmc;
+-	df_ptr->bui = wdf_ptr->bui;	
+-	
++	df_ptr->bui = wdf_ptr->bui;
++
+ 	// Compute main angle and ROSs: forward, flanks and back
+     main_outs mainstruct;
+     snd_outs sndstruct;
+@@ -294,7 +294,15 @@ std::vector<int> CellsFBP::manageFire(int period, std::unordered_set<int> & Avai
+ 
+ 	// Calculate parameters
+ 	calculate(df_ptr, coef, &mainstruct, &sndstruct, &headstruct, &flankstruct, &backstruct);
+-	
++
++	// WFEDS: record the FREE Byram head fireline intensity (kW/m) per cell for the
++	// intensity-grid dump (--out-intensity). Diagnostic ONLY - the fire stays
++	// free-burning; no ROS is modified here (the suppression-damping experiment was
++	// dropped, see LLM-WFEDS/Decisions/Decision log.md 2026-07-03).
++	double freeFI = headstruct.fi;
++	if (FIgrid != NULL && (*FIgrid)[this->realId - 1] < freeFI)
++		(*FIgrid)[this->realId - 1] = freeFI;
++
+ 	/*  ROSs DEBUG!   */
+ 	if(args->verbose){
+ 		std::cout << "*********** ROSs debug ************" << std::endl;
+@@ -512,15 +520,16 @@ std::vector<int> CellsFBP::manageFire(int period, std::unordered_set<int> & Avai
+ 	
+ */
+ 
+-std::vector<int> CellsFBP::manageFireBBO(int period, std::unordered_set<int> & AvailSet,      
+-																  inputs * df_ptr, fuel_coefs * coef, 
+-																  std::vector<std::vector<int>> & coordCells, std::unordered_map<int, CellsFBP> & Cells_Obj, 
++std::vector<int> CellsFBP::manageFireBBO(int period, std::unordered_set<int> & AvailSet,
++																  inputs * df_ptr, fuel_coefs * coef,
++																  std::vector<std::vector<int>> & coordCells, std::unordered_map<int, CellsFBP> & Cells_Obj,
+ 																  arguments * args, weatherDF * wdf_ptr, std::vector<double> * FSCell,
+-																  double randomROS, std::vector<float> & EllipseFactors) 
++																  double randomROS, std::vector<float> & EllipseFactors,
++																  std::vector<double> * FIgrid)   // WFEDS: FIgrid
+ 	{
+ 	// Special flag for repetition (False = -99 for the record)
+ 	int repeat = -99;
+-	
++
+     // msg lists contains integers (True = -100)
+     std::vector<int> msg_list_aux;
+ 	msg_list_aux.push_back(0);
+@@ -529,8 +538,8 @@ std::vector<int> CellsFBP::manageFireBBO(int period, std::unordered_set<int> & A
+ 	df_ptr->waz = wdf_ptr->waz;
+ 	df_ptr->ws = wdf_ptr->ws;
+ 	df_ptr->ffmc = wdf_ptr->ffmc;
+-	df_ptr->bui = wdf_ptr->bui;	
+-	
++	df_ptr->bui = wdf_ptr->bui;
++
+ 	// Compute main angle and ROSs: forward, flanks and back
+     main_outs mainstruct;
+     snd_outs sndstruct;
+@@ -538,7 +547,13 @@ std::vector<int> CellsFBP::manageFireBBO(int period, std::unordered_set<int> & A
+ 
+ 	// Calculate parameters
+ 	calculate(df_ptr, coef, &mainstruct, &sndstruct, &headstruct, &flankstruct, &backstruct);
+-	
++
++	// WFEDS (mirror of manageFire): record FREE Byram head FI for --out-intensity.
++	// Diagnostic only - no ROS change (damping experiment dropped).
++	double freeFI = headstruct.fi;
++	if (FIgrid != NULL && (*FIgrid)[this->realId - 1] < freeFI)
++		(*FIgrid)[this->realId - 1] = freeFI;
++
+ 	/*  ROSs DEBUG!   */
+ 	if(args->verbose){
+ 		std::cout << "*********** ROSs debug ************" << std::endl;
+diff --git a/cell2fire/Cell2FireC/CellsFBP.h b/cell2fire/Cell2FireC/CellsFBP.h
+index 6ade7b6..20a43f4 100644
+--- a/cell2fire/Cell2FireC/CellsFBP.h
++++ b/cell2fire/Cell2FireC/CellsFBP.h
+@@ -16,6 +16,10 @@
+ 
+ using namespace std;
+ 
++// WFEDS: suppressability-class thresholds (350/1750/3500 kW/m) live only in the
++// Python side now (cell2fire_adapter.SUPP_THRESHOLDS) - the engine just emits the
++// raw FREE Byram intensity grid; classification is a downstream diagnostic.
++
+ class CellsFBP {
+     // TODO: find where to put the enums
+     public:
+@@ -65,17 +69,18 @@ class CellsFBP {
+ 		double rhoTheta(double theta, double a, double b);
+ 		void ros_distr(double thetafire, double forward, double flank, double back, double EFactor);
+ 		
+-        std::vector<int> manageFire(int period, std::unordered_set<int> & AvailSet,      
+-                                                          inputs * df, fuel_coefs * coef, 
+-														  std::vector<std::vector<int>> & coordCells, std::unordered_map<int, CellsFBP> & Cells_Obj, 
++        std::vector<int> manageFire(int period, std::unordered_set<int> & AvailSet,
++                                                          inputs * df, fuel_coefs * coef,
++														  std::vector<std::vector<int>> & coordCells, std::unordered_map<int, CellsFBP> & Cells_Obj,
+ 														  arguments * args, weatherDF * wdf_ptr, std::vector<double> * FSCell,
+-														  double randomROS);
+-		
+-		std::vector<int> manageFireBBO(int period, std::unordered_set<int> & AvailSet,      
+-															inputs * df_ptr, fuel_coefs * coef, 
+-															std::vector<std::vector<int>> & coordCells, std::unordered_map<int, CellsFBP> & Cells_Obj, 
++														  double randomROS, std::vector<double> * FIgrid);   // WFEDS: FIgrid
++
++		std::vector<int> manageFireBBO(int period, std::unordered_set<int> & AvailSet,
++															inputs * df_ptr, fuel_coefs * coef,
++															std::vector<std::vector<int>> & coordCells, std::unordered_map<int, CellsFBP> & Cells_Obj,
+ 															arguments * args, weatherDF * wdf_ptr, std::vector<double> * FSCell,
+-															double randomROS, std::vector<float> & EllipseFactors);
++															double randomROS, std::vector<float> & EllipseFactors,
++															std::vector<double> * FIgrid);                   // WFEDS: FIgrid
+ 		
+ 		bool get_burned(int period, int season, int NMsg, inputs df[],  fuel_coefs * coef, arguments * args, weatherDF * wdf_ptr) ;
+ 								
+diff --git a/cell2fire/Cell2FireC/ReadArgs.cpp b/cell2fire/Cell2FireC/ReadArgs.cpp
+index bc80a04..acfce2b 100644
+--- a/cell2fire/Cell2FireC/ReadArgs.cpp
++++ b/cell2fire/Cell2FireC/ReadArgs.cpp
+@@ -142,6 +142,14 @@ void parseArgs(int argc, char * argv[], arguments * args_ptr)
+ 		printf("BBOTuning: %d \n", out_stats);
+     }
+ 
++	//--out-intensity (WFEDS: dump per-period Intensity<NN>.csv grids of max free Byram FI)
++	bool out_intensity = false;
++	if(cmdOptionExists(argv, argv+argc, "--out-intensity")){
++		out_intensity = true;
++		printf("OutIntensity: %d \n", out_intensity);
++    }
++	args_ptr->OutIntensity = out_intensity;
++
+ 	
+ 	// Floats and ints
+ 	// defaults
+@@ -272,7 +280,7 @@ void parseArgs(int argc, char * argv[], arguments * args_ptr)
+ 	char * E_Factor = getCmdOption(argv, argv + argc, "--EFactor");
+     if (E_Factor){
+         printf("EFactor: %s \n", E_Factor);
+-		args_ptr->EFactor = std::stof (E_Factor ,&sz); 
++		args_ptr->EFactor = std::stof (E_Factor ,&sz);
+     }
+ 	else args_ptr->EFactor = dEFactor;
+ 	
+@@ -369,10 +377,9 @@ void printArgs(arguments args){
+ 	std::cout << "PromTuned: " << args.PromTuned << std::endl; 
+ 	std::cout << "BBOTuning: " << args.BBOTuning << std::endl; 
+ 	std::cout << "Statistics: " << args.Stats << std::endl; 
+-	std::cout << "noOutput: " << args.NoOutput << std::endl; 
+-	std::cout << "verbose: " << args.verbose << std::endl; 
+-	std::cout << "seed: " << args.seed << std::endl; 
+-	
+-	
+-	
++	std::cout << "noOutput: " << args.NoOutput << std::endl;
++	std::cout << "verbose: " << args.verbose << std::endl;
++	std::cout << "seed: " << args.seed << std::endl;
++	// WFEDS
++	std::cout << "OutIntensity: " << args.OutIntensity << std::endl;
+ }
+diff --git a/cell2fire/Cell2FireC/ReadArgs.h b/cell2fire/Cell2FireC/ReadArgs.h
+index 5b90d4b..7a311ac 100644
+--- a/cell2fire/Cell2FireC/ReadArgs.h
++++ b/cell2fire/Cell2FireC/ReadArgs.h
+@@ -13,9 +13,10 @@
+ /*
+ *   Args structure
+ */
+-typedef struct{ 
++typedef struct{
+ 	std::string InFolder, OutFolder, WeatherOpt, HarvestPlan, InitialBurnedFile;   // WFEDS
+ 	bool OutMessages, Trajectories, NoOutput, verbose, Ignitions, OutputGrids, FinalGrid, PromTuned, Stats, BBOTuning;
++	bool OutIntensity;                                                             // WFEDS: dump Intensity<NN>.csv grids
+ 	float ROSCV, ROSThreshold, HFIThreshold, HFactor, FFactor, BFactor, EFactor, FirePeriodLen;
+ 	int MinutesPerWP, MaxFirePeriods, TotalYears, TotalSims, NWeatherFiles, IgnitionRadius, SpreadRadius, seed;
+ 	std::unordered_set<int>  HCells, BCells;
+diff --git a/cell2fire/Cell2FireC/WriteCSV.cpp b/cell2fire/Cell2FireC/WriteCSV.cpp
+index 943972f..90ba3ff 100644
+--- a/cell2fire/Cell2FireC/WriteCSV.cpp
++++ b/cell2fire/Cell2FireC/WriteCSV.cpp
+@@ -1,6 +1,7 @@
+ #include "WriteCSV.h"
+ 
+ #include <cmath>
++#include <cstdio>   // WFEDS: snprintf
+ #include <iostream>
+ #include <fstream>
+ #include <vector>
+@@ -154,6 +155,24 @@ void CSVWriter::printCSVDouble_V2(int rows, int cols, std::vector<double> networ
+ }
+ 
+ 
++// WFEDS: plain row-major grid of doubles (%.1f), one raster row per line.
++// Used for the Intensity<NN>.csv dumps (max free Byram FI per cell, kW/m).
++void CSVWriter::printCSVDoubleGrid(int rows, int cols, std::vector<double> & grid){
++	std::ofstream ofs(this->fileName, std::ofstream::out);
++	char buf[32];
++	for (int r = 0; r < rows; r++){
++		std::string line;
++		for (int c = 0; c < cols; c++){
++			snprintf(buf, sizeof(buf), "%.1f", grid[r*cols + c]);
++			line += buf;
++			if (c != cols - 1) line += this->delimeter;
++		}
++		ofs << line << "\n";
++	}
++	ofs.close();
++}
++
++
+ void CSVWriter::MakeDir(std::string pathPlot) {
+ 	// Default folder simOuts
+ 	const char * Dir;
+diff --git a/cell2fire/Cell2FireC/WriteCSV.h b/cell2fire/Cell2FireC/WriteCSV.h
+old mode 100755
+new mode 100644
+index 3810cd1..059e699
+--- a/cell2fire/Cell2FireC/WriteCSV.h
++++ b/cell2fire/Cell2FireC/WriteCSV.h
+@@ -32,11 +32,12 @@ public:
+ 	template<typename T>
+ 	void addDatainRow(T first, T last);
+ 	
+-	// Function to write the entire file 
++	// Function to write the entire file
+ 	void printCSV(int rows, int cols, std::vector<int> statusCells);
+ 	void printCSV_V2(int rows, int cols, std::vector<int> statusCells);
+ 	void printCSVDouble(int rows, int cols, std::vector<double> network);
+ 	void printCSVDouble_V2(int rows, int cols, std::vector<double> network);
++	void printCSVDoubleGrid(int rows, int cols, std::vector<double> & grid);   // WFEDS: plain row-major grid
+ 	
+ 	// Function to create a directory
+ 	void MakeDir(std::string pathPlot);
+diff --git a/cell2fire/Cell2FireC_class.py b/cell2fire/Cell2FireC_class.py
+index a8c216f..25e41b4 100644
+--- a/cell2fire/Cell2FireC_class.py
++++ b/cell2fire/Cell2FireC_class.py
+@@ -75,6 +75,7 @@ class Cell2FireC:
+                    '--bbo' if (self.args.BBO) else '',
+                    '--HarvestPlan', self.args.HCells if(self.args.HCells is not None) else '',
+                    '--InitialBurned', self.args.InitialBurned if (getattr(self.args, 'InitialBurned', None) is not None) else '',
++                   '--out-intensity' if (getattr(self.args, 'OutIntensity', False)) else '',   # WFEDS
+ 				   '--verbose' if (self.args.verbose) else '',]
+         
+         # Output log
+diff --git a/cell2fire/utils/ParseInputs.py b/cell2fire/utils/ParseInputs.py
+index 1bb8b4b..2e5c20a 100644
+--- a/cell2fire/utils/ParseInputs.py
++++ b/cell2fire/utils/ParseInputs.py
+@@ -103,6 +103,11 @@ def make_parser():
+                         dest="InitialBurned",
+                         type=str,
+                         default=None)
++    parser.add_argument("--out-intensity",
++                        help="WFEDS: dump per-period Intensity<NN>.csv grids (max free Byram FI kW/m per cell) alongside the ForestGrid dumps.",
++                        dest="OutIntensity",
++                        action="store_true",
++                        default=False)
+     parser.add_argument("--msgheur",
+                         help="Path to messages needed for Heuristics",
+                         dest="msgHeur",
