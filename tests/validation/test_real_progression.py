@@ -1,4 +1,4 @@
-"""Tests for scripts/cell2fire/real_progression.py.
+"""Tests for scripts/validation/real_progression.py.
 
 Covers the module's two public functions, `reconstruct()` and `extent_at()`, against
 a tiny synthetic "Real_Fire_Data" directory (built with the geodata factories,

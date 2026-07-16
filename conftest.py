@@ -48,5 +48,5 @@ os.environ.pop("PROJ_LIB", None)
 # intended priority and hand the ambiguity to data_prep instead. Insert at an
 # increasing index so the listed order is preserved.
 for _i, _p in enumerate(("scripts/cell2fire", "scripts/data_prep", "scripts/agent",
-                         "scripts/cell2fire/validation")):
+                         "scripts/validation")):
     sys.path.insert(_i, str(_ROOT / _p))

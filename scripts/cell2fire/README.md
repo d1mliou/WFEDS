@@ -39,13 +39,15 @@ engine. Stages, in order (▶ = run directly, · = library imported by others):
 - ▶ `fire_timesteps.py` - **THESIS CORE**: re-solve the whole evacuation at EACH hourly
   perimeter → `timestep_evacuation.gpkg` + `timestep_summary.json`.
 
-**D. Visualization / validation** (evaluation scripts live in `validation/`, fully
-decoupled from the live loop - the live pipeline never imports validation code)
-- ▶ `validation/real_progression.py` - the real fire's arrival-time surface (burned scar
-  WHERE × VIIRS WHEN), the validation ground truth. Run once manually: also exports
-  `Real_Fire_Data/real_progression_hourly.geojson` (the **data seam** - the dashboard
-  reads this static file for its real-fire overlay, never this module).
-- ▶ `validation/validate_overlay.py` - forecast-only metrics → `validation_metrics.json`.
+**D. Visualization / validation** (evaluation scripts live in their OWN package
+`scripts/validation/`, fully decoupled from the live loop - the live pipeline
+never imports validation code)
+- ▶ `scripts/validation/real_progression.py` - the real fire's arrival-time surface
+  (burned scar WHERE × VIIRS WHEN), the validation ground truth. Run once manually:
+  also exports `Real_Fire_Data/real_progression_hourly.geojson` (the **data seam** -
+  the dashboard reads this static file for its real-fire overlay, never this module).
+- ▶ `scripts/validation/validate_overlay.py` - the per-pass VIIRS validation protocol
+  → `validation_metrics.json` + per-pass table/report/charts/GIS bundle.
   Manual/offline (not part of the live `run_scenario.py` loop).
 - ▶ `visualize_fire.py` - the timeline dashboard `fire_timesteps.html`. Reads the two
   validation ARTIFACTS above (hourly extents + metrics) as data, if present.
@@ -67,7 +69,7 @@ python scripts/cell2fire/build_cell2fire_instance.py   # writes InitialBurned.cs
 #        --Fire-Period-Length 1 --gridsStep 60 --out-intensity --InitialBurned <inst>/InitialBurned.csv ...
 python scripts/cell2fire/cell2fire_adapter.py <inst> <out> EPSG:2100
 python scripts/cell2fire/fire_timesteps.py             # per-timestep evacuation
-python scripts/cell2fire/validation/validate_overlay.py  # metrics + overlay map (manual/offline)
+python scripts/validation/validate_overlay.py <run_dir>  # metrics + overlay map (manual/offline)
 python scripts/cell2fire/visualize_fire.py             # timeline dashboard
 ```
 

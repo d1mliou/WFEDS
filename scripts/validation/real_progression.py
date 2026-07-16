@@ -12,15 +12,15 @@ advances in STEPS at each overpass (e.g. the ~9 h overnight gap 01:02 -> 10:43 o
 day 1). Treat hourly extents as overpass-resolution stairs, not smooth truth.
 
 Run standalone for a quick self-check:
-    python scripts/cell2fire/validation/real_progression.py
+    python scripts/validation/real_progression.py
 """
 
 import sys
 from pathlib import Path
 
-# Lives in the validation/ subfolder; `_paths` is one directory UP, in
-# scripts/cell2fire/ proper (same bootstrap as validate_overlay.py).
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Lives in scripts/validation/; `_paths` is in the SIBLING package
+# scripts/cell2fire/ (same bootstrap as validate_overlay.py).
+sys.path.insert(0, str(Path(__file__).parent.parent / "cell2fire"))
 
 import geopandas as gpd
 import numpy as np

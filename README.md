@@ -178,6 +178,7 @@ python -m pytest          # all mocked - no real engine/network/keys
 ```
 scripts/cell2fire/   the deterministic pipeline (fire sim, evacuation, dashboard)
 scripts/agent/       the LLM agent + Telegram channel
+scripts/validation/  the evaluation scripts (VIIRS fire-spread validation protocol)
 scripts/data_prep/   one-off geodata acquisition
 docker/              container build, FastAPI backend, browser UI, verification tooling
 tests/               pytest suite

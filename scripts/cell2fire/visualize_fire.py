@@ -150,7 +150,7 @@ def main():
                            for _, r in rg.iterrows()}
         else:
             print(f"NB: {REAL_HOURLY.name} not found - real-fire overlay omitted. "
-                  "Generate it once: python scripts/cell2fire/validation/real_progression.py")
+                  "Generate it once: python scripts/validation/real_progression.py")
 
     hours_js, prev_state, prev_edges = [], {}, None
     for h in range(hours + 1):

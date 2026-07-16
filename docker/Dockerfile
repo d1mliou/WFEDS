@@ -96,6 +96,7 @@ RUN python3 -m venv /opt/venv-app \
 # (conftest.py); with only one _paths in the image the issue cannot arise.
 COPY scripts/cell2fire/ /app/scripts/cell2fire/
 COPY scripts/agent/ /app/scripts/agent/
+COPY scripts/validation/ /app/scripts/validation/
 COPY docker/engine_local_run.py docker/run_container.py docker/rerun_downstream.py docker/api.py /app/docker/
 COPY docker/web/ /app/docker/web/
 
