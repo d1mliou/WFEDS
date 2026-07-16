@@ -177,8 +177,20 @@ class TestRunScenarioHappyPath:
         assert result["hours_simulated"] == len(summary) - 1
         assert result["final_front_class4_pct"] == 42
         assert result["inputs"] == params
+        # the returned (in-memory) dict keeps absolute paths - agent.py and
+        # docker/api.py need them to locate/serve the actual files
+        assert result["run_dir"] == str(run_dir)
+        assert result["files"]["map_png"] == str(run_dir / "map.png")
 
         result_json = run_dir / "result.json"
         assert result_json.exists()
         on_disk = json.loads(result_json.read_text(encoding="utf-8"))
         assert on_disk["run_id"] == "test_run_001"
+        # ... but the on-disk copy is portable: no absolute local/container
+        # filesystem paths, so the run folder can be moved/copied/zipped
+        assert "run_dir" not in on_disk
+        assert on_disk["files"] == {
+            "map_png": "map.png", "map_anim": "map.mp4",
+            "dashboard": "fire_timesteps.html",
+            "perimeters": "perimeters.geojson",
+            "evacuation": "timestep_evacuation.gpkg"}

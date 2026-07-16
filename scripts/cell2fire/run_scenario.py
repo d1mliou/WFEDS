@@ -186,8 +186,16 @@ def run_scenario(ignition_points=None, window_km=None, horizon_h=24,
         },
         "elapsed_min": round((time.time() - t_start) / 60, 1),
     }
+    # On disk, drop the absolute local/container filesystem paths (run_dir,
+    # files.*) - the returned `result` dict keeps them (agent.py/docker/api.py
+    # need them to locate + serve the actual files), but result.json is meant
+    # to be portable: every path here is just a filename inside this same
+    # folder, so the folder can be moved/copied/zipped without leaking the
+    # machine's directory layout.
+    on_disk = {k: v for k, v in result.items() if k != "run_dir"}
+    on_disk["files"] = {k: Path(v).name for k, v in result["files"].items()}
     (run_dir / "result.json").write_text(
-        json.dumps(result, ensure_ascii=False, indent=1), encoding="utf-8")
+        json.dumps(on_disk, ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"\nRun {run_id} done in {result['elapsed_min']} min -> {run_dir}")
     if final:
         print(f"Final hour: fire {final.get('fire_km2')} km², "

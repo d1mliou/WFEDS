@@ -81,8 +81,11 @@ def rerun_downstream(run_dir, label=None):
                   "evacuation": str(run_dir / "timestep_evacuation.gpkg")},
         "elapsed_min": None,   # not a fresh full run - not meaningful here
     }
+    # Same portability rule as run_scenario.py: no absolute paths on disk.
+    on_disk = {k: v for k, v in result.items() if k != "run_dir"}
+    on_disk["files"] = {k: Path(v).name for k, v in result["files"].items()}
     (run_dir / "result.json").write_text(
-        json.dumps(result, ensure_ascii=False, indent=1), encoding="utf-8")
+        json.dumps(on_disk, ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"Reprocessed {run_dir} (engine output reused, unchanged)")
 
 
