@@ -1,0 +1,9 @@
+# Test-only dependencies (on top of requirements.txt).
+pytest>=7.4
+pytest-mock>=3.11
+
+# NB: `litellm` (used by scripts/agent/agent.py, llm_config.py) and
+# `python-telegram-bot` (used by scripts/agent/telegram_bot.py) are installed in
+# THIS environment but are missing from the main requirements.txt -- a pre-existing
+# gap in the production dependency list, not something this test pass should
+# silently paper over by editing requirements.txt. Flagging it here instead.
