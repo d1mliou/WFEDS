@@ -1,4 +1,4 @@
-"""Phase 5 Stage 4: the Telegram skin over the WFEDS agent.
+"""The Telegram skin over the WFEDS agent.
 
 Runs LOCALLY (long-polling - no server/public IP; the engine lives in this PC's
 WSL). The user:

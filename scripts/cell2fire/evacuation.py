@@ -2,7 +2,7 @@
 settlements; the at-risk settlements (+ census-2021 population) are flagged.
 
 This is the EXPOSURE step -- the structured list the LLM will later present and
-turn into a recommendation (Phase 4 -> Phase 5 seam).
+turn into a recommendation (the exposure -> narration seam).
 
 Data roles:
   * AT-RISK = official Istiaia-Aidipsos settlements (Settlements_Istiaia.geojson,
@@ -41,7 +41,7 @@ POP_COL = "census2021"
 
 # --- STUB fire (auto-placed inland in the municipality) ----------------------
 # 1.5 km radius -> threatens a settlement cluster without engulfing it (matches
-# the Phase 2/3 fire size); leaves a meaningful evacuation-routing problem.
+# the original stub-fire size); leaves a meaningful evacuation-routing problem.
 FIRE_RADIUS_M = 1500.0
 INLAND_PCTL = 0.60   # consider the higher-elevation (inland) settlements for placement
 # Optional manual ignition point (lat, lon) in EPSG:4326; None -> auto-place.
@@ -127,7 +127,7 @@ def save_html(fire, zone, at_risk, safe):
 
 Scenario = namedtuple("Scenario", "atrisk fire centre zone in_zone safe")   # the exposure result, passed on to routing
 
-# --- Cell2Fire fire (Phase 4.5) ----------------------------------------------
+# --- Cell2Fire fire -----------------------------------------------------------
 # Perimeters produced by cell2fire_adapter from a real Cell2Fire run.
 C2F_PERIMETERS = DATA_DIR / "Fire" / "cell2fire" / "perimeters.geojson"
 
@@ -171,7 +171,7 @@ def compute_exposure():
     Cell2Fire perimeter (replacing the stub `auto_fire()` circle).
     """
     atrisk = load_atrisk()             # official + OSM, whole study area
-    fire, _centre = cell2fire_fire()   # Phase 4.5: real Cell2Fire fire
+    fire, _centre = cell2fire_fire()   # the real Cell2Fire fire
     width, grid = buffer_width_grid()
     return exposure_for_fire(fire, atrisk, width, grid)
 

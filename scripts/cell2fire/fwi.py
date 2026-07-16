@@ -3,7 +3,7 @@
 Replaces the frozen PLACEHOLDER codes in `Weather.csv` (FFMC 90.55 / ISI 13.35 etc.,
 copied from a Cell2Fire example) that made the fuel permanently bone-dry and the fire
 insensitive to temperature/humidity - the root cause of the unrealistic spread rate
-(2026-07-02, see [[Decision log]]).
+(diagnosed 2026-07-02).
 
 Standard daily equations (Van Wagner 1987; Van Wagner & Pickett 1985):
   * FFMC / DMC / DC update once per DAY from noon weather + 24 h rain, carrying

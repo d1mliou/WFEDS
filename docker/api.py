@@ -1,4 +1,4 @@
-"""Phase 2: FastAPI web backend over the UNMODIFIED WfedsAgent.
+"""FastAPI web backend over the UNMODIFIED WfedsAgent.
 
 The web counterpart of scripts/agent/telegram_bot.py - same division of
 labour, different channel:
@@ -8,7 +8,7 @@ labour, different channel:
     live progress     ->  GET  /api/chat/{stream_id}/stream   (SSE)
     map.png / map.mp4 / fire_timesteps.html -> GET /files/{run_id}/{filename}
 
-Design notes (kept short - the full reasoning lives in the Phase-2 plan):
+Design notes (kept short):
   * One WfedsAgent per browser session (uuid cookie), constructed LAZILY on
     the first chat - pins + geometry disclosure work with no LLM key at all,
     mirroring telegram_bot._agent().
@@ -776,7 +776,7 @@ async def run_export(run_id: str, name: str):
                         filename=f"{run_id}_{name}.geojson")
 
 
-# --- static frontend (Phase 3) -----------------------------------------------
+# --- static frontend -----------------------------------------------------------
 # Mounted LAST so every /api/* and /files/* route above wins the match first.
 # Same-origin serving keeps the session cookie story trivial (no CORS at all).
 _WEB = _HERE / "web"

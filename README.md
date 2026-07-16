@@ -103,7 +103,7 @@ The narration/advisory layer calls an LLM. The default preset uses Google Gemini
 In PowerShell, inside the repo folder:
 
 ```powershell
-docker build -f docker/Dockerfile -t wfeds:phase2 .
+docker build -f docker/Dockerfile -t wfeds .
 ```
 
 First build takes ~10 minutes: it downloads Ubuntu, clones + patches + compiles
@@ -120,7 +120,7 @@ folder, launches the server and opens the browser.
 
 ```powershell
 docker run -d --name wfeds_web -p 8000:8000 --env-file .env `
-  -v "C:\WFEDS_Data:/data" -e WFEDS_DATA_DIR=/data wfeds:phase2
+  -v "C:\WFEDS_Data:/data" -e WFEDS_DATA_DIR=/data wfeds
 ```
 
 Then open **http://localhost:8000** in any browser.

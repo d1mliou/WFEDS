@@ -1,4 +1,4 @@
-"""Phase 4.5: adapter from Cell2Fire outputs -> the WFEDS pipeline.
+"""Adapter from Cell2Fire outputs -> the WFEDS pipeline.
 
 Cell2Fire (run in WSL) writes, per simulation, a sequence of cumulative burned-cell
 grids and a propagation-message file. This module converts those into exactly what
@@ -29,8 +29,7 @@ growing front - the shape `fire_timesteps.py` expects.
 CAVEAT - do NOT derive perimeters from the messages: the `MessagesFile` stops logging
 after ~15 periods (its max `period` is NOT the fire duration), so it undercounts the
 scar (~0.5 vs ~3 km^2 here). Use it only for per-cell ROS (`ros_grid_from_messages`),
-which is a max-per-cell field and does not need completeness. See [[Cell2Fire]],
-[[Network and exposure analysis]].
+which is a max-per-cell field and does not need completeness.
 
 Usage (smoke test on a finished run):
     python scripts/cell2fire/cell2fire_adapter.py <instance_dir> <output_dir> [EPSG:2100]
@@ -112,7 +111,7 @@ def perimeter_from_grid(grid, transform, burned_values=BURNED_VALUES):
     gets a LIGHT clean at HALF-CELL resolution: morphological closing glues the
     raster-artifact fragments (a large fire otherwise polygonises into ~1000+
     pieces / ~15k vertices that make every downstream `distance()` crawl - the
-    2026-07-02 per-timestep hang, see [[Decision log]]), then `simplify()` drops
+    per-timestep hang debugged 2026-07-02), then `simplify()` drops
     the staircase vertices. Both act below the data's own 1-cell resolution, so
     no real information is lost (area delta <1%; the honest burned area remains
     `n_cells` x cell^2)."""

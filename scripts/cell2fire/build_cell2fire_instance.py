@@ -2,7 +2,7 @@
 
 The deterministic pipeline's entry gate. Two ways in, one code path:
 
-  * USER INPUTS (operational use - what the Phase-5 LLM tool passes through):
+  * USER INPUTS (operational use - what the LLM agent tool passes through):
         build_instance(ignition_points=[(lat, lon), ...],   # WGS84
                        window_km=..., horizon_h=..., start_time="YYYY-MM-DDTHH:MM")
     EVERY pin is an OBSERVATION of fire with a physical footprint: each point is
@@ -40,7 +40,7 @@ ones, stitched transparently by meteo.fetch_weather_wind/_grid - no lower bound,
 archive goes back decades).
 
 PROVISIONAL: the SVM->FBP mapping is an uncalibrated placeholder (calibrate with
-the domain expert). See [[Cell2Fire]], [[Decision log]].
+the domain expert).
 
 Run (CLI):
     python scripts/cell2fire/build_cell2fire_instance.py                # the 2021 scenario

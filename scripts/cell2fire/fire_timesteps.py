@@ -1,4 +1,4 @@
-"""Phase 4.5 - THESIS CORE: dynamic evacuation over the REAL fire's timesteps.
+"""THESIS CORE: dynamic evacuation over the REAL fire's timesteps.
 
 For EACH hourly Cell2Fire perimeter (`perimeters.geojson`, period 0..N) the whole
 evacuation problem is re-solved: exposure (which settlements are at risk NOW) ->

@@ -5,7 +5,7 @@ engine/ populated - skips the expensive engine invocation entirely.
 Purpose: iterate on the Python-side pipeline (or, as here, re-verify after
 fixing a Python dependency version) without re-running the ~15 min Cell2Fire
 engine when its output is already known-good and unchanged. This is an
-accessory verification helper, not the primary Phase-1 path - the default
+accessory verification helper, not the primary container path - the default
 entrypoint (docker/run_container.py) still runs the whole chain, engine
 included, exactly as run_scenario.py does.
 

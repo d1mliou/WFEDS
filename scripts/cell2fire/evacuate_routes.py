@@ -1,9 +1,9 @@
-"""Phase 4: route every AT-RISK settlement to its nearest SAFE refuge, on a road
+"""Route every AT-RISK settlement to its nearest SAFE refuge, on a road
 network that is (a) CUT where it crosses the fire, and (b) made costlier the
 closer it runs to the fire (friction).
 
 This is the step that turns the exposure list into an actionable recommendation
-("evacuate Voutas -> Asmini, 7.2 km"). The LLM (Phase 5) will narrate it.
+("evacuate Voutas -> Asmini, 7.2 km"). The LLM agent will narrate it.
 
 Reuses, with no duplication (DRY):
   * exposure scenario (fire + blocked zone + at-risk set)  from evacuation.compute_exposure

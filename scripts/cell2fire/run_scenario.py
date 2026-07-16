@@ -1,4 +1,4 @@
-"""Phase 5 Stage 2: run_scenario() - the WHOLE deterministic chain as ONE call.
+"""run_scenario() - the WHOLE deterministic chain as ONE call.
 
 This is the tool the LLM agent invokes. One call does everything that used to be
 five manual steps:
@@ -18,8 +18,8 @@ Every run is fully isolated in its own folder (nothing canonical is touched):
         result.json             the LLM-facing summary (params + per-hour stats)
 
 The engine runs in WSL with a WSL-LOCAL output folder (paths with spaces - e.g.
-OneDrive - silently break the engine's unquoted mkdir; see [[Cell2Fire]]), then
-the grids are copied back.
+OneDrive - silently break the engine's unquoted mkdir), then the grids are
+copied back.
 
 Usage (same inputs as build_instance):
     from run_scenario import run_scenario

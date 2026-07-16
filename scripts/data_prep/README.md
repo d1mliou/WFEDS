@@ -1,8 +1,8 @@
 # Data preparation (shared, run-once)
 
-Acquires the geospatial inputs the rest of the pipeline reads from `DATA_DIR`
-(OneDrive). Run once; not part of the stub-vs-Cell2Fire split, so it lives here on
-its own rather than in `../stub/` or `../cell2fire/`.
+Acquires the geospatial inputs the rest of the pipeline reads from `DATA_DIR`.
+Run once; kept separate from the simulation pipeline (`../cell2fire/`) because
+it is one-off acquisition, not part of the per-run loop.
 
 - `_paths.py` - resolves `DATA_DIR` machine-independently (from the OneDrive env var).
 - `download_road_network.py` - OSMnx road graph for the WHOLE study area (both municipalities).
@@ -17,4 +17,5 @@ Run (from the repo root):
     python scripts/data_prep/download_road_network.py
     python scripts/data_prep/download_settlements.py
 
-Vault: `LLM-WFEDS/Datasets.md`.
+(The full dataset inventory is kept in the author's local project notes,
+outside this repository.)

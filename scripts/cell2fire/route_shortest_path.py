@@ -1,7 +1,7 @@
 """Shortest evacuation route between two points -- and the shared routing module.
 
-This is BOTH the Phase 1 entry point (run it to produce the baseline route
-GeoPackage + HTML) AND the single home of the routing primitives that the Phase 2
+This is BOTH a standalone entry point (run it to produce the baseline route
+GeoPackage + HTML) AND the single home of the routing primitives that the
 fire-blocking script reuses. `route_with_fire.py` imports from here instead of
 duplicating the routing:
 
@@ -89,7 +89,7 @@ def route_to_line(graph, route):
     return line, float(edges[WEIGHT].sum()), edges.crs, len(edges)
 
 
-# --- Phase 1 outputs ---------------------------------------------------------
+# --- Baseline-route outputs --------------------------------------------------
 def build_route_gdf(line, total_m, crs, n_edges):
     """Single-feature route line GeoDataFrame."""
     return gpd.GeoDataFrame(

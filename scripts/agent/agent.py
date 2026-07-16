@@ -1,4 +1,4 @@
-"""Phase 5 Stage 3: the WFEDS decision-advisor agent (channel-agnostic).
+"""The WFEDS decision-advisor agent (channel-agnostic).
 
 Our own tool-calling loop over LiteLLM (model = config, see llm_config.py): the
 LLM reads the user's free text + the pins the CHANNEL collected (it never guesses

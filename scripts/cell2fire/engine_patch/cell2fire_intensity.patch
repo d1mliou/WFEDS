@@ -134,7 +134,7 @@ index dfdce78..d787833 100644
 +	// WFEDS: record the FREE Byram head fireline intensity (kW/m) per cell for the
 +	// intensity-grid dump (--out-intensity). Diagnostic ONLY - the fire stays
 +	// free-burning; no ROS is modified here (the suppression-damping experiment was
-+	// dropped, see LLM-WFEDS/Decisions/Decision log.md 2026-07-03).
++	// dropped 2026-07-03; see scripts/cell2fire/engine_patch/README.md).
 +	double freeFI = headstruct.fi;
 +	if (FIgrid != NULL && (*FIgrid)[this->realId - 1] < freeFI)
 +		(*FIgrid)[this->realId - 1] = freeFI;

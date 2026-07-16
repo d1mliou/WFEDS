@@ -1,13 +1,13 @@
 # WFEDS web/Docker
 
-Two phases, one image:
+One image, two layers:
 
-- **Phase 1 (DONE, verified):** the Cell2Fire engine + the whole deterministic
-  chain run inside one Linux container, producing output equivalent to the
-  original Windows+WSL path.
-- **Phase 2 (this image's default mode):** a FastAPI backend exposing the
-  UNMODIFIED `WfedsAgent` (the same agent the Telegram bot uses) over HTTP -
-  pins, chat with SSE progress, and file serving - for the Phase-3 browser
+- **The deterministic core (verified):** the Cell2Fire engine + the whole
+  deterministic chain run inside one Linux container, producing output
+  equivalent to the original Windows+WSL path.
+- **The web backend (this image's default mode):** a FastAPI backend exposing
+  the UNMODIFIED `WfedsAgent` (the same agent the Telegram bot uses) over
+  HTTP - pins, chat with SSE progress, and file serving - for the browser
   frontend.
 
 **Zero pre-existing pipeline files are modified** - the pre-Docker WSL/Telegram
@@ -25,7 +25,7 @@ the same mechanism the repo's own tests use
 ## Build (from the REPO ROOT, not from docker/)
 
 ```powershell
-docker build -f docker/Dockerfile -t wfeds:phase2 .
+docker build -f docker/Dockerfile -t wfeds .
 ```
 
 The Cell2Fire engine source is NOT part of this repository: the first build
@@ -56,7 +56,7 @@ browser. Stop with `docker stop wfeds_web`.
 docker run --rm -p 8000:8000 --env-file .env `
   -v "<DATA_DIR>:/data" `
   -e WFEDS_DATA_DIR=/data `
-  wfeds:phase2
+  wfeds
 ```
 
 - **API keys:** supplied ONLY at run time via `--env-file .env` (Docker parses
@@ -84,7 +84,7 @@ Sessions are uuid-cookie-keyed and in-memory (lost on container restart -
 same accepted tradeoff as the Telegram bot's per-chat dicts). `/files/` has
 no auth - single-user local prototype, stated non-goal.
 
-## Run the Phase-1 CLI (override the CMD)
+## Run the pipeline CLI, no web/LLM (override the CMD)
 
 The ENTRYPOINT is now the bare venv python; pass the script path explicitly:
 
@@ -92,7 +92,7 @@ The ENTRYPOINT is now the bare venv python; pass the script path explicitly:
 docker run --rm `
   -v "<DATA_DIR>:/data" `
   -e WFEDS_DATA_DIR=/data `
-  wfeds:phase2 /app/docker/run_container.py --points "38.90,23.12" --window-km 12 --horizon 6 --start 2021-08-06T10:00
+  wfeds /app/docker/run_container.py --points "38.90,23.12" --window-km 12 --horizon 6 --start 2021-08-06T10:00
 ```
 
 Same CLI as `run_scenario.py` (`--scenario north_evia_2021`, `--label`,
@@ -108,11 +108,11 @@ mounted data folder, visible on the host. No API keys needed for this path.
 2. **Same inputs through the container** (different run id):
    ```powershell
    docker run --rm -v "<DATA_DIR>:/data" -e WFEDS_DATA_DIR=/data `
-     wfeds:phase2 /app/docker/run_container.py --points "38.90,23.12" --window-km 6 --horizon 2 --start 2021-08-06T10:00 --run-id cand_smoke
+     wfeds /app/docker/run_container.py --points "38.90,23.12" --window-km 6 --horizon 2 --start 2021-08-06T10:00 --run-id cand_smoke
    ```
 3. **Compare** (grids cell-by-cell + result.json, volatile fields excluded):
    ```powershell
-   python docker/verify_phase1.py --reference "<DATA_DIR>/Fire/cell2fire/runs/ref_smoke" --candidate "<DATA_DIR>/Fire/cell2fire/runs/cand_smoke"
+   python docker/verify_equivalence.py --reference "<DATA_DIR>/Fire/cell2fire/runs/ref_smoke" --candidate "<DATA_DIR>/Fire/cell2fire/runs/cand_smoke"
    ```
 
 Success = `EQUIVALENT`. Byte-identical grids are expected/required; summary

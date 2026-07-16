@@ -1,4 +1,4 @@
-"""Phase 4.5: fire + evacuation TIMELINE DASHBOARD (custom HTML, from scratch).
+"""Fire + evacuation TIMELINE DASHBOARD (custom HTML, from scratch).
 
 Third redesign (2026-07-02). The folium/TimestampedGeoJson approach was judged
 unreadable twice; this builds a self-contained HTML page (Leaflet from CDN + a

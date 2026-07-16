@@ -10,7 +10,6 @@ fire's extent at ANY hour can be cut (`arrival <= t`).
 Caveat: between satellite overpasses there is no information, so the reconstruction
 advances in STEPS at each overpass (e.g. the ~9 h overnight gap 01:02 -> 10:43 on
 day 1). Treat hourly extents as overpass-resolution stairs, not smooth truth.
-See [[Validation]].
 
 Run standalone for a quick self-check:
     python scripts/cell2fire/validation/real_progression.py

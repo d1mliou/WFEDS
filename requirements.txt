@@ -4,7 +4,7 @@ osmnx==2.1.0
 geopandas==1.1.4
 pyogrio==0.13.0  # fast GeoPackage/GeoJSON I/O engine used by geopandas
 
-# Phase 2 (fire -> blocked roads): raster I/O for the slope + fuel-class layers.
+# Fire -> blocked roads: raster I/O for the slope + fuel-class layers.
 # NOTE: rasterio>=1.5 forces numpy>=2, which breaks shapely/pandas/scikit-learn
 # (all need numpy<2). Pin to the numpy<2-compatible line.
 numpy<2

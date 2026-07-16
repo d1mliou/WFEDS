@@ -1,7 +1,8 @@
-# WFEDS Phase 1: containerized deterministic pipeline (engine + Python chain).
+# WFEDS: the whole system in one image (Cell2Fire engine build + deterministic
+# pipeline + LLM agent + FastAPI web backend).
 #
 # Build FROM THE REPO ROOT (the context must include scripts/ and docker/):
-#     docker build -f docker/Dockerfile -t wfeds:phase1 .
+#     docker build -f docker/Dockerfile -t wfeds .
 #
 # Two stages, BOTH pinned to the SAME base tag. This is deliberate: the engine
 # binary and its venv's compiled wheels link against this glibc; running them
@@ -90,12 +91,12 @@ RUN python3 -m venv /opt/venv-app \
     && /opt/venv-app/bin/python -c "import rasterio, pyogrio, geopandas, osmnx, imageio, litellm, orjson, fastapi, uvicorn"
 # orjson: litellm imports it LAZILY inside completion() (not at import time,
 # so the smoke test above alone can't catch its absence) - found live in the
-# Phase-2 E2E test as "ModuleNotFoundError: No module named 'orjson'".
+# web-backend E2E test as "ModuleNotFoundError: No module named 'orjson'".
 # shapely pinned to match the exact version the current WSL host resolves
 # (GEOS 3.11.4) - requirements.txt leaves shapely unpinned (an osmnx
 # transitive dep), and an unpinned shapely->GEOS drift (2.1.2/GEOS 3.13.1 was
 # observed pip-resolved here otherwise) produces a tiny but real polygon-area
-# divergence downstream (~0.02% fire_km2, found during Phase-1 verification -
+# divergence downstream (~0.02% fire_km2, found during equivalence verification -
 # every raw engine grid was still byte-identical; only the Python-side
 # polygonization differed). Pinning here, not in requirements.txt, keeps the
 # fix scoped to this new file per the zero-existing-file-changes rule.
@@ -117,10 +118,10 @@ COPY docker/web/ /app/docker/web/
 #
 #   Web server (default CMD):
 #     docker run --rm -p 8000:8000 --env-file .env \
-#         -v "<host DATA_DIR>:/data" -e WFEDS_DATA_DIR=/data wfeds:phase2
-#   Phase-1 CLI (override CMD with the script path):
+#         -v "<host DATA_DIR>:/data" -e WFEDS_DATA_DIR=/data wfeds
+#   Pipeline CLI, no web/LLM (override CMD with the script path):
 #     docker run --rm -v "<host DATA_DIR>:/data" -e WFEDS_DATA_DIR=/data \
-#         wfeds:phase2 /app/docker/run_container.py --points "38.90,23.12" ...
+#         wfeds /app/docker/run_container.py --points "38.90,23.12" ...
 ENV PYTHONIOENCODING=utf-8
 
 ENTRYPOINT ["/opt/venv-app/bin/python"]

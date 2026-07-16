@@ -4,14 +4,14 @@
 fire simulation coupled to dynamic road-network evacuation. (The old synthetic-circle
 `stub/` snapshot was removed 2026-07-03 - this folder is now the single pipeline.)
 
-Cell2Fire itself runs in **WSL/Ubuntu** (built + verified - see
-`LLM-WFEDS/Methods/Cell2Fire.md`, engine mods in `engine_patch/`). Shared one-off data
-acquisition lives in `scripts/data_prep/`. All analysis is EPSG:2100 (Greek Grid, m).
+Cell2Fire itself is built and run inside the Docker image (on the legacy
+pre-Docker path it runs in WSL/Ubuntu; engine mods in `engine_patch/`). Shared one-off
+data acquisition lives in `scripts/data_prep/`. All analysis is EPSG:2100 (Greek Grid, m).
 
 ## Components & data flow
 
 The fire is modelled **free-burning** (worst credible case = the evacuation planning
-basis); suppression/evacuation *measures* are reasoned by the Phase-5 LLM, not the
+basis); suppression/evacuation *measures* are reasoned by the LLM agent layer, not the
 engine. Stages, in order (▶ = run directly, · = library imported by others):
 
 **A. Data prep** (`scripts/data_prep/`, run once) → road graph, settlements, refuges.
@@ -50,14 +50,13 @@ decoupled from the live loop - the live pipeline never imports validation code)
 - ▶ `visualize_fire.py` - the timeline dashboard `fire_timesteps.html`. Reads the two
   validation ARTIFACTS above (hourly extents + metrics) as data, if present.
 
-**E. Orchestration** (the seam the Phase-5 LLM actually calls)
+**E. Orchestration** (the seam the LLM agent actually calls)
 - ▶ `run_scenario.py` - ONE call = build_instance → Cell2Fire engine (WSL) →
   `cell2fire_adapter.py` → `fire_timesteps.py` → `visualize_fire.py` → `snapshot_map.py`
   → `result.json` (the LLM-facing summary). Every run isolated under
   `Fire/cell2fire/runs/<run_id>/` - never touches the canonical outputs.
-  *(The older Phase-4 `run_workflow.py`/`export_geojson.py` JSON-contract seam was
-  removed 2026-07-09 - confirmed unused by anything, superseded by this. See
-  [[Decision log]].)*
+  *(An older `run_workflow.py`/`export_geojson.py` JSON-contract seam was
+  removed 2026-07-09 - confirmed unused by anything, superseded by this.)*
 
 **F. Shared** - `_paths.py` (resolves `DATA_DIR` from the OneDrive env var + dataset paths).
 
@@ -76,5 +75,5 @@ Scenario runs (e.g. a different fire) can be isolated via `WFEDS_SCENARIO_DIR` (
 `fire_timesteps.py` + `visualize_fire.py`) so they never overwrite the canonical outputs.
 Operationally, `run_scenario.py` does exactly this in one call - see Stage E above.
 
-Vault: `LLM-WFEDS/Methods/Cell2Fire.md`, `.../Fire-spread simulation.md`,
-`LLM-WFEDS/Validation.md`, `LLM-WFEDS/Roadmap.md`.
+(The author's full design/decision notes are kept in a local project vault,
+outside this repository.)

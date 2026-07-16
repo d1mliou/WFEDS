@@ -1,4 +1,4 @@
-"""Phase-1 equivalence check: container run vs WSL reference run.
+"""Container-equivalence check: container run vs WSL reference run.
 
 Compares two completed run directories (each holding result.json +
 engine/Grids/Grids1/*.csv) and reports:
@@ -16,7 +16,7 @@ engine/Grids/Grids1/*.csv) and reports:
 Exit 0 = equivalent (possibly with warnings), 1 = real divergence.
 
 Usage:
-    python docker/verify_phase1.py --reference <wsl_run_dir> --candidate <container_run_dir>
+    python docker/verify_equivalence.py --reference <wsl_run_dir> --candidate <container_run_dir>
 """
 
 import argparse
@@ -170,11 +170,11 @@ def main():
 
     ref, cand = _load(a.reference), _load(a.candidate)
 
-    print("=== Phase-1 equivalence: GRIDS (engine output) ===")
+    print("=== Container equivalence: GRIDS (engine output) ===")
     g_fail, g_warn, g_lines = compare_grids(a.reference, a.candidate, a.tolerance_cells)
     print("\n".join(g_lines) or "  (no grids found on either side)")
 
-    print("\n=== Phase-1 equivalence: SUMMARY (result.json) ===")
+    print("\n=== Container equivalence: SUMMARY (result.json) ===")
     s_fail, s_warn, s_lines = compare_summary(ref, cand)
     print("\n".join(s_lines))
 

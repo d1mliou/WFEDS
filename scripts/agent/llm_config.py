@@ -1,4 +1,4 @@
-"""Phase 5: LLM provider presets - the agent is MODEL-AGNOSTIC by design.
+"""LLM provider presets - the agent is MODEL-AGNOSTIC by design.
 
 The agent code talks to one interface (LiteLLM model strings); WHICH model runs
 is configuration, never code. Three presets (Gemini / Claude / ChatGPT), default

@@ -1,7 +1,7 @@
-"""Phase 4.5 validation: overlay the simulated fire on the REAL VIIRS detections +
+"""Validation: overlay the simulated fire on the REAL VIIRS detections +
 the 2021 burned-area ground truth, and print agreement metrics.
 
-Two metric blocks (see [[Validation]]):
+Two metric blocks:
   * NAIVE - the whole sim vs the whole first-day VIIRS footprint. For a FRONT-SEEDED
     run this is INFLATED: the seed cells are part of the "prediction", so the sim gets
     credit for detections it was handed as the initial condition.
@@ -9,7 +9,7 @@ Two metric blocks (see [[Validation]]):
     FORECAST: sim growth (final minus seed) vs the detections AFTER the seed window
     (and outside the seed front). This is the number to headline.
 
-This is a plausibility check (see [[Validation]]), not calibration-grade accuracy
+This is a plausibility check, not calibration-grade accuracy
 (ERA5 is ~25 km, the SVM->FBP fuel map is a placeholder).
 
 Run:

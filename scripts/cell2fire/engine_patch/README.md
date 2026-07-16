@@ -14,9 +14,10 @@ Every in-code change is tagged with the comment marker **`WFEDS`**.
 > **History:** patch 2 briefly also carried a `--SuppressionFactors` ROS-damping
 > "brake". That physical suppression model was **dropped 2026-07-03** - the fire is
 > modelled as free-burning (worst credible case) and suppression/evacuation *measures*
-> are handled as decisions in the Phase-5 LLM layer, not as engine physics. Only the
+> are handled as decisions in the LLM agent layer, not as engine physics. Only the
 > intensity output (which is calibration-free and feeds the LLM's "where is intervention
-> feasible" reasoning) was kept. See `LLM-WFEDS/Decisions/Decision log.md`.
+> feasible" reasoning) was kept (decision recorded 2026-07-03 in the author's
+> local decision log, outside this repository).
 
 ## Apply + rebuild (order matters)
 ```bash
@@ -47,7 +48,7 @@ not only from a point. It also enables a fair **validation**: seed the real fire
 the end of day N and check whether the model reproduces day N+1.
 
 **Not hardcoded / LLM-selectable:** the feature is a plain optional flag. The analyst (or
-the Phase-5 LLM) chooses per run:
+the LLM agent) chooses per run:
 - **one point** - fire caught early → `IgnitionPoints.csv` (unchanged default), or
 - **a front** - fire caught mid-event → `--InitialBurned <file>`.
 
@@ -85,7 +86,7 @@ Default (flag absent) = unchanged point-ignition behaviour.
 Base Cell2Fire emits no intensity raster, but its FBP module computes Byram fireline
 intensity internally all along. This patch simply **exports** it, per period, as a grid.
 It is a **diagnostic** - "how intense / how fightable is the fire here" - that never
-changes fire behaviour. The Phase-5 LLM layer uses it to reason about response *measures*
+changes fire behaviour. The LLM agent layer uses it to reason about response *measures*
 (where holding a line is feasible); the fire itself stays free-burning (worst case).
 
 (The suppressability **classes** - `<350` direct attack · `350–1750` mechanical/aerial ·
@@ -116,8 +117,8 @@ changes fire behaviour. The Phase-5 LLM layer uses it to reason about response *
 An earlier version of this patch also had `--SuppressionFactors f1,f2,f3,f4` (per-class
 ROS damping). An experiment (aggressive f=0.15/0.25/0.4/0.5) cut the fire only 203.6 →
 167.5 km² and did not close the ~5x over-spread; combined with the decision to treat
-suppression as a Phase-5 decision concern (not engine physics), the damping was removed.
-See `LLM-WFEDS/Decisions/Decision log.md` 2026-07-03.
+suppression as a decision concern of the LLM agent layer (not engine physics), the
+damping was removed (recorded 2026-07-03 in the author's local decision log).
 
 ## Reverting
 - Day-to-day: just omit `--out-intensity` - the engine is then bit-identical to unpatched.
