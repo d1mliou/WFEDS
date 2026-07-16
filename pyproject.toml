@@ -1,0 +1,60 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wfeds"
+version = "1.0.0"
+description = "Geospatial LLM-agent prototype for wildfire evacuation decision support (MSc thesis, Harokopio University of Athens)"
+requires-python = ">=3.10"
+
+# Core = the deterministic pipeline (fire-spread instance building, per-hour
+# evacuation re-routing, dashboards, GIS/PNG/MP4 outputs). Pins are the
+# versions the system was developed and verified with.
+dependencies = [
+    "osmnx==2.1.0",
+    "geopandas==1.1.4",
+    "pyogrio==0.13.0",      # fast GeoPackage/GeoJSON I/O engine used by geopandas
+    # rasterio>=1.5 forces numpy>=2, which breaks the rasterio 1.3.x ecosystem
+    # (shapely/pandas/scikit-learn builds used here all need numpy<2).
+    "numpy<2",
+    "rasterio==1.3.11",
+    "scipy",                # distance transform for the variable fire buffer
+    # shapely pinned to keep GEOS stable: an unpinned resolve drifts GEOS
+    # (2.1.2/GEOS 3.13.1 was observed) and produces a small but real
+    # polygon-area divergence (~0.02% fire_km2) vs the verified setup.
+    "shapely==2.0.6",
+    # snapshot_map.py: static PNG map + MP4 animation (imageio's libx264).
+    "matplotlib",
+    "Pillow",
+    "imageio",
+    "imageio-ffmpeg",
+]
+
+[project.optional-dependencies]
+# The LLM agent layer + the FastAPI web backend (the Docker image installs this).
+web = [
+    "litellm",
+    "orjson",               # litellm imports it lazily inside completion()
+    "fastapi",
+    "uvicorn[standard]",
+]
+# The LLM agent layer + the (legacy/secondary) Telegram channel.
+telegram = [
+    "litellm",
+    "orjson",
+    "python-telegram-bot",
+]
+# Test-only additions; the suite is fully mocked (no real engine/network/keys)
+# but it IMPORTS the agent and telegram modules, so run it with
+# `pip install .[web,telegram,test]`.
+test = [
+    "pytest>=7.4",
+    "pytest-mock>=3.11",
+]
+
+# No importable package is shipped - the repo is script-based (scripts/,
+# docker/). This project table exists as the single source of dependency
+# truth; installing it just installs the dependency groups.
+[tool.setuptools]
+py-modules = []

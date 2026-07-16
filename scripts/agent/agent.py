@@ -13,7 +13,9 @@ Terminal smoke test (needs a working LLM key in .env):
     python scripts/agent/agent.py "τι θα κάψει σε 6 ώρες;" --pins "38.90,23.12"
 """
 
+import hashlib
 import json
+import os
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -21,7 +23,7 @@ from zoneinfo import ZoneInfo
 
 sys.path.insert(0, str(Path(__file__).parents[1] / "cell2fire"))
 
-from llm_config import get_model  # noqa: E402
+from llm_config import DEFAULT_PRESET, get_model  # noqa: E402
 
 # User-facing times are Greece local (the analyst's wall clock); the engine
 # speaks naive-UTC strings. tzdata comes in transitively via pandas.
@@ -79,6 +81,11 @@ SYSTEM_PROMPT = """\
    σημαίνει για αποφάσεις, και τα προτεινόμενα μέτρα, σε 2-4 σύντομα bullets.
 """
 
+# Provenance fingerprints: which prompt/tool-schema VERSION produced a given
+# run. Any edit to SYSTEM_PROMPT or TOOLS changes these hashes, so every
+# provenance.json is traceable to the exact agent configuration that wrote it.
+SYSTEM_PROMPT_SHA256 = hashlib.sha256(SYSTEM_PROMPT.encode("utf-8")).hexdigest()
+
 TOOLS = [{
     "type": "function",
     "function": {
@@ -107,6 +114,9 @@ TOOLS = [{
         },
     },
 }]
+
+TOOLS_SCHEMA_SHA256 = hashlib.sha256(
+    json.dumps(TOOLS, ensure_ascii=False, sort_keys=True).encode("utf-8")).hexdigest()
 
 
 def _to_utc(start_local):
@@ -212,11 +222,16 @@ class WfedsAgent:
 
     def __init__(self, preset=None):
         self.model, self.api_key = get_model(preset)
+        self.preset = preset or os.environ.get("WFEDS_LLM_PRESET", DEFAULT_PRESET)
         self.messages = [{"role": "system", "content": SYSTEM_PROMPT}]
+        self._turn_runs = []      # runs triggered by the CURRENT chat turn
 
     def chat(self, user_text, pins=None, progress_cb=None):
         import litellm
 
+        t_start = datetime.now(timezone.utc)
+        self._turn_runs = []
+        models_reported = []      # exact model IDs the API reported this turn
         pin_note = (f"[ΤΡΕΧΟΝΤΑ PINS ΧΡΗΣΤΗ: {pins}]" if pins
                     else "[ΚΑΝΕΝΑ PIN - ζήτα τοποθεσία αν χρειάζεται]")
         self.messages.append({"role": "user",
@@ -225,10 +240,15 @@ class WfedsAgent:
         for _ in range(4):                      # tool-call rounds ceiling
             resp = litellm.completion(model=self.model, api_key=self.api_key,
                                       messages=self.messages, tools=TOOLS)
+            if getattr(resp, "model", None):
+                models_reported.append(resp.model)
             msg = resp.choices[0].message
             self.messages.append(msg.model_dump(exclude_none=True))
             if not getattr(msg, "tool_calls", None):
-                return (msg.content or "").strip(), files, cards
+                reply = (msg.content or "").strip()
+                self._write_provenance(user_text, pins, reply,
+                                       models_reported, t_start)
+                return reply, files, cards
             for tc in msg.tool_calls:
                 args = json.loads(tc.function.arguments or "{}")
                 out, fs, cs = self._run_tool(args, pins, progress_cb)
@@ -237,7 +257,44 @@ class WfedsAgent:
                 self.messages.append({"role": "tool",
                                       "tool_call_id": tc.id,
                                       "content": out})
-        return "Σταμάτησα - πολλές διαδοχικές κλήσεις εργαλείου.", files, cards
+        reply = "Σταμάτησα - πολλές διαδοχικές κλήσεις εργαλείου."
+        self._write_provenance(user_text, pins, reply, models_reported, t_start)
+        return reply, files, cards
+
+    def _write_provenance(self, user_text, pins, reply, models_reported, t_start):
+        """One provenance.json per run triggered this turn - the audit trail the
+        system-level evaluation reads: who asked what, which preset/model/prompt
+        version, which tool arguments (as the LLM produced them AND as resolved),
+        and what the model finally answered. The deterministic side of the same
+        run lives next to it (result.json). Best-effort: a provenance failure
+        must never break the conversation."""
+        for rec in self._turn_runs:
+            if not rec.get("run_dir"):
+                continue
+            try:
+                payload = {
+                    "run_id": rec["run_id"],
+                    "preset": self.preset,
+                    "provider": self.model.split("/", 1)[0],
+                    "model_configured": self.model,
+                    "models_reported": models_reported,
+                    "system_prompt_sha256": SYSTEM_PROMPT_SHA256,
+                    "tools_schema_sha256": TOOLS_SCHEMA_SHA256,
+                    "user_text": user_text,
+                    "pins": pins,
+                    "tool_args_from_llm": rec["tool_args_from_llm"],
+                    "tool_args_resolved": rec["tool_args_resolved"],
+                    "deterministic_result": "result.json",   # same folder
+                    "final_reply": reply,
+                    "started_utc": t_start.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                    "finished_utc": datetime.now(timezone.utc)
+                                    .strftime("%Y-%m-%dT%H:%M:%SZ"),
+                }
+                (Path(rec["run_dir"]) / "provenance.json").write_text(
+                    json.dumps(payload, ensure_ascii=False, indent=1),
+                    encoding="utf-8")
+            except Exception:
+                pass
 
     def _run_tool(self, args, pins, progress_cb):
         from build_cell2fire_instance import (InstanceInputError,
@@ -279,6 +336,18 @@ class WfedsAgent:
                 start_time=start_utc,
                 scenario=scenario,
                 label=args.get("label"))
+            self._turn_runs.append({
+                "run_id": result["run_id"],
+                "run_dir": result.get("run_dir"),
+                "tool_args_from_llm": dict(args),
+                "tool_args_resolved": {
+                    "ignition_points": points,
+                    "window_km": args.get("window_km"),
+                    "horizon_h": horizon_h,
+                    "start_time_utc": start_utc,
+                    "scenario": scenario,
+                    "label": args.get("label")},
+            })
             files = [result["files"]["map_png"], result["files"].get("map_anim", ""),
                      result["files"]["dashboard"]]
             files = [f for f in files if f and Path(f).exists()]

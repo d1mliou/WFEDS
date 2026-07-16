@@ -16,6 +16,9 @@ Every run is fully isolated in its own folder (nothing canonical is touched):
         timestep_evacuation.gpkg / timestep_summary.json
         fire_timesteps.html     the dashboard
         result.json             the LLM-facing summary (params + per-hour stats)
+        provenance.json         (agent-triggered runs only; written by agent.py)
+                                the LLM audit record: preset/model, prompt +
+                                tool-schema hashes, tool args, final narration
 
 The engine runs in WSL with a WSL-LOCAL output folder (paths with spaces - e.g.
 OneDrive - silently break the engine's unquoted mkdir), then the grids are

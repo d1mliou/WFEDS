@@ -11,7 +11,7 @@
 #
 # Two SEPARATE venvs, also deliberate:
 #   /opt/venv-engine  Cell2Fire's own deps (unpinned numpy -> 2.x)
-#   /opt/venv-app     the WFEDS pipeline (numpy<2, pinned by requirements.txt
+#   /opt/venv-app     the WFEDS pipeline (numpy<2, pinned by pyproject.toml
 #                     because the rasterio 1.3.11 ecosystem breaks on numpy 2)
 # Installing both into one env is a guaranteed numpy conflict.
 
@@ -77,31 +77,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY --from=engine-builder /opt/Cell2Fire /opt/Cell2Fire
 COPY --from=engine-builder /opt/venv-engine /opt/venv-engine
 
-# The WFEDS pipeline env. requirements.txt is the repo's own; matplotlib /
-# Pillow / imageio(+ffmpeg) are needed by snapshot_map.py (PNG + MP4 via
-# imageio's libx264) but are not listed there - a known, accepted gap in
-# that file (see requirements-dev.txt's own comment about litellm).
-COPY requirements.txt /tmp/requirements.txt
+# The WFEDS pipeline env, installed from pyproject.toml - the single source
+# of dependency truth (core pins incl. the critical shapely==2.0.6/GEOS pin,
+# see the comments there) plus the [web] group (litellm/orjson/fastapi/uvicorn).
+COPY pyproject.toml /tmp/wfeds/pyproject.toml
 RUN python3 -m venv /opt/venv-app \
-    && /opt/venv-app/bin/pip install --no-cache-dir -r /tmp/requirements.txt \
-    && /opt/venv-app/bin/pip install --no-cache-dir \
-        matplotlib Pillow imageio imageio-ffmpeg \
-        "shapely==2.0.6" \
-        litellm orjson fastapi "uvicorn[standard]" \
+    && /opt/venv-app/bin/pip install --no-cache-dir --upgrade pip \
+    && /opt/venv-app/bin/pip install --no-cache-dir "/tmp/wfeds[web]" \
     && /opt/venv-app/bin/python -c "import rasterio, pyogrio, geopandas, osmnx, imageio, litellm, orjson, fastapi, uvicorn"
-# orjson: litellm imports it LAZILY inside completion() (not at import time,
-# so the smoke test above alone can't catch its absence) - found live in the
-# web-backend E2E test as "ModuleNotFoundError: No module named 'orjson'".
-# shapely pinned to match the exact version the current WSL host resolves
-# (GEOS 3.11.4) - requirements.txt leaves shapely unpinned (an osmnx
-# transitive dep), and an unpinned shapely->GEOS drift (2.1.2/GEOS 3.13.1 was
-# observed pip-resolved here otherwise) produces a tiny but real polygon-area
-# divergence downstream (~0.02% fire_km2, found during equivalence verification -
-# every raw engine grid was still byte-identical; only the Python-side
-# polygonization differed). Pinning here, not in requirements.txt, keeps the
-# fix scoped to this new file per the zero-existing-file-changes rule.
 # ^ build-time smoke test: the manylinux wheels bundle GDAL/GEOS/PROJ. If this
 # line ever fails, add: apt-get install gdal-bin libgdal-dev libgeos-dev libproj-dev
+# (orjson is in the import list because litellm imports it LAZILY inside
+# completion() - its absence was found live as a runtime ModuleNotFoundError.)
 
 # The pipeline + agent code, read-only copies. NB: scripts/data_prep/ is
 # deliberately NOT copied - it holds a second, identical _paths.py whose

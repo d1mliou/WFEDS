@@ -156,9 +156,14 @@ for that system in its original form).
 
 ### Optional: run the test suite (no Docker, data or keys needed)
 
+All dependencies live in `pyproject.toml`, in groups: core (the deterministic
+pipeline), `web` (LLM agent + FastAPI backend), `telegram` (LLM agent +
+Telegram channel), `test`. The suite imports the agent and telegram modules,
+so install everything:
+
 ```powershell
-pip install -r requirements.txt -r requirements-dev.txt
-python -m pytest          # 237 tests, all mocked - no real engine/network
+pip install ".[web,telegram,test]"
+python -m pytest          # all mocked - no real engine/network/keys
 ```
 
 ## Under the hood (brief)
@@ -167,7 +172,7 @@ python -m pytest          # 237 tests, all mocked - no real engine/network
 |---|---|
 | Fire spread | **Cell2Fire** - the actual fire-spread simulator, run hour by hour, free-burning (worst case: no firefighting assumed). Its source code is not copied into this repository. Instead, the repo only records which exact version of the original Cell2Fire project to use (commit `b860bcc`) plus two small changes made for this thesis, in `scripts/cell2fire/engine_patch/` (let the fire start from an observed front line; report flame intensity). Every time the Docker image is built, that exact version is automatically downloaded and compiled from scratch - checked to produce identical results to the original (non-Docker) setup it replaced. |
 | Network & exposure | Edges crossing the perimeter removed; survivors friction-penalised by distance; per-hour re-routing to nearest safe refuge; settlements flagged routed / cut off / impacted. |
-| LLM layer | One coarse tool wraps the whole pipeline; user times are Greece-local (the tool owns the UTC conversion); geometry only ever comes from the user (pins/polygon - never guessed). |
+| LLM layer | One coarse tool wraps the whole pipeline; user times are Greece-local (the tool owns the UTC conversion); geometry only ever comes from the user (pins/polygon - never guessed). Every agent-triggered run also writes a `provenance.json` audit record (preset, exact model IDs reported by the API, SHA-256 of the system prompt and tool schema, the tool arguments as extracted and as resolved, the user's text/pins, the final narration, timestamps) - full traceability for the system-level evaluation. |
 | Web backend | FastAPI in the same container: cookie sessions, SSE progress, GIS export generation, same-origin UI (vanilla JS + Leaflet). |
 
 ```

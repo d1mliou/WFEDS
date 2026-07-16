@@ -136,8 +136,9 @@ stable inputs; ~15 min per side).
   glibc compatibility between the engine build and runtime. Don't diverge them.
 - Two venvs inside the image (`/opt/venv-engine` numpy 2.x vs `/opt/venv-app`
   numpy<2) - mandatory, not stylistic; see the Dockerfile header.
-- `shapely` is pinned (2.0.6) in the image to match the WSL host - an
-  unpinned resolve drifts GEOS and produces real polygon-area differences.
+- `shapely` is pinned (2.0.6, in `pyproject.toml`) to match the verified
+  setup - an unpinned resolve drifts GEOS and produces real polygon-area
+  differences.
 - `Messages/` engine output is intentionally NOT copied back (the WSL path
   never did either; the adapter skips the ROS grid) - equivalence means
   matching today's behaviour exactly.

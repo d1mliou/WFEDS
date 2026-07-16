@@ -437,3 +437,72 @@ class TestRunTool:
         assert content.startswith("INPUT ERROR")
         assert "αύριο" in content
         run_mock.assert_not_called()
+
+
+# --------------------------------------------------------------------------------
+# Provenance (the per-run LLM audit trail)
+# --------------------------------------------------------------------------------
+class TestProvenance:
+    def _full_turn(self, monkeypatch, wfeds_agent, run_dir):
+        """One complete chat turn: tool call -> mocked run -> final text."""
+        monkeypatch.setattr(bci, "_validate_user_inputs", Mock(return_value=None))
+        result = _make_result(inputs={"mode": "point_ignition"})
+        result["run_dir"] = str(run_dir)
+        result["files"] = {"map_png": "", "map_anim": "", "dashboard": ""}
+        monkeypatch.setattr(run_scenario_module, "run_scenario",
+                            Mock(return_value=result))
+        install_fake_litellm(monkeypatch, [
+            make_response(tool_calls=[("call_1", "run_fire_scenario",
+                                       '{"use_pins": true, "window_km": 12, '
+                                       '"horizon_h": 6}')]),
+            make_response(content="ανάλυση"),
+        ])
+        return result, wfeds_agent.chat("τρέξε 6 ώρες", pins=[(38.9, 23.1)])
+
+    def test_successful_run_writes_provenance_json(self, monkeypatch, wfeds_agent,
+                                                   tmp_path):
+        result, (reply, _files, _cards) = self._full_turn(
+            monkeypatch, wfeds_agent, tmp_path)
+
+        prov = json.loads((tmp_path / "provenance.json").read_text(encoding="utf-8"))
+        assert prov["run_id"] == result["run_id"]
+        assert prov["final_reply"] == "ανάλυση" == reply
+        assert prov["model_configured"] == "fake/model"
+        assert prov["provider"] == "fake"
+        assert prov["preset"]                       # resolved, never empty
+        assert prov["system_prompt_sha256"] == agent.SYSTEM_PROMPT_SHA256
+        assert prov["tools_schema_sha256"] == agent.TOOLS_SCHEMA_SHA256
+        assert prov["user_text"] == "τρέξε 6 ώρες"
+        assert prov["pins"] == [[38.9, 23.1]]       # JSON turns tuples into lists
+        assert prov["tool_args_from_llm"]["window_km"] == 12
+        assert prov["tool_args_resolved"]["horizon_h"] == 6
+        assert prov["deterministic_result"] == "result.json"
+        assert prov["started_utc"] <= prov["finished_utc"]
+
+    def test_prompt_and_schema_hashes_are_stable_fingerprints(self):
+        """The module-level hashes must be real SHA-256 of the CURRENT prompt/
+        schema - so any future prompt edit provably changes the recorded hash."""
+        import hashlib
+        assert agent.SYSTEM_PROMPT_SHA256 == hashlib.sha256(
+            agent.SYSTEM_PROMPT.encode("utf-8")).hexdigest()
+        assert agent.TOOLS_SCHEMA_SHA256 == hashlib.sha256(
+            json.dumps(agent.TOOLS, ensure_ascii=False,
+                       sort_keys=True).encode("utf-8")).hexdigest()
+
+    def test_plain_text_turn_writes_nothing(self, monkeypatch, wfeds_agent, tmp_path):
+        install_fake_litellm(monkeypatch, [make_response(content="γεια")])
+
+        wfeds_agent.chat("γεια")
+
+        assert list(tmp_path.glob("provenance.json")) == []
+
+    def test_unwritable_run_dir_never_breaks_the_chat(self, monkeypatch, wfeds_agent,
+                                                      tmp_path):
+        """Best-effort contract: if the provenance write fails (run_dir vanished),
+        the user still gets their reply."""
+        gone = tmp_path / "deleted" / "nested"      # does not exist
+        result, (reply, _files, _cards) = self._full_turn(
+            monkeypatch, wfeds_agent, gone)
+
+        assert reply == "ανάλυση"
+        assert not gone.exists()
