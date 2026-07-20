@@ -64,9 +64,10 @@ Outputs (into <run_dir>): perimeter_metrics.json, perimeter_hourly.csv,
 perimeter_zones.csv, perimeter_report.md, perimeter_dt_curve.png,
 perimeter_signed_map.png, perimeter_overlay.html (optional, folium), and a
 QGIS-ready bundle perimeter_gis/ (EPSG:2100 GeoJSON, every file prefixed
-perimeter_ so the flat Exports copy cannot collide with the 1a bundle). The
-whole set is also published to DATA_DIR/Exports/<run_id>/validation/ - the
-same deliverable convention as the 1a VIIRS validation.
+perimeter_ so the files stay unambiguous even outside their folder). The
+whole set is also published to DATA_DIR/Exports/<run_id>/validation/
+1b_perimeter/ - the same deliverable convention as the 1a VIIRS validation,
+which publishes to the sibling 1a_viirs/.
 """
 
 import json
@@ -706,10 +707,13 @@ def export_gis(run_dir, samples, zones, window, scar, sim_star):
 
 
 def publish_exports(run_dir, gis_dir):
-    """Copy the whole diagnostic set to DATA_DIR/Exports/<run_id>/validation/
-    (the same per-run deliverable convention as the 1a validation)."""
+    """Copy the whole diagnostic set to
+    DATA_DIR/Exports/<run_id>/validation/1b_perimeter/ (the same per-run
+    deliverable convention as the 1a validation, which publishes to the
+    sibling 1a_viirs/ - separated 2026-07-20 so the two pillars'
+    deliverables never mix in one flat folder)."""
     import shutil
-    dest = DATA_DIR / "Exports" / run_dir.name / "validation"
+    dest = DATA_DIR / "Exports" / run_dir.name / "validation" / "1b_perimeter"
     dest.mkdir(parents=True, exist_ok=True)
     names = ["perimeter_metrics.json", "perimeter_hourly.csv",
              "perimeter_zones.csv", "perimeter_report.md",

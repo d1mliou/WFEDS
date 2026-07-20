@@ -44,8 +44,9 @@ and a QGIS-ready GIS bundle (validation_gis/, EPSG:2100 GeoJSON: VIIRS
 initialization/evaluation points with per-pass + distance attributes, seed
 front, simulated growth, over-spread polygon, direction sectors, hourly
 perimeter/front copies). The whole validation set is also published to
-DATA_DIR/Exports/<run_id>/validation/ - the same deliverable convention as
-the web runs' bundles.
+DATA_DIR/Exports/<run_id>/validation/1a_viirs/ - the same deliverable
+convention as the web runs' bundles (1b_perimeter/ is the sibling for the
+perimeter-convergence diagnostic).
 """
 
 import json
@@ -447,10 +448,13 @@ def export_gis(run_dir, init_set, eval_set, seed, growth_final, far, origin,
 
 
 def publish_exports(run_dir, gis_dir):
-    """Copy the whole validation set to DATA_DIR/Exports/<run_id>/validation/
-    (the same per-run deliverable convention as the web bundles)."""
+    """Copy the whole validation set to
+    DATA_DIR/Exports/<run_id>/validation/1a_viirs/ (the same per-run
+    deliverable convention as the web bundles; the sibling 1b_perimeter/
+    holds the perimeter-convergence diagnostic's set - separated 2026-07-20
+    so the two pillars' deliverables never mix in one flat folder)."""
     import shutil
-    dest = DATA_DIR / "Exports" / run_dir.name / "validation"
+    dest = DATA_DIR / "Exports" / run_dir.name / "validation" / "1a_viirs"
     dest.mkdir(parents=True, exist_ok=True)
     names = ["validation_metrics.json", "validation_per_pass.csv",
              "validation_report.md", "validation_inclusion.png",
