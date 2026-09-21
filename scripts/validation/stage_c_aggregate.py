@@ -30,6 +30,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import sys
 from collections import Counter, defaultdict
 from pathlib import Path
 
@@ -194,6 +195,12 @@ def main() -> None:
     ap.add_argument("--tag", default="",
                     help="suffix for the output filenames, to keep a restricted "
                          "aggregate beside the full one")
+    ap.add_argument("--rehearsal", action="store_true",
+                    help="permit a rehearsal STUB label file. Without it a label "
+                         "file carrying machine-generated stub records is refused, "
+                         "because an aggregate of invented labels looks exactly "
+                         "like an aggregate of judged ones once it is a number "
+                         "in a table.")
     a = ap.parse_args()
 
     batch_dir = Path(a.batch_dir)
@@ -206,8 +213,14 @@ def main() -> None:
         for r in json.loads(f.read_text(encoding="utf-8")):
             if keep is None or r["category"] in keep:
                 meta[r["uid"]] = r
-    recs = [r for r in json.loads(Path(a.labels).read_text(encoding="utf-8"))
-            if r.get("uid") in meta]
+    loaded = json.loads(Path(a.labels).read_text(encoding="utf-8"))
+    # Imported at call time, not at module import: this file must stay runnable
+    # on a checkout that never rehearses, and the scoring path must not acquire
+    # the rehearsal driver as a dependency.
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from axis3_rehearsal import refuse_stub_labels  # noqa: E402  see comment
+    refuse_stub_labels(a.labels, loaded, a.rehearsal)
+    recs = [r for r in loaded if r.get("uid") in meta]
     missing = sorted(set(meta) - {r["uid"] for r in recs})
 
     claim_counts, per_rec = Counter(), {}

@@ -25,6 +25,34 @@ from agent_eval_sample import atomic_candidates, tool_numbers  # noqa: E402
 NARRATION_MIN_CHARS = 120
 
 
+def judged_surface(row):
+    """Edit E1 of the pre-registration: the text the judge will actually see.
+
+    WHY this is not `row["reply"]`. On the structured arm the reply is a JSON
+    envelope, and an envelope clears the 120-character floor even when
+    `interpretation` is empty or the object never validated, so batching on the
+    raw reply would send the judge records that section 2.4 already calls
+    deterministic FAILs, and would decompose Latin key names into atomic claims.
+    The filter has to be arm-equivalent: same floor, same kind of text.
+
+    Three sources in order. A row written after the contract landed carries the
+    surface `agent_eval.py` computed at run time, and reusing it guarantees the
+    batch is cut from the same string the run scored. A free-arm row's surface
+    IS its reply. Only a structured row with no stored surface falls through to
+    `agent_eval._narrative_surface`, imported lazily because importing
+    `agent_eval` resolves the OneDrive data directory and prep must stay usable
+    on a machine that has none.
+    """
+    stored = row.get("narrative_surface")
+    if isinstance(stored, str):
+        return stored
+    reply = row.get("reply") or ""
+    if (row.get("output_contract") or "free") != "structured":
+        return reply
+    from agent_eval import _narrative_surface  # noqa: E402  lazy, see docstring
+    return _narrative_surface(reply, "structured")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("raw")
@@ -52,13 +80,17 @@ def main():
                     compact = json.loads(o)
                 except json.JSONDecodeError:
                     pass
+        # E1: the floor and the claim split both read the judged surface.
+        surface = judged_surface(r)
         is_narrated = (r["n_tool_calls"] > 0 and compact is not None
-                       and len(r["reply"]) >= NARRATION_MIN_CHARS)
+                       and len(surface) >= NARRATION_MIN_CHARS)
         item = {
             "uid": f"{r['case_id']}#{r['rep']}",
             "case_id": r["case_id"], "category": r["category"], "rep": r["rep"],
             "fixture": r["fixture"], "user_text": r["user_text"], "pins": r["pins"],
             "n_tool_calls": r["n_tool_calls"], "reply": r["reply"],
+            "arm": r.get("output_contract") or "free",
+            "judged_surface": surface,
             "tool_outputs": r["tool_outputs"], "error": r["error"],
             "is_narrated": is_narrated,
         }
@@ -68,7 +100,7 @@ def main():
         if is_narrated:
             item2 = dict(item)
             item2["tool_numbers_md"] = tool_numbers(compact)
-            item2["candidate_claims"] = atomic_candidates(r["reply"])
+            item2["candidate_claims"] = atomic_candidates(surface)
             narrated.append(item2)
 
     (out_dir / "all_repetitions_full.jsonl").write_text(
@@ -78,6 +110,22 @@ def main():
     for bi, batch in enumerate(batches, 1):
         (out_dir / f"batch_{bi:02d}.json").write_text(
             json.dumps(batch, ensure_ascii=False, indent=1), encoding="utf-8")
+
+    # E2: the split that was actually produced, recorded rather than assumed.
+    # A partial last batch (the stored terra run went 11,11,11,11,11,10) is a
+    # fact about the judge call count and must not have to be recounted later
+    # from the files.
+    (out_dir / "batching_provenance.json").write_text(json.dumps({
+        "source_raw": str(raw),
+        "arms_seen": sorted({x["arm"] for x in full}),
+        "batch_size_requested": a.batch_size,
+        "categories": sorted(keep) if keep else "all",
+        "narration_min_chars": NARRATION_MIN_CHARS,
+        "n_repetitions": len(full),
+        "n_narrated": len(narrated),
+        "batch_sizes": [len(b) for b in batches],
+        "batch_files": [f"batch_{i:02d}.json" for i in range(1, len(batches) + 1)],
+    }, ensure_ascii=False, indent=1), encoding="utf-8")
 
     n_claims = sum(len(x["candidate_claims"]) for x in narrated)
     print(f"{len(full)} total repetitions, {len(narrated)} narrated "

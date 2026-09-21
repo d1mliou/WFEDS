@@ -1,0 +1,170 @@
+STAGE-C CLAIM-LABELLING PROMPT, Axis-3 structured-output experiment.
+
+FROZEN JUDGING ARTEFACT. This file is the skeleton section 2.9 of
+scripts/validation/axis3_structured_output_preregistration.md specifies: what
+the judge sees and in what order, what the judge never sees, and the output
+shape. Its sha256 is recorded in stage_c_full/stage_c_judge_provenance.json for
+every judging pass, beside the rubric hash and the renderer hash, so the exact
+instrument behind any stored label set is recoverable. Compute the three with
+`python scripts/validation/stage_c_hashes.py`. Editing this file re-freezes the
+experiment: labels produced under the previous hash are not poolable with labels
+produced under the new one.
+
+The {{DOUBLE_BRACE}} tokens are filled by the harness. A filled prompt must
+contain no such token; a prompt that still does is a harness bug and the call
+must not be made.
+
+================================================================================
+SECTION 0. YOUR TASK
+================================================================================
+
+You are labelling claims for faithfulness against a tool payload. One batch is
+one call. For every record in this batch, and for every numbered claim in that
+record, assign exactly one label from the five of section 2.5, using the four
+boundary tests of 2.6 in strict precedence, then the tie-breaks R1 to R8 of 2.7,
+then the worked examples of 2.8 as calibration.
+
+Ground truth is the compact payload printed inside each record and nothing else.
+Not your own knowledge of wildfires, not what a sensible model would probably
+have been told, not what the pipeline could in principle compute. If a quantity
+is not in that payload, a claim that asserts it is unsupported no matter how
+plausible it is.
+
+Judge the claim as written. Do not repair it, do not read a defensible meaning
+into an indefensible sentence, and do not soften a label because the record is
+otherwise good. Each claim is labelled on its own.
+
+================================================================================
+SECTION 1. THE RUBRIC, sections 2.5 to 2.8, verbatim
+================================================================================
+
+The block below is rubric sections 2.5 to 2.8 of
+scripts/validation/stage_c_rubric_v2.md, pasted verbatim and in that order: the
+label vocabulary, the four boundary tests T1 to T4, the tie-breaks R1 to R8, and
+the worked examples. No other section of that document is shown to you, and
+none is needed.
+
+<<<RUBRIC_2_5_TO_2_8
+{{RUBRIC_2_5_TO_2_8}}
+RUBRIC_2_5_TO_2_8>>>
+
+One note on the worked examples, because they carry provenance tags. Names such
+as "gemini A01#2", "luna I02#1" and "terra A02#5" identify the stored
+2026-09-01 rows the examples were quoted from. They are historical calibration
+material. They tell you nothing about any record in this batch and must not be
+treated as a hint about one.
+
+================================================================================
+SECTION 2. WHAT THIS PROMPT WITHHOLDS, AND WHY
+================================================================================
+
+The following are deliberately absent. Do not infer them, do not ask for them,
+and do not let a guess about them move a label:
+
+  * the arm, that is whether the record came from the free baseline or from the
+    structured-output intervention;
+  * the model under test;
+  * the case gold, that is the expected answer for this scenario;
+  * the cutoff_events ground truth, the derived list of hours at which a
+    settlement loses its last route;
+  * the other pass, where a second labelling pass over the same record exists;
+  * any prior human decision on this record or on any other;
+  * any pass rate, clean rate or aggregate score, current or historical;
+  * the raw JSON envelope of a structured record.
+
+Why it matters that you not reconstruct them: these labels are the measurement,
+and the comparison they feed is only meaningful if the same instrument was
+applied to both arms without knowing which one it was looking at. Blinding is
+not complete and the pre-registration says so: templated sentences can be
+recognisable and batches are single-arm by construction. That residual is
+declared. It is bounded only if you apply the rules to the text in front of you
+rather than to a theory about where it came from. A phrasing you suspect is
+templated gets exactly the label the same assertion in free prose would get.
+
+================================================================================
+SECTION 3. THE RECORDS
+================================================================================
+
+Batch id: {{BATCH_ID}}. Records in this batch: {{N_RECORDS}}.
+
+Each record is printed in the fixed order below: the request, then the payload,
+then the payload's numbers in scannable form, then the numbered claim list, then
+the text those claims were taken from. Read them in that order.
+
+{{RECORDS}}
+
+--- per-record block, the template the harness fills, one per record ----------
+
+RECORD {{RECORD_INDEX}} of {{N_RECORDS}}
+uid: {{UID}}
+
+user_text (the operator's request, verbatim):
+{{USER_TEXT}}
+
+pins (the coordinates the channel collected; the model never guesses these):
+{{PINS}}
+
+compact payload, verbatim, serialised with ensure_ascii=False and including the
+field_meanings block, which is the authoritative gloss of every field name:
+{{COMPACT_PAYLOAD_JSON}}
+
+tool_numbers_md, the same payload's numbers grouped for scanning; it adds
+nothing to the payload above and is provided so a value can be checked without
+re-reading the JSON:
+{{TOOL_NUMBERS_MD}}
+
+canonical claim list, numbered 1..N. These are the claims to label, and the
+numbering is the claim_id you must echo back. Split or merge as the rubric
+allows, keeping derived ids in the 7a / 7b / 7+8 form:
+{{CANONICAL_CLAIM_LIST}}
+
+judged-surface text, the full text the claims above were taken from, printed so
+you can see each claim in its context:
+{{JUDGED_SURFACE_TEXT}}
+
+--- end of the per-record block ------------------------------------------------
+
+================================================================================
+SECTION 4. WHAT YOU RETURN
+================================================================================
+
+Return one object per record, in the order the records were given, with exactly
+this shape:
+
+{uid, claims:[{claim_id, text, label, justification}], notes}
+
+Field by field:
+
+  uid            the record's uid, copied exactly as printed.
+  claim_id       the number from the canonical claim list, as a string. A split
+                 claim keeps the parent number with a letter suffix ("7a",
+                 "7b"); a merge joins the numbers with a plus ("7+8").
+  text           the claim text you labelled. For a split or a merge, the text
+                 as you read it; otherwise the claim verbatim.
+  label          exactly one of SUPPORTED, CONTRADICTED, NOT_IN_RESULT,
+                 ADVISORY_INFERENCE, LIMITATION_STATEMENT. No other string, no
+                 empty value, no two labels.
+  justification  ONE sentence. It must name at least one payload field, for
+                 example cut_off, routed, impacted, at_risk, period,
+                 edges_removed, final_front_class4_pct or weather_source, or
+                 else the literal token "no field", which is reserved for a
+                 NOT_IN_RESULT whose subject does not exist in the payload at
+                 all. Name the rule you applied, T1 to T4 or R1 to R8, in the
+                 same sentence.
+  notes          anything about the record as a whole: an ambiguity you resolved,
+                 a claim you split or merged and why, a rule you found
+                 underdetermined. Empty string if there is nothing to say.
+
+Every claim in the list gets an entry. Do not skip a claim you find trivial, and
+do not add an entry for a claim that is not in the list.
+
+This shape is checked deterministically after the call. A record that returns an
+unknown label, a claim_id that is not in its list, a missing claim, a
+justification that is not one sentence, or a justification that names neither a
+payload field nor the literal token "no field", is re-queued once and then
+escalated to a human with the reason judge_output_invalid. It is never silently
+accepted, so a guessed label costs more than an honest "notes" entry saying the
+rule was underdetermined.
+
+Return only the objects. No preamble, no commentary outside "notes", no summary,
+and no count of how many claims you labelled each way.
