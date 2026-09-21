@@ -42,9 +42,18 @@ Outputs (in --out-dir, default a timestamped folder under DATA_DIR/Exports):
     agent_eval_redflags.md    everything that failed or looks suspicious
     agent_eval_report.md      declared protocol + tables + limitations
 
+An --out-dir that already holds any of those five files is REFUSED, because the
+raw replies cost real model calls and a non-deterministic model cannot reproduce
+them. Two explicit ways past it, one safe and one not: --resume finishes an
+interrupted run in place after proving, against the run manifest written at its
+start, that this invocation is the same experiment; --discard-existing-run makes
+the operator type the folder's own name and then moves the artefacts aside under
+renamed filenames rather than deleting them.
+
 Run:
     python scripts/validation/agent_eval.py [--k 5] [--cases FILE] [--limit N]
                                             [--preset gemini-pro] [--dry-run]
+                                            [--out-dir DIR [--resume]]
 """
 
 import sys
@@ -55,6 +64,7 @@ import argparse
 import copy
 import json
 import re
+import shutil
 import time
 import traceback
 from collections import defaultdict
@@ -518,29 +528,43 @@ def _narrative_surface(reply, output_contract):
     scored separately, against the payload, by the structured validator.
 
     On the free arm this returns the reply unchanged, so every free-arm verdict is
-    bit-for-bit what it was before the contract existed. An unparseable structured
-    reply also falls back to the raw text, so a broken envelope is scored on what
-    the model actually emitted rather than silently passing on an empty string.
+    bit-for-bit what it was before the contract existed. Every return below the
+    free-arm line is on the structured path only and cannot reach a free-arm row.
 
-    PROVISIONAL for the numeric check: the pre-registration's numeric surface is
-    this prose PLUS the rendered slot sentences, so the model's slot values face
-    the same check the baseline's narrated numbers faced. The frozen renderer
-    (`scripts/validation/stage_c_render_slots.py`) does not exist yet, so the
-    numeric verdict written at run time is the prose-only lower bound and must be
-    recomputed by the scoring pass once the renderer lands. The reply is stored
-    verbatim, so that recomputation costs no model call.
+    ON THE STRUCTURED ARM IT RETURNS THE EMPTY STRING RATHER THAN THE RAW REPLY
+    in the two cases where there is no prose to return: the envelope does not
+    parse, and it parses with both prose keys blank. Both fallbacks were repair,
+    and 2.1 forbids repair in those words: the structured surface is
+    `interpretation` + "\n" + `limitations` "and the empty string otherwise". 2.4
+    rejects the alternative by name, because "the parsed interpretation, or the
+    whole reply when parsing fails" is a best-of-both rule, obey the contract and
+    be judged on a narrow self-selected surface or ignore it and be judged
+    exactly like a free arm. It would also feed the Latin key names and the
+    schema's own integers to checks written for Greek prose.
+
+    The empty string is not a free pass. The judgeable-surface predicate of 2.4
+    (error falsy, a compact parsed, 120 characters of narrative) excludes such a
+    record, which then FAILS C1b, C2, C3 and C5-common and is dropped from the
+    C1a and C4 published denominators.
+
+    PROVISIONAL for the numeric check, and this is now the only provisional part:
+    2.1's numeric surface is this prose PLUS the rendered slot sentences, which
+    could not be built at run time because the frozen renderer postdates the
+    runs. What is written here is the prose-only lower bound;
+    `scripts/validation/stage_c_structured.py` recomputes the real one offline
+    from the stored reply and writes it beside this one as
+    `numeric_ok_full_surface`, which is the pair the published C1a figure uses.
     """
     if output_contract != "structured":
         return reply
     try:
         obj = json.loads(reply)
     except (TypeError, ValueError):
-        return reply
+        return ""
     if not isinstance(obj, dict):
-        return reply
+        return ""
     parts = [obj.get(k) for k in ("interpretation", "limitations")]
-    text = "\n".join(str(p) for p in parts if isinstance(p, str) and p.strip())
-    return text or reply
+    return "\n".join(str(p) for p in parts if isinstance(p, str) and p.strip())
 
 
 def _jsonable(obj):
@@ -689,6 +713,431 @@ def run_one(case, fixtures, preset, to_utc, output_contract="free"):
 
 
 # --------------------------------------------------------------------------------
+# out-dir guard - a scored run is never overwritten silently
+# --------------------------------------------------------------------------------
+# The five artefacts a run leaves behind. Any ONE of them means the folder
+# already holds somebody's evidence: raw.jsonl alone is an interrupted run, the
+# other four without it is a rescore's output, the full set is a published run
+# that the thesis, agent_eval_compare.py and axis3_full_system.py already cite.
+# Until this guard existed main() did mkdir(exist_ok=True) and then opened
+# raw.jsonl in "w" mode, so one mistyped --out-dir destroyed all five without a
+# word - and raw replies cost real model calls that a non-deterministic model
+# cannot reproduce, so "just run it again" does not restore them.
+RESULT_FILENAMES = ("agent_eval_raw.jsonl", "agent_eval_results.csv",
+                    "agent_eval_metrics.json", "agent_eval_redflags.md",
+                    "agent_eval_report.md")
+RAW_NAME = RESULT_FILENAMES[0]
+
+# Written before the first repetition, because --resume has to know what the
+# interrupted run WAS and the raw rows do not say: a row carries
+# output_contract and the served model ids, but never the preset, the k, the
+# case file, or the prompt hash. Without this file a resume could only guess,
+# and a guessed resume appends one arm's rows to another arm's file - the one
+# failure mode that is invisible afterwards, because the merged raw.jsonl looks
+# perfectly ordinary and every downstream table is computed over it.
+MANIFEST_NAME = "agent_eval_run_manifest.json"
+MANIFEST_SCHEMA = 1
+
+
+class GuardRefusal(Exception):
+    """A refusal carrying the operator-facing explanation.
+
+    Raised by the pure planners so they stay testable without argparse; main()
+    converts it into `ap.error`, which is what the operator sees and what makes
+    the process exit 2 before anything is written.
+    """
+
+
+def existing_result_files(out_dir):
+    """Which of the five artefacts are already in `out_dir`, in declared order."""
+    d = Path(out_dir)
+    if not d.is_dir():
+        return []
+    return [n for n in RESULT_FILENAMES if (d / n).is_file()]
+
+
+def _sha12(text):
+    import hashlib
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()[:12]
+
+
+def frozen_input_hashes(output_contract):
+    """The treatment fingerprint a resumed run must still match.
+
+    Exactly the two hashes write_outputs stamps into the metrics file, computed
+    the same way and with the same "?" fallback, so a manifest can never claim a
+    provenance the metrics file would contradict. Imported inside the function
+    because every agent import in this file is deferred: argument parsing must
+    not drag litellm into the process. A "?" is treated as a value like any
+    other, so it disagrees with a real hash and blocks the resume - which is
+    right, because if SYSTEM_PROMPT cannot be read the run cannot proceed.
+    """
+    try:
+        from agent import SYSTEM_PROMPT
+        prompt_sha = _sha12(SYSTEM_PROMPT)
+    except Exception:
+        prompt_sha = "?"
+    schema_sha = None
+    if output_contract == "structured":
+        try:
+            from final_answer_schema import FINAL_ANSWER_SCHEMA_SHA256
+            schema_sha = FINAL_ANSWER_SCHEMA_SHA256
+        except Exception:
+            schema_sha = "?"
+    return {"system_prompt_sha256": prompt_sha,
+            "final_answer_schema_sha256": schema_sha}
+
+
+def build_run_manifest(a, cases):
+    """What this invocation IS, in the fields that make two runs the same run."""
+    # Compared RESOLVED, so an unflagged run and an explicit --preset naming the
+    # same default are correctly seen as one run rather than two. The fallback
+    # chain is WfedsAgent.__init__'s own (preset -> WFEDS_LLM_PRESET -> default)
+    # and not merely `a.preset or DEFAULT_PRESET`: two unflagged sittings run
+    # with different WFEDS_LLM_PRESET values would otherwise record the same
+    # preset here and pass the resume check while actually calling two
+    # different models, which is exactly the silent arm mixing this file exists
+    # to prevent.
+    try:
+        import os
+        from llm_config import DEFAULT_PRESET
+        preset_resolved = (a.preset or os.environ.get("WFEDS_LLM_PRESET")
+                           or DEFAULT_PRESET)
+    except Exception:
+        preset_resolved = a.preset or "default"
+    m = {
+        "manifest_schema": MANIFEST_SCHEMA,
+        "started_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "resumed_utc": [],
+        "preset": a.preset, "preset_resolved": preset_resolved,
+        "output_contract": a.output_contract, "k": a.k,
+        # Recorded for the reader, never compared: a repo that moved on disk is
+        # not a different experiment.
+        "cases_file": str(Path(a.cases).resolve()),
+        "case_ids": sorted(c["id"] for c in cases),
+        # The ids alone would not notice an EDITED case: same id, different
+        # user_text or different gold, which is a different experiment wearing
+        # the old name.
+        "cases_sha256": _sha12(json.dumps(cases, sort_keys=True,
+                                          ensure_ascii=False)),
+    }
+    m.update(frozen_input_hashes(a.output_contract))
+    return m
+
+
+# Every field whose disagreement means the resumed repetitions would come from a
+# different experiment than the rows already in the file, each with the
+# operator-facing name of whatever controls it.
+_MANIFEST_COMPARED = (
+    ("preset_resolved", "--preset"),
+    ("output_contract", "--output-contract"),
+    ("k", "--k"),
+    ("case_ids", "--cases / --only / --limit, the set of case ids"),
+    ("cases_sha256", "--cases, the case definitions themselves"),
+    ("system_prompt_sha256", "agent.SYSTEM_PROMPT"),
+    ("final_answer_schema_sha256", "the final-answer JSON schema"),
+)
+
+
+def manifest_disagreements(stored, current):
+    """Every field in which a resume would mix two experiments into one file."""
+    if stored.get("manifest_schema") != current["manifest_schema"]:
+        # A schema bump means the fields below may no longer mean what they did,
+        # so comparing them one by one would be theatre.
+        return [f"manifest_schema: the run on disk was written by schema "
+                f"{stored.get('manifest_schema')!r}, this harness writes "
+                f"{current['manifest_schema']!r}"]
+    out = []
+    for field, flag in _MANIFEST_COMPARED:
+        was = stored.get(field, "<missing from the manifest>")
+        now = current[field]
+        if was != now:
+            out.append(f"{field} ({flag}): the run being resumed has {was!r}, "
+                       f"this invocation has {now!r}")
+    return out
+
+
+def read_raw_rows(raw_path):
+    """Parse a raw.jsonl, tolerating exactly one torn FINAL line.
+
+    Rows are written and flushed one per repetition, so the only corruption this
+    format can inflict on itself is a half-written last line after a hard kill,
+    and dropping that line loses nothing that was ever scored. Garbage anywhere
+    else means the file was hand-edited or concatenated, and a resume must not
+    guess what the operator meant by it. Returns (rows, torn_tail).
+    """
+    lines = [l for l in Path(raw_path).read_text(encoding="utf-8").splitlines()
+             if l.strip()]
+    rows, torn = [], False
+    for i, line in enumerate(lines):
+        try:
+            rows.append(json.loads(line))
+        except json.JSONDecodeError:
+            if i == len(lines) - 1:
+                torn = True
+                break
+            raise GuardRefusal(
+                f"{raw_path} is not parseable at line {i + 1} of {len(lines)}, "
+                "and that is not the last line, so this is not an interrupted "
+                "write but an edited or concatenated file. Refusing to guess "
+                "which repetitions it holds; re-run into a new --out-dir.")
+    return rows, torn
+
+
+def plan_resume(out_dir, current_manifest, cases):
+    """What --resume would do, computed before a single byte is written.
+
+    Returns {"keep", "missing", "superseded", "torn_tail"}: `keep` is the rows
+    that count as done, in file order; `missing` is the (case, rep) pairs still
+    owed, in the run's natural order; `superseded` is the pairs that will be run
+    again because their stored row recorded a harness or API error rather than a
+    model answer. Those are deliberately NOT counted as done - a dead API looks
+    exactly like a very bad model, which is why main() aborts after eight of
+    them, and keeping those rows would publish the provider's outage as the
+    model's failure.
+
+    Every condition under which a resume could not be PROVED to be the same
+    experiment raises GuardRefusal. That is the whole design: a half-working
+    resume is worse than none, because it mixes two arms in a file that then
+    looks completely ordinary.
+    """
+    d = Path(out_dir)
+    raw_path = d / RAW_NAME
+    if not raw_path.is_file():
+        raise GuardRefusal(
+            f"--resume: {d} holds no {RAW_NAME}, so there is no interrupted run "
+            "to finish here. Drop --resume to start a fresh run, or point "
+            "--out-dir at the run that was interrupted.")
+    mpath = d / MANIFEST_NAME
+    if not mpath.is_file():
+        raise GuardRefusal(
+            f"--resume: {d} holds no {MANIFEST_NAME}, so what that run was "
+            "cannot be established. The raw rows record the arm and the served "
+            "model ids, but never the preset, the k or the case file, so "
+            "appending to them could merge two different experiments in "
+            "silence. A run recorded before the manifest existed (the "
+            "2026-09-01 baseline, the 2026-09-21 pilots) can therefore never be "
+            "resumed; re-run it into a NEW --out-dir instead.")
+    try:
+        stored = json.loads(mpath.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as e:
+        raise GuardRefusal(
+            f"--resume: {mpath} cannot be read ({type(e).__name__}: {e}), so the "
+            "identity of the run being resumed is unknown. Re-run into a new "
+            "--out-dir.")
+    bad = manifest_disagreements(stored, current_manifest)
+    if bad:
+        raise GuardRefusal(
+            "--resume refused: this invocation is not the run that was "
+            "interrupted, and its repetitions would join that run's raw file as "
+            "if they were the same experiment.\n  " + "\n  ".join(bad)
+            + "\nRun the differing configuration into its own --out-dir.")
+
+    rows, torn = read_raw_rows(raw_path)
+    k = current_manifest["k"]
+    ids = {c["id"] for c in cases}
+    keep, superseded = {}, []
+    for n, r in enumerate(rows, 1):
+        cid, rep = r.get("case_id"), r.get("rep")
+        # The manifest has already proved the case set and the k match, so a row
+        # outside the grid can only come from a hand-merged file. Refuse rather
+        # than drop it: dropping would quietly change what the folder contains.
+        if cid not in ids or not isinstance(rep, int) or not 1 <= rep <= k:
+            raise GuardRefusal(
+                f"--resume: line {n} of {raw_path} is the pair "
+                f"({cid!r}, {rep!r}), outside this run's declared grid of "
+                f"{len(ids)} cases x k={k}. The file does not belong to this "
+                "run; re-run into a new --out-dir.")
+        if r.get("error"):
+            superseded.append((cid, rep))
+            continue
+        if (cid, rep) in keep:
+            raise GuardRefusal(
+                f"--resume: {raw_path} holds more than one scored row for "
+                f"({cid}, rep {rep}). One line per (case, repetition) is the "
+                "invariant every downstream table relies on, so this file was "
+                "merged by hand; re-run into a new --out-dir.")
+        keep[(cid, rep)] = r
+
+    missing = [(c, rep) for c in cases for rep in range(1, k + 1)
+               if (c["id"], rep) not in keep]
+    if not missing:
+        raise GuardRefusal(
+            f"--resume: all {len(ids)} cases x k={k} = {len(ids) * k} "
+            f"repetitions in {d} are already complete, so there is nothing to "
+            "resume. To re-derive the verdicts and the reports from the saved "
+            "replies, use --rescore with a NEW --out-dir; it calls no model.")
+    return {"keep": list(keep.values()), "missing": missing,
+            "superseded": superseded, "torn_tail": torn}
+
+
+def note_resume_in_manifest(out_dir, stamp):
+    """Record that the run was continued, without rewriting its identity.
+
+    A resume must not re-stamp `started_utc` or any compared field: the manifest
+    is what proves the rows in this folder came from one experiment, and that
+    proof would be worthless if every resume rewrote it. Only the append-only
+    `resumed_utc` list changes, so the folder says how many sittings it took.
+    """
+    mpath = Path(out_dir) / MANIFEST_NAME
+    m = json.loads(mpath.read_text(encoding="utf-8"))
+    m["resumed_utc"] = list(m.get("resumed_utc") or []) + [stamp]
+    mpath.write_text(json.dumps(m, ensure_ascii=False, indent=1), encoding="utf-8")
+
+
+def discard_existing_run(out_dir, present, stamp):
+    """Move the artefacts of a deliberately discarded run out of the way.
+
+    Moved and renamed, never deleted, because "I meant to discard it" is exactly
+    the sentence people say just before they discover that they did not. The
+    RENAME is not cosmetic: agent_eval_compare.load() falls back to
+    rglob("agent_eval_metrics.json") when that file is not directly in the
+    folder it was handed, so a discarded metrics.json that kept its canonical
+    name inside a sub-folder could later be read as if it were the live run's.
+    Prefixed, it matches no consumer's filename anywhere.
+    """
+    dest = Path(out_dir) / f"discarded_{stamp}"
+    dest.mkdir(parents=True, exist_ok=True)
+    for name in present:
+        shutil.move(str(Path(out_dir) / name), str(dest / f"discarded_{name}"))
+    # The manifest goes with them, so the folder cannot present the discarded
+    # run's identity to a later --resume of the run that replaces it.
+    mpath = Path(out_dir) / MANIFEST_NAME
+    if mpath.is_file():
+        shutil.move(str(mpath), str(dest / f"discarded_{MANIFEST_NAME}"))
+    print(f"discarded the previous run: {len(present)} artefacts moved to "
+          f"{dest} under 'discarded_' names; nothing was deleted")
+    return dest
+
+
+def occupied_message(out_dir, present, rescore=False):
+    """The abort text: what is in the way, and the exact ways out."""
+    hatch = (
+        "  * finish an interrupted run - add --resume: it keeps every completed\n"
+        "    (case_id, rep), runs only the missing ones plus any repetition whose\n"
+        "    stored row recorded an API error, and refuses outright if this\n"
+        "    invocation's preset, --output-contract, --k, case set, prompt hash\n"
+        "    or schema hash differs from the manifest of the run being resumed;\n"
+        if not rescore else
+        "  * --resume does not apply to --rescore: a rescore re-derives every\n"
+        "    verdict from the saved replies in one pass and calls no model, so\n"
+        "    there is nothing to continue - send it to a new folder;\n")
+    return (
+        "--out-dir already holds a run, and this harness never overwrites one "
+        "silently.\n"
+        f"  folder : {out_dir}\n"
+        f"  present: {', '.join(present)}\n"
+        "Writing here would rewrite those files in place. Raw replies cost real "
+        "model calls\nand the models are not deterministic, so a destroyed run "
+        "is not recoverable by\nrunning the same command again. Choose one, "
+        "explicitly:\n"
+        "  * write somewhere else - point --out-dir at a new folder (the usual\n"
+        "    answer, and the only one that leaves both runs on disk);\n"
+        + hatch +
+        "  * throw the earlier run away on purpose - add\n"
+        # The RESOLVED name, for the same reason the check uses it: this message
+        # must print the exact string the confirmation will accept, or a
+        # case-insensitive filesystem turns the instruction into a refusal.
+        f"    --discard-existing-run {Path(out_dir).resolve().name}\n"
+        "    where the value must be typed as exactly this folder's own name; the\n"
+        "    artefacts are then moved into a dated sub-folder under renamed\n"
+        "    filenames, not deleted.")
+
+
+def guard_out_dir(ap, out_dir, a, cases=None, *, rescore=False, stamp=""):
+    """Refuse to write into a folder that already holds a run.
+
+    Called before build_fixtures, before mkdir and before the first model call,
+    so a refusal costs nothing and leaves nothing behind. Returns the accepted
+    resume plan, or None when the run may simply proceed.
+
+    Both escape hatches are refused when there is nothing for them to protect.
+    That is deliberate: a flag that is harmless on an empty folder ends up in a
+    shell alias, and from there it is no longer an explicit decision.
+    """
+    out_dir = Path(out_dir)
+    want_resume = bool(getattr(a, "resume", False))
+    want_discard = getattr(a, "discard_existing_run", None)
+
+    if want_resume and want_discard:
+        ap.error("--resume and --discard-existing-run are opposites: one keeps "
+                 "the interrupted run's completed repetitions, the other throws "
+                 "the whole folder away. Give exactly one of them.")
+    if want_resume and rescore:
+        ap.error("--resume is for an interrupted MODEL run and means nothing "
+                 "with --rescore, which re-derives every verdict from the saved "
+                 "replies in one pass and calls no model. To re-score into a "
+                 "folder that already holds results, point --out-dir at a new "
+                 "folder.")
+    if out_dir.exists() and not out_dir.is_dir():
+        ap.error(f"--out-dir exists and is not a directory: {out_dir}")
+
+    present = existing_result_files(out_dir)
+    if not present:
+        if want_resume:
+            ap.error(f"--resume: {out_dir} holds none of the five result files, "
+                     "so there is no interrupted run to finish. Drop --resume to "
+                     "start a fresh run here.")
+        if want_discard is not None:
+            ap.error(f"--discard-existing-run: {out_dir} holds none of the five "
+                     "result files, so there is nothing to discard. Drop the "
+                     "flag; it exists only to authorise destroying a run that "
+                     "actually exists.")
+        return None
+
+    if want_discard is not None:
+        # The REAL name on disk, not the one typed into --out-dir. On a
+        # case-insensitive filesystem "runs/Pilot_Luna" and "runs/pilot_luna"
+        # open the same folder, so comparing against the typed spelling would
+        # let a mistyped case authorise discarding a folder whose actual name
+        # the operator never wrote. resolve() returns the on-disk spelling.
+        real_name = out_dir.resolve().name
+        if not real_name:
+            # A filesystem root has no name, so there is no string the operator
+            # could type that would confirm anything. Refuse outright rather
+            # than compare against "" and let an empty flag value through.
+            ap.error(
+                f"--discard-existing-run: {out_dir.resolve()} is a filesystem "
+                "root and has no folder name to type, so the confirmation this "
+                "flag exists to demand cannot be given. Move the run into a "
+                "named folder, or remove it yourself.")
+        if want_discard != real_name:
+            ap.error(
+                "--discard-existing-run must name the folder it is about to "
+                f"empty, typed in full: expected {real_name!r}, got "
+                f"{want_discard!r}. Typing the name is the point - it is what "
+                "makes discarding a run impossible to do out of habit, or from "
+                "a shell history aimed at a different folder.")
+        # A rehearsal must not destroy the thing it is rehearsing on: --dry-run
+        # exists so an operator can check a long command line, and moving the
+        # previous run aside as a side effect of checking it would be the same
+        # accident this guard was written to prevent.
+        if getattr(a, "dry_run", False):
+            print(f"--dry-run: would move {len(present)} artefacts out of "
+                  f"{out_dir} ({', '.join(present)}); nothing was touched")
+        else:
+            discard_existing_run(out_dir, present, stamp)
+        return None
+
+    if want_resume:
+        try:
+            plan = plan_resume(out_dir, build_run_manifest(a, cases or []),
+                               cases or [])
+        except GuardRefusal as e:
+            ap.error(str(e))
+        print(f"resuming {out_dir}: {len(plan['keep'])} repetitions already "
+              f"complete, {len(plan['missing'])} to run"
+              + (f" ({len(plan['superseded'])} of them re-run because the stored "
+                 "row recorded an API error)" if plan["superseded"] else ""))
+        if plan["torn_tail"]:
+            print("  NOTE: the last line of the raw file was truncated by the "
+                  "interruption and is dropped; it was never a scored row.")
+        return plan
+
+    ap.error(occupied_message(out_dir, present, rescore))
+
+
+# --------------------------------------------------------------------------------
 # main
 # --------------------------------------------------------------------------------
 def main():
@@ -717,6 +1166,24 @@ def main():
                          "so a harness bug never costs a re-run. Note: a fix to a "
                          "FIXTURE cannot be rescored (the agent saw the old data) "
                          "and requires a real re-run.")
+    # The two escape hatches from the out-dir guard, deliberately asymmetric:
+    # the SAFE case is a bare flag, the DESTRUCTIVE one costs a typed folder
+    # name. Neither is accepted on a folder that holds no results, so neither
+    # can settle into a shell alias and stop being a decision.
+    ap.add_argument("--resume", action="store_true",
+                    help="continue the interrupted run in --out-dir instead of "
+                         "refusing: keep every completed (case_id, rep), run "
+                         "only the missing ones plus any repetition whose "
+                         "stored row recorded an API error, and refuse if the "
+                         "preset, output contract, k, case set, prompt hash or "
+                         "schema hash differ from that run's manifest. The raw "
+                         "file is copied aside before it is rewritten.")
+    ap.add_argument("--discard-existing-run", default=None, metavar="FOLDER_NAME",
+                    help="deliberately throw away the run already in --out-dir. "
+                         "FOLDER_NAME must be typed as exactly that folder's "
+                         "own name, which is what keeps this from happening out "
+                         "of habit; the artefacts are moved into a dated "
+                         "sub-folder under renamed filenames, never deleted.")
     a = ap.parse_args()
 
     if a.rescore:
@@ -746,6 +1213,13 @@ def main():
                      "rescored: write_outputs would overwrite that run's "
                      "agent_eval_raw.jsonl and all four reports in place, "
                      "which destroys a frozen published run.")
+        # Those two guards stop a rescore from landing on its OWN source. This
+        # third one stops it from landing on any OTHER run: rescore() does the
+        # same mkdir(exist_ok=True) plus open("w") that main() does, so without
+        # it a re-run of a rescore command, or one whose --out-dir was pasted
+        # from the line above it, quietly destroys a different frozen run.
+        guard_out_dir(ap, Path(a.out_dir), a, rescore=True,
+                      stamp=datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S"))
         rescore(Path(a.rescore), a)
         return
 
@@ -757,13 +1231,33 @@ def main():
     if a.limit:
         cases = cases[:a.limit]
 
+    # The destination is resolved and guarded BEFORE the fixtures are built,
+    # before mkdir and before the first model call. The guard is the only thing
+    # standing between a mistyped --out-dir and a published run, so it has to be
+    # reachable with no side effects, and a refusal has to leave the folder
+    # exactly as it found it. It is a no-op on the default timestamped folder,
+    # which by construction does not exist yet.
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+    out_dir = Path(a.out_dir) if a.out_dir else (
+        DATA_DIR / "Exports" / f"agent_eval_{stamp}" / "validation" / "3_agent")
+    resume = guard_out_dir(ap, out_dir, a, cases, stamp=stamp)
+
     KINDS = {"golden", "pins_archive", "pins_forecast", "cutoff", "multifront",
              "nospread"}
     fixtures = build_fixtures()
     unknown = {c.get("fixture", "golden") for c in cases} - KINDS
     if unknown:
         sys.exit(f"ERROR: cases reference unknown fixture kinds: {sorted(unknown)}")
-    print(f"{len(cases)} cases x k={a.k} = {len(cases) * a.k} repetitions")
+
+    # What this invocation owes, as ONE flat list of (case, repetition) pairs: a
+    # resume owes only what the interrupted run never finished, a fresh run owes
+    # the whole grid. Flattening it here means the loop below cannot treat the
+    # two paths differently by accident.
+    todo = (resume["missing"] if resume else
+            [(c, rep) for c in cases for rep in range(1, a.k + 1)])
+    case_pos = {c["id"]: i for i, c in enumerate(cases, 1)}
+    print(f"{len(cases)} cases x k={a.k} = {len(cases) * a.k} repetitions"
+          + (f", {len(todo)} of them still owed" if resume else ""))
     print("tool output derived from the agent's own arguments; kinds: "
           f"{', '.join(sorted(KINDS))}")
 
@@ -771,16 +1265,34 @@ def main():
         for c in cases:
             print(f"  {c['id']:<5} {c['category']:<28} fixture={c.get('fixture','golden'):<14} "
                   f"call={c['gold'].get('must_call_tool')}")
+        if resume:
+            print("\nWould run: "
+                  + ", ".join(f"{c['id']}/rep{rep}" for c, rep in todo))
         print("\nDry run OK - case file and fixtures are consistent.")
         return
 
     from agent import _to_utc
-    stamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
-    out_dir = Path(a.out_dir) if a.out_dir else (
-        DATA_DIR / "Exports" / f"agent_eval_{stamp}" / "validation" / "3_agent")
     out_dir.mkdir(parents=True, exist_ok=True)
-    raw_path = out_dir / "agent_eval_raw.jsonl"
+    raw_path = out_dir / RAW_NAME
     print(f"writing -> {out_dir}")
+
+    if resume:
+        # Copied aside and then rewritten from the kept rows, rather than
+        # appended to. Appending would leave TWO rows for every repetition that
+        # is re-run after an API error, and one line per (case, repetition) is
+        # the invariant write_outputs, rescore() and every downstream table
+        # assume. The copy is what makes the rewrite safe: nothing that was on
+        # disk is lost, the superseded error rows included.
+        backup = out_dir / f"agent_eval_raw.superseded_{stamp}.jsonl"
+        shutil.copy2(raw_path, backup)
+        print(f"previous raw file copied to {backup.name} before it is rewritten")
+        note_resume_in_manifest(out_dir, stamp)
+    else:
+        # Written before the first repetition, so an interrupted run can still
+        # be identified afterwards. See MANIFEST_NAME.
+        (out_dir / MANIFEST_NAME).write_text(
+            json.dumps(build_run_manifest(a, cases), ensure_ascii=False, indent=1),
+            encoding="utf-8")
 
     # A dead API looks exactly like a very bad model: empty replies, no tool
     # call, every gate failing. On 2026-09-01 a run burned an hour writing 164
@@ -790,36 +1302,43 @@ def main():
     consecutive_api_errors, ABORT_AFTER = 0, 8
     aborted = None
 
-    rows, t0 = [], time.time()
+    rows, t0 = (list(resume["keep"]) if resume else []), time.time()
+    n_kept = len(rows)
     with raw_path.open("w", encoding="utf-8") as fh:
-        for ci, case in enumerate(cases, 1):
-            if aborted:
-                break
-            for rep in range(1, a.k + 1):
-                r = run_one(case, fixtures, a.preset, _to_utc,
-                            output_contract=a.output_contract)
-                r["rep"] = rep
-                rows.append(r)
-                fh.write(json.dumps(r, ensure_ascii=False) + "\n")
-                fh.flush()
-                if r.get("error"):
-                    consecutive_api_errors += 1
-                    if consecutive_api_errors >= ABORT_AFTER:
-                        aborted = r["error"]
-                        print(f"\nABORTED after {ABORT_AFTER} consecutive API "
-                              f"errors at {len(rows)}/{len(cases) * a.k} "
-                              f"repetitions.\n  {str(aborted)[:200]}\n"
-                              "  Partial raw.jsonl kept; resume the remaining "
-                              "cases with --only and merge before --rescore.")
-                        break
-                else:
-                    consecutive_api_errors = 0
-                flag = "ok " if r["all_gates_ok"] else "FAIL"
-                print(f"  [{ci:>2}/{len(cases)}] {case['id']:<5} rep{rep} {flag} "
-                      f"calls={r['n_tool_calls']}"
-                      + ("" if r["all_gates_ok"] else
-                         f"  <- {(r['stage_a_problems'] + r['stage_b_problems'] + r['policy_problems'])[:1]}"))
-    print(f"\n{len(rows)} repetitions in {(time.time() - t0) / 60:.1f} min")
+        # The kept rows go back first, in their original file order, so the file
+        # remains the record of the RUN rather than of this session.
+        for r in rows:
+            fh.write(json.dumps(r, ensure_ascii=False) + "\n")
+        fh.flush()
+        for case, rep in todo:
+            r = run_one(case, fixtures, a.preset, _to_utc,
+                        output_contract=a.output_contract)
+            r["rep"] = rep
+            rows.append(r)
+            fh.write(json.dumps(r, ensure_ascii=False) + "\n")
+            fh.flush()
+            if r.get("error"):
+                consecutive_api_errors += 1
+                if consecutive_api_errors >= ABORT_AFTER:
+                    aborted = r["error"]
+                    print(f"\nABORTED after {ABORT_AFTER} consecutive API "
+                          f"errors at {len(rows)}/{len(cases) * a.k} "
+                          f"repetitions.\n  {str(aborted)[:200]}\n"
+                          "  Partial raw.jsonl kept. Finish it later with the "
+                          "SAME command plus --resume: the completed "
+                          "repetitions are kept and these errored ones are run "
+                          "again rather than scored as model failures.")
+                    break
+            else:
+                consecutive_api_errors = 0
+            flag = "ok " if r["all_gates_ok"] else "FAIL"
+            print(f"  [{case_pos[case['id']]:>2}/{len(cases)}] {case['id']:<5} rep{rep} {flag} "
+                  f"calls={r['n_tool_calls']}"
+                  + ("" if r["all_gates_ok"] else
+                     f"  <- {(r['stage_a_problems'] + r['stage_b_problems'] + r['policy_problems'])[:1]}"))
+    print(f"\n{len(rows)} repetitions on file"
+          + (f", {len(rows) - n_kept} of them run now" if resume else "")
+          + f", in {(time.time() - t0) / 60:.1f} min")
 
     write_outputs(out_dir, cases, rows, a.k, a.preset, a.output_contract)
 
@@ -1176,9 +1695,9 @@ def write_outputs(out_dir, cases, rows, k, preset, output_contract="free"):
     print(f"Stage A {metrics['stage_a_rate']:.0%} | Stage B {metrics['stage_b_rate']:.0%} "
           f"| pass^1 {pass1:.0%} | pass^k {passk:.0%}")
     print(f"red flags: {len(flags)} repetitions")
-    for n in ("agent_eval_raw.jsonl", "agent_eval_results.csv",
-              "agent_eval_metrics.json", "agent_eval_redflags.md",
-              "agent_eval_report.md"):
+    # The same tuple the out-dir guard looks for, so the list of artefacts a run
+    # produces and the list a run refuses to overwrite can never drift apart.
+    for n in RESULT_FILENAMES:
         print(f"Saved -> {out_dir / n}")
 
 
