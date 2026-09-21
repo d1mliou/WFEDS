@@ -1,0 +1,88 @@
+{
+  "type": "json_schema",
+  "json_schema": {
+    "name": "wfeds_final_answer",
+    "strict": true,
+    "schema": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "initial_state", "critical_transitions", "final_state", "interpretation", "limitations"],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["ok", "tool_error", "insufficient_input", "abstained"],
+          "description": "\"ok\" = το εργαλείο επέστρεψε αποτέλεσμα και το αφηγείσαι. \"tool_error\" = το εργαλείο επέστρεψε μήνυμα που ξεκινά με INPUT ERROR ή PIPELINE ERROR. \"insufficient_input\" = δεν υπάρχουν αρκετά στοιχεία εισόδου για να τρέξει το εργαλείο. \"abstained\" = δεν απαντάς επί της ουσίας. Όταν το status ΔΕΝ είναι \"ok\", τα initial_state, critical_transitions και final_state είναι ΚΕΝΟΙ πίνακες και η εξήγηση, μαζί με το αυτούσιο μήνυμα σφάλματος όταν υπάρχει, πηγαίνει στο interpretation."
+        },
+        "initial_state": {
+          "type": "array",
+          "description": "ΑΚΡΙΒΩΣ μία εγγραφή: η ΠΡΩΤΗ γραμμή του change_hours, δηλαδή η αρχική κατάσταση κατά την έναρξη. Κενός πίνακας όταν status != \"ok\".",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["period", "settlements_without_route"],
+            "properties": {
+              "period": {
+                "type": "integer",
+                "description": "Το πεδίο `period` αυτής της γραμμής του change_hours, αυτούσιο."
+              },
+              "settlements_without_route": {
+                "type": "integer",
+                "description": "Το πεδίο `cut_off` αυτής της γραμμής του change_hours, αυτούσιο: \"ΟΙΚΙΣΜΟΙ χωρίς καμία διαδρομή διαφυγής (ΟΧΙ δρόμοι)\"."
+              }
+            }
+          }
+        },
+        "critical_transitions": {
+          "type": "array",
+          "description": "Μία εγγραφή για ΚΑΘΕ γραμμή του change_hours στην οποία το cut_off είναι ΜΕΓΑΛΥΤΕΡΟ από το cut_off της προηγούμενης γραμμής του change_hours, με τη σειρά που εμφανίζονται. Καμία τέτοια γραμμή δεν επιτρέπεται να λείπει και καμία άλλη γραμμή δεν επιτρέπεται να προστεθεί. Κενός πίνακας όταν status != \"ok\".",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["period", "settlements_without_route"],
+            "properties": {
+              "period": {
+                "type": "integer",
+                "description": "Το πεδίο `period` αυτής της γραμμής του change_hours, αυτούσιο."
+              },
+              "settlements_without_route": {
+                "type": "integer",
+                "description": "Το πεδίο `cut_off` αυτής της γραμμής του change_hours, αυτούσιο: \"ΟΙΚΙΣΜΟΙ χωρίς καμία διαδρομή διαφυγής (ΟΧΙ δρόμοι)\"."
+              }
+            }
+          }
+        },
+        "final_state": {
+          "type": "array",
+          "description": "ΑΚΡΙΒΩΣ μία εγγραφή, από το αντικείμενο `final_hour` του αποτελέσματος, ΟΧΙ από την τελευταία γραμμή του change_hours, που συχνά αντιστοιχεί σε διαφορετική ώρα. Κενός πίνακας όταν status != \"ok\".",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["period", "settlements_without_route", "road_segments_removed"],
+            "properties": {
+              "period": {
+                "type": "integer",
+                "description": "Το πεδίο `period` του `final_hour`, αυτούσιο."
+              },
+              "settlements_without_route": {
+                "type": "integer",
+                "description": "Το πεδίο `cut_off` του `final_hour`, αυτούσιο: \"ΟΙΚΙΣΜΟΙ χωρίς καμία διαδρομή διαφυγής (ΟΧΙ δρόμοι)\"."
+              },
+              "road_segments_removed": {
+                "type": "integer",
+                "description": "Το πεδίο `edges_removed` του `final_hour`, αυτούσιο: \"ΟΔΙΚΑ ΤΜΗΜΑΤΑ που αφαιρέθηκαν - ΜΟΝΟ τελική ώρα\"."
+              }
+            }
+          }
+        },
+        "interpretation": {
+          "type": "string",
+          "description": "Ελεύθερο κείμενο στα ελληνικά: η ερμηνεία σου. Τι σημαίνει η εξέλιξη για τις αποφάσεις, σειρά και χρονισμός εκκένωσης, πού αξίζει αναχαίτιση. Ισχύουν οι κανόνες του συστήματος. Ο περιορισμός του κανόνα 7 (ΜΗΝ επαναλαμβάνεις τα ίδια νούμερα σε λίστα, όριο 2-4 σύντομα bullets) αφορά ΜΟΝΟ αυτό το πεδίο. Τα αριθμητικά πεδία initial_state, critical_transitions και final_state τα συμπληρώνεις πλήρως και αυτούσια από το αποτέλεσμα του εργαλείου όταν το status είναι \"ok\": εκεί ανήκουν τα νούμερα και ο περιορισμός ΔΕΝ τα αφορά. Εδώ πηγαίνει και η εξήγηση όταν το status δεν είναι \"ok\", καθώς και το αυτούσιο μήνυμα σφάλματος του εργαλείου όταν υπάρχει."
+        },
+        "limitations": {
+          "type": "string",
+          "description": "Ελεύθερο κείμενο στα ελληνικά: η υποχρεωτική δήλωση ορίων. Τι δεν αποτυπώνει το μοντέλο και ότι η τελική απόφαση ανήκει στον επιχειρησιακό υπεύθυνο, όχι στο μοντέλο. Δεν επιτρέπεται να είναι κενό."
+        }
+      }
+    }
+  }
+}

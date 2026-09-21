@@ -34,14 +34,21 @@ dependencies = [
 [project.optional-dependencies]
 # The LLM agent layer + the FastAPI web backend (the Docker image installs this).
 web = [
-    "litellm",
+    # litellm is PINNED for the Axis-3 structured-output experiment: it is the layer
+    # that decides HOW response_format reaches each provider (OpenAI strict json_schema
+    # versus a stripped Gemini generationConfig), so it is part of the treatment, not
+    # packaging trivia. 1.90.3 is the version the 2026-09-21 pilot ran on and the version
+    # the 130 scored runs must run on. See
+    # scripts/validation/axis3_structured_output_preregistration.md section 1.4.
+    "litellm==1.90.3",
     "orjson",               # litellm imports it lazily inside completion()
     "fastapi",
     "uvicorn[standard]",
 ]
 # The LLM agent layer + the (legacy/secondary) Telegram channel.
 telegram = [
-    "litellm",
+    # Pinned for the same reason as in the web group above.
+    "litellm==1.90.3",
     "orjson",
     "python-telegram-bot",
 ]
@@ -51,6 +58,11 @@ telegram = [
 test = [
     "pytest>=7.4",
     "pytest-mock>=3.11",
+    # tests/agent/test_output_contract.py validates real instances against the
+    # structured-output contract offline, instead of paying a provider to tell
+    # us the schema is wrong. litellm already pulls jsonschema in, but the test
+    # suite must not depend on a transitive dependency of an optional group.
+    "jsonschema>=4.18",
 ]
 
 # No importable package is shipped - the repo is script-based (scripts/,

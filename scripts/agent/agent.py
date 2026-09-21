@@ -23,7 +23,17 @@ from zoneinfo import ZoneInfo
 
 sys.path.insert(0, str(Path(__file__).parents[1] / "cell2fire"))
 
-from llm_config import DEFAULT_PRESET, get_model  # noqa: E402
+from llm_config import DEFAULT_PRESET, get_model, get_params  # noqa: E402
+from final_answer_schema import (FINAL_ANSWER_RESPONSE_FORMAT,  # noqa: E402
+                                 FINAL_ANSWER_SCHEMA_SHA256)
+
+# Output contract = the EXPERIMENT axis of the Axis-3 structured-output study,
+# deliberately separate from the model preset (llm_config.PRESETS), because a
+# preset is never repointed once a scored run is published under it.
+#   "free"       the frozen 2026-09-01 behaviour: prompt-guided free Greek text.
+#   "structured" the same prompt and tools, plus a response_format contract on
+#                the POST-TOOL call only (see chat()).
+OUTPUT_CONTRACTS = ("free", "structured")
 
 # User-facing times are Greece local (the analyst's wall clock); the engine
 # speaks naive-UTC strings. tzdata comes in transitively via pandas.
@@ -61,8 +71,11 @@ SYSTEM_PROMPT = """\
    σίγουρος από το ιστορικό αρχείο.
 3. "Επικύρωση" / "ιστορική φωτιά Β. Εύβοιας" -> scenario="north_evia_2021"
    (χωρίς pins/παράθυρο - είναι κλειδωμένα). Προσοχή: αργεί ~15 λεπτά.
-4. Μετά το τρέξιμο: πες σε απλή γλώσσα τι θα συμβεί ανά ώρα (πότε κόβονται
-   δρόμοι, ποιοι οικισμοί κινδυνεύουν/αποκλείονται), πρότεινε ΜΕΤΡΑ: σειρά και
+4. Μετά το τρέξιμο: πες σε απλή γλώσσα πώς εξελίσσεται η κατάσταση ανά ώρα
+   (ΠΟΣΟΙ οικισμοί περνούν σε κίνδυνο, ΠΟΣΟΙ μένουν χωρίς διαδρομή διαφυγής,
+   πότε η φωτιά φτάνει στον πρώτο οικισμό) - το εργαλείο δίνει ΠΛΗΘΗ οικισμών,
+   ΟΧΙ ονόματα, και δίνει αριθμό οδικών τμημάτων ΜΟΝΟ για την τελική ώρα.
+   Πρότεινε ΜΕΤΡΑ: σειρά και
    χρονισμό εκκένωσης, πού αξίζει αναχαίτιση (χαμηλό final_front_class4_pct =
    πιο μαχητό μέτωπο· ψηλό = μόνο έμμεση καταπολέμηση). Τα νούμερα είναι το
    χειρότερο σενάριο - πες το. Τα μέτρα που προτείνεις είναι ΓΝΩΜΟΔΟΤΙΚΑ,
@@ -74,7 +87,12 @@ SYSTEM_PROMPT = """\
 5. Αν το εργαλείο απορρίψει είσοδο (INPUT ERROR), μετέφερε το μήνυμα αυτούσιο
    και βοήθησε τον χρήστη να το διορθώσει.
 6. Απαντάς ΠΑΝΤΑ στα ελληνικά, σύντομα και επιχειρησιακά. Μην επινοείς αριθμούς
-   που δεν υπάρχουν στο αποτέλεσμα του εργαλείου.
+   που δεν υπάρχουν στο αποτέλεσμα του εργαλείου. Το εργαλείο ΔΕΝ επιστρέφει
+   ονόματα οικισμών ή δρόμων, κατευθύνσεις εξάπλωσης, ανέμους, έδαφος/καύσιμα,
+   γεωμετρία μετώπου (κεφαλή/πλευρές), αποστάσεις μεταξύ μετώπων, πληθυσμό ή
+   εξόδους ανά οικισμό: ΠΟΤΕ μη γράφεις τέτοιο στοιχείο - ούτε ως παράδειγμα,
+   ούτε ως πιθανότητα. Μίλα με πλήθη και με ό,τι υπάρχει στα πεδία, και δες το
+   field_meanings του αποτελέσματος για το τι μετράει κάθε πεδίο.
 7. Μετά από κάθε τρέξιμο, ο χρήστης βλέπει ΗΔΗ δύο δομημένες κάρτες (παράμετροι
    + αριθμητικά αποτελέσματα). ΜΗΝ επαναλαμβάνεις τα ίδια νούμερα σε λίστα -
    εστίασε στην ΕΡΜΗΝΕΙΑ: το χρονικό της εξέλιξης (πότε αλλάζει κάτι), τι
@@ -117,6 +135,45 @@ TOOLS = [{
 
 TOOLS_SCHEMA_SHA256 = hashlib.sha256(
     json.dumps(TOOLS, ensure_ascii=False, sort_keys=True).encode("utf-8")).hexdigest()
+
+
+def _response_meta(resp, contract_attached):
+    """Every scrap of provider metadata a completion carries, per call.
+
+    The 2026-09-01 runs recorded only the litellm ALIAS ("openai/gpt-5.6-luna"),
+    never what the provider actually served, so the model version behind the
+    published baseline is unrecoverable and model drift cannot be ruled out for
+    it. That gap is a declared limitation of this study; it must not recur, so
+    every new call stores the served id, the request id, the system fingerprint,
+    the finish reason and the full usage object (reasoning/thinking tokens
+    included - they are billed and are invisible in the reply).
+    Best-effort by design: metadata must never break a conversation."""
+    meta = {"contract_attached": contract_attached}
+    for key in ("model", "id", "created", "system_fingerprint", "service_tier",
+                "provider_specific_fields"):
+        try:
+            value = getattr(resp, key, None)
+            if value is not None:
+                meta[key] = value if isinstance(
+                    value, (str, int, float, bool)) else str(value)
+        except Exception:
+            pass
+    try:
+        choice = resp.choices[0]
+        meta["finish_reason"] = getattr(choice, "finish_reason", None)
+        refusal = getattr(getattr(choice, "message", None), "refusal", None)
+        if refusal:
+            meta["refusal"] = str(refusal)
+    except Exception:
+        pass
+    try:
+        usage = getattr(resp, "usage", None)
+        if usage is not None:
+            meta["usage"] = (usage.model_dump(exclude_none=True)
+                             if hasattr(usage, "model_dump") else dict(usage))
+    except Exception:
+        pass
+    return meta
 
 
 def _to_utc(start_local):
@@ -206,6 +263,20 @@ def _compact(result):
         prev = row
     return {
         "run_id": result["run_id"],
+        # Without this legend the columns are bare English tokens in an
+        # otherwise Greek exchange, and `cut_off` reads as "cut-off roads".
+        # Evaluation 2026-08/09 showed that to be the single commonest error:
+        # settlements narrated as road segments. See [[Validation]] 3b.
+        "field_meanings": {
+            "at_risk": "ΟΙΚΙΣΜΟΙ σε κίνδυνο (= routed + cut_off + impacted)",
+            "routed": "ΟΙΚΙΣΜΟΙ που έχουν ακόμη διαδρομή διαφυγής",
+            "cut_off": "ΟΙΚΙΣΜΟΙ χωρίς καμία διαδρομή διαφυγής (ΟΧΙ δρόμοι)",
+            "impacted": "ΟΙΚΙΣΜΟΙ μέσα στην περίμετρο της φωτιάς",
+            "population": "κάτοικοι των at_risk οικισμών",
+            "edges_removed": "ΟΔΙΚΑ ΤΜΗΜΑΤΑ που αφαιρέθηκαν - ΜΟΝΟ τελική ώρα",
+            "fire_km2": "καμένη έκταση σε km2",
+            "final_front_class4_pct": "ποσοστό του ΤΕΛΙΚΟΥ μετώπου σε κλάση 4",
+        },
         "inputs": {k: result["inputs"].get(k) for k in
                    ("mode", "window_km", "start_time_utc", "horizon_h",
                     "front_cells", "n_fronts_detected", "scenario",
@@ -220,26 +291,48 @@ def _compact(result):
 class WfedsAgent:
     """One conversation. The channel feeds text+pins; gets (reply, files)."""
 
-    def __init__(self, preset=None):
+    def __init__(self, preset=None, output_contract="free"):
+        if output_contract not in OUTPUT_CONTRACTS:
+            raise ValueError(
+                f"Unknown output_contract {output_contract!r}. "
+                f"Available: {sorted(OUTPUT_CONTRACTS)}")
         self.model, self.api_key = get_model(preset)
+        self.params = get_params(preset)      # provider quirks, config not code
         self.preset = preset or os.environ.get("WFEDS_LLM_PRESET", DEFAULT_PRESET)
+        # Experiment axis, INDEPENDENT of the model preset (a preset is never
+        # repointed once a scored run is published under it). "free" is the
+        # frozen 2026-09-01 behaviour and must stay byte-identical to it.
+        self.output_contract = output_contract
         self.messages = [{"role": "system", "content": SYSTEM_PROMPT}]
         self._turn_runs = []      # runs triggered by the CURRENT chat turn
+        self.last_turn_meta = []  # per-completion provider metadata, this turn
 
     def chat(self, user_text, pins=None, progress_cb=None):
         import litellm
 
         t_start = datetime.now(timezone.utc)
         self._turn_runs = []
+        self.last_turn_meta = []
         models_reported = []      # exact model IDs the API reported this turn
         pin_note = (f"[ΤΡΕΧΟΝΤΑ PINS ΧΡΗΣΤΗ: {pins}]" if pins
                     else "[ΚΑΝΕΝΑ PIN - ζήτα τοποθεσία αν χρειάζεται]")
         self.messages.append({"role": "user",
                               "content": f"{pin_note}\n{user_text}"})
         files, cards = [], []
+        # TURN-LOCAL, never read from self.messages: the conversation persists
+        # across turns (telegram_bot.py:81, docker/api.py:343), so a stale
+        # role:"tool" message from an earlier turn must NOT attach the contract
+        # to the first call of this one - that call is the one that produces the
+        # tool arguments, and moving it would move Stage A and Stage B.
+        tool_done = False
         for _ in range(4):                      # tool-call rounds ceiling
+            extra = ({"response_format": FINAL_ANSWER_RESPONSE_FORMAT}
+                     if (self.output_contract == "structured" and tool_done)
+                     else {})
             resp = litellm.completion(model=self.model, api_key=self.api_key,
-                                      messages=self.messages, tools=TOOLS)
+                                      messages=self.messages, tools=TOOLS,
+                                      **self.params, **extra)
+            self.last_turn_meta.append(_response_meta(resp, bool(extra)))
             if getattr(resp, "model", None):
                 models_reported.append(resp.model)
             msg = resp.choices[0].message
@@ -257,6 +350,7 @@ class WfedsAgent:
                 self.messages.append({"role": "tool",
                                       "tool_call_id": tc.id,
                                       "content": out})
+                tool_done = True
         reply = "Σταμάτησα - πολλές διαδοχικές κλήσεις εργαλείου."
         self._write_provenance(user_text, pins, reply, models_reported, t_start)
         return reply, files, cards
@@ -280,6 +374,11 @@ class WfedsAgent:
                     "models_reported": models_reported,
                     "system_prompt_sha256": SYSTEM_PROMPT_SHA256,
                     "tools_schema_sha256": TOOLS_SCHEMA_SHA256,
+                    "output_contract": self.output_contract,
+                    "final_answer_schema_sha256": (
+                        FINAL_ANSWER_SCHEMA_SHA256
+                        if self.output_contract == "structured" else None),
+                    "provider_meta": self.last_turn_meta,
                     "user_text": user_text,
                     "pins": pins,
                     "tool_args_from_llm": rec["tool_args_from_llm"],
@@ -291,7 +390,8 @@ class WfedsAgent:
                                     .strftime("%Y-%m-%dT%H:%M:%SZ"),
                 }
                 (Path(rec["run_dir"]) / "provenance.json").write_text(
-                    json.dumps(payload, ensure_ascii=False, indent=1),
+                    json.dumps(payload, ensure_ascii=False, indent=1,
+                               default=str),
                     encoding="utf-8")
             except Exception:
                 pass

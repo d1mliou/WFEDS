@@ -17,3 +17,11 @@ LLM-WFEDS/
 
 # Third-party Claude Code skills (kepano/obsidian-skills) - local-only, not synced via git
 .claude/skills/
+
+# Scratch working area (PDF text dumps, throwaway scripts, one-off outputs).
+# The Axis-3 pilot record is NOT scratch: it lives in
+# scripts/validation/pilot_records/ and is committed.
+tmp/
+
+# Claude Code agent definitions - local tooling, not part of the thesis code
+.agents/
