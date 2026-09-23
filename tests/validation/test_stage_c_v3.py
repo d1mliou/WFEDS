@@ -443,6 +443,122 @@ def test_bundle_is_deterministic(tmp_path, bundle):
     assert [r["sha256"] for r in first["records"]] == [r["sha256"] for r in second["records"]]
 
 
+# ------------------------------------------------------ repeatability audit
+def _fake_bundle(tmp_path, per_cell=40):
+    """A bundle-shaped folder with judgeable records spread over four cells."""
+    B = tmp_path / "bundle"
+    B.mkdir()
+    mapping, records = {}, []
+    n = 0
+    for arm in ("free", "structured"):
+        for model in ("luna", "terra"):
+            for i in range(per_cell):
+                n += 1
+                rid = f"R{n:04d}"
+                mapping[rid] = {"arm": arm, "model": model,
+                                "case_id": f"C{i:02d}", "rep": 1,
+                                "uid": f"C{i:02d}#1"}
+                records.append({"record_id": rid, "file": f"records/{rid}.txt",
+                                "sha256": "0" * 64})
+    (B / "KEY_DO_NOT_SHIP.json").write_text(
+        json.dumps({"mapping": mapping, "not_reached": []}), encoding="utf-8")
+    (B / "blind_manifest.json").write_text(
+        json.dumps({"records": records}), encoding="utf-8")
+    return B
+
+
+def test_audit_sample_is_66_balanced_and_seeded(tmp_path):
+    aud = load("stage_c_v3_repeatability_audit")
+    B = _fake_bundle(tmp_path)
+    out = tmp_path / "sample.json"
+    assert aud.select(["--bundle", str(B), "--out", str(out)]) == 0
+    doc = json.loads(out.read_text(encoding="utf-8"))
+    assert doc["n_selected"] == 66
+    assert doc["declared_before_judging"] is True
+    assert doc["seed"] == aud.SEED
+    counts = sorted(doc["selected_per_cell"].values())
+    assert counts == [16, 16, 17, 17], counts          # as even as 66 over 4 allows
+    assert len(set(doc["record_ids"])) == 66
+
+
+def test_audit_sample_is_deterministic(tmp_path):
+    aud = load("stage_c_v3_repeatability_audit")
+    B = _fake_bundle(tmp_path)
+    first, second = tmp_path / "a.json", tmp_path / "b.json"
+    aud.select(["--bundle", str(B), "--out", str(first)])
+    aud.select(["--bundle", str(B), "--out", str(second)])
+    assert (json.loads(first.read_text(encoding="utf-8"))["record_ids"]
+            == json.loads(second.read_text(encoding="utf-8"))["record_ids"])
+
+
+def test_audit_reports_a_shortfall_rather_than_silently_taking_fewer(tmp_path):
+    aud = load("stage_c_v3_repeatability_audit")
+    B = _fake_bundle(tmp_path, per_cell=5)          # only 20 judgeable in total
+    out = tmp_path / "sample.json"
+    assert aud.select(["--bundle", str(B), "--out", str(out)]) == 1
+    doc = json.loads(out.read_text(encoding="utf-8"))
+    assert doc["shortfall"]
+    assert doc["n_selected"] == 20
+
+
+def _judgement(rid, **over):
+    d = _d(record_id=rid)
+    d.update(over)
+    return d
+
+
+def test_audit_compare_reports_agreement_kappa_and_every_question(tmp_path):
+    aud = load("stage_c_v3_repeatability_audit")
+    ids = [f"R{i:04d}" for i in range(1, 21)]
+    sample = tmp_path / "s.json"
+    sample.write_text(json.dumps({"seed": aud.SEED, "record_ids": ids}),
+                      encoding="utf-8")
+
+    def pass_or_fail(rid, ok):
+        return _judgement(rid) if ok else _judgement(
+            rid, critical_events_complete=False, stage_c_pass=False,
+            failures=[{"question": "critical_events_complete", "exact_quote": "",
+                       "payload_evidence": "E_X", "reason": "r"}])
+
+    primary = [pass_or_fail(r, i < 12) for i, r in enumerate(ids)]
+    # two records disagree between the passes
+    second = [pass_or_fail(r, i < 10) for i, r in enumerate(ids)]
+    p1, p2 = tmp_path / "p1.json", tmp_path / "p2.json"
+    p1.write_text(json.dumps({"decisions": primary}), encoding="utf-8")
+    p2.write_text(json.dumps({"decisions": second}), encoding="utf-8")
+    rep = tmp_path / "rep.json"
+    assert aud.compare(["--sample", str(sample), "--primary", str(p1),
+                        "--second", str(p2), "--out", str(rep)]) == 0
+    r = json.loads(rep.read_text(encoding="utf-8"))
+    assert r["n_pairs"] == 20
+    assert r["stage_c_pass"]["agree"] == 18
+    assert r["stage_c_pass"]["cohens_kappa"] is not None
+    assert set(r["per_question_agreement"]) == set(aud.QUESTIONS)
+    assert len(r["records_whose_overall_verdict_flipped"]) == 2
+    assert r["problems"] == []
+
+
+def test_audit_never_overwrites_a_primary_label(tmp_path):
+    """The audit is a measurement. It writes a report and nothing else."""
+    aud = load("stage_c_v3_repeatability_audit")
+    ids = ["R0001"]
+    sample = tmp_path / "s.json"
+    sample.write_text(json.dumps({"seed": aud.SEED, "record_ids": ids}),
+                      encoding="utf-8")
+    p1, p2 = tmp_path / "p1.json", tmp_path / "p2.json"
+    primary_blob = json.dumps({"decisions": [_judgement("R0001")]})
+    p1.write_text(primary_blob, encoding="utf-8")
+    p2.write_text(json.dumps({"decisions": [_judgement(
+        "R0001", limitations_complete=False, stage_c_pass=False,
+        failures=[{"question": "limitations_complete", "exact_quote": "",
+                   "payload_evidence": "E_Y", "reason": "r"}])]}), encoding="utf-8")
+    aud.compare(["--sample", str(sample), "--primary", str(p1), "--second", str(p2),
+                 "--out", str(tmp_path / "rep.json")])
+    assert p1.read_text(encoding="utf-8") == primary_blob
+    rep = json.loads((tmp_path / "rep.json").read_text(encoding="utf-8"))
+    assert "decides nothing" in rep["rule"]
+
+
 # ------------------------------------------------------------ frozen artefacts
 def test_frozen_artefacts_hash_to_recorded_values():
     expected = {

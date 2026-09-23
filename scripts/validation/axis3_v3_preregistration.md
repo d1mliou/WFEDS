@@ -9,14 +9,31 @@ not reuse its artefacts.
 
 Three stages over one agent and one tool.
 
-| stage | what | how | scope |
+| stage | what | how | scope of THIS experiment |
 |---|---|---|---|
-| A | parameter extraction | deterministic, semantic comparison against the case gold, including fields that must be absent | 53 cases x k=5 |
-| B | tool invocation | deterministic: called when due, exactly once, pins used, real INPUT ERROR relayed, no second call | 53 cases x k=5 |
-| C | final-answer faithfulness | one frozen LLM judge, record-level checklist of five questions, over everything the answer delivers | 33 cases x k=5 x 2 models x 2 arms |
+| A | parameter extraction | deterministic, semantic comparison against the case gold, including fields that must be absent | 33 cases x k=5 x 2 models x 2 arms |
+| B | tool invocation | deterministic: called when due, exactly once, pins used, real INPUT ERROR relayed, no second call | 33 cases x k=5 x 2 models x 2 arms |
+| C | final-answer faithfulness | one frozen LLM judge, record-level checklist of six questions, over everything the answer delivers | 33 cases x k=5 x 2 models x 2 arms |
 
 A run succeeds when `Stage A AND Stage B AND Stage C` all pass. This is a visible
 conjunction, not a weighted index, and every component is also published on its own.
+
+**Two evaluations exist and their tables are never merged.** Corrected 2026-09-23.
+
+1. **The paired free-versus-structured experiment**, which is what this document
+   governs: all three stages on the **same 33 cases**, 33 x 5 x 2 models x 2 arms =
+   **660 records**. Stage A and Stage B are recomputed here on those 33 cases so that
+   the conjunction `A AND B AND C` is formed from one consistent record set.
+2. **The broader Stage-A / Stage-B evaluation on the full 53-case suite**, from the
+   stored 2026-09-01 runs. It is reported **separately**, under its own denominator,
+   and carries the abstention, ask-first, no-pin and invalid-input categories that
+   never reach Stage C.
+
+Re-running all 53 cases in every cell would cost 1,060 runs rather than 660. It is
+**not** done, and the reason is stated rather than assumed: the twenty extra cases
+never reach Stage C, and the output contract attaches only after the tool call, so it
+cannot change a Stage-A or Stage-B verdict. Nothing is gained for this comparison by
+paying for them.
 
 ## 2. The Stage-C case set
 
@@ -54,7 +71,7 @@ repetition. No human scorer, no second judge, no majority vote, no calibration
 chain, no inter-rater statistic, no readjudication pass. If the judge is wrong, it is
 wrong visibly and identically on both arms, and its evidence is published per record.
 
-Five questions about the whole answer, no atomic-claim decomposition and no
+Six questions about the whole answer, no atomic-claim decomposition and no
 supported-claim percentage:
 
 1. `has_contradicted_information`
@@ -97,11 +114,11 @@ explicitly:
 | `greek` | deterministic, outside the judge |
 | `relay_input_error_verbatim`, `no_silent_correction` | Stage B |
 | `ask_for_location`, `no_invented_coordinates`, `propose_defaults_12km_6h`, `exactly_one_tool_call` | Stage A and B |
-| `disclose_forecast_weather` | a critical event of every forecast case |
-| `mention_multiple_fronts` | a critical event of A04 and I05; M01 carries its inverse |
-| `no_absolute_recommendation` | question 4 |
-| `limits_statement` | question 5 |
-| `cover_cutoff_events` | questions 3 |
+| `disclose_forecast_weather` | a required disclosure of every forecast case, question 4 |
+| `mention_multiple_fronts` | a required disclosure of A04 and I05; M01 carries its inverse, question 4 |
+| `no_absolute_recommendation` | question 5 |
+| `limits_statement` | question 6 |
+| `cover_cutoff_events` | question 3 |
 
 ### Critical events
 
@@ -199,6 +216,38 @@ repetitions kept together. Repetitions of one case are not independent experimen
 The study is descriptive by design. A difference that the sign test does not separate
 from chance is reported as descriptive and never as an accuracy effect.
 
+## 5b. Repeatability audit, pre-declared 2026-09-23
+
+A single judge's run-to-run stability is a property of the result, not a detail, and
+the pilot already measured one accidental instance of it: a byte-identical answer
+judged five times gave four passes and one failure. This declares the measurement in
+advance so the number cannot be chosen after the fact.
+
+**Sample.** 66 judgeable records, selected with the published seed
+`axis3-v3-repeatability-20260923`, balanced as evenly as 66 over four cells allows:
+17, 17, 16, 16. The selection runs **before** the main judging pass and its file is
+written before any judgement exists. A shortfall in any cell is reported rather than
+silently absorbed.
+
+**Second pass.** The same frozen judge, prompt, schema and effort, one independent
+call per record, on those 66 records only, written to its own folder.
+
+**What it may and may not do.** It may not replace a primary label, may not feed a
+majority vote, may not break a tie and may not trigger a third pass. The primary
+labels stand exactly as the main pass wrote them. This audit reports how reproducible
+they were and decides nothing.
+
+**Reported.** Agreement and Cohen's kappa on the overall `stage_c_pass`, with its 2x2
+table; agreement separately on each of the six questions, with each pass's own
+distribution beside it; and every record whose overall verdict flipped, named, with
+the questions that moved.
+
+**Read it as a floor on precision, not as a correction.** A kappa below one does not
+mean the primary labels are wrong. It means an absolute Stage-C rate is a rate under
+one judge on one pass, and every published absolute number carries that caption. The
+paired case-level comparison is better protected, because both arms face the same
+judge under the same conditions and the unit of inference is the case.
+
 ## 6. Provenance to freeze before execution
 
 Recorded in `blind_manifest.json` at build time: the gold hash, the frozen-payload
@@ -266,7 +315,7 @@ without changing an outcome: on one record the judge called the end state uncove
 round 1 and covered in round 2. That is the instrument's own run-to-run variation on a
 single event and is recorded rather than smoothed away.
 
-**What the pilot confirms.** The judge answers all five questions, quotes verbatim and
+**What the pilot confirms.** The judge answers all six questions, quotes verbatim and
 names payload fields or `event_id`s, distinguishes `impacted` from `at_risk` where the
 Greek is ambiguous, treats a stated hour range as covering the hours inside it, reports
 `uncalibrated_fuels_mentioned` without letting it touch the gate, and returns output
@@ -416,6 +465,8 @@ the rate, and caption every absolute number accordingly.
 | `stage_c_v3_judge_prompt.txt` | the judge prompt skeleton |
 | `stage_c_v3_judge_schema.json` | the judge output contract |
 | `stage_c_v3_build_gold.py` | builds and freezes the three artefacts above |
+| `stage_c_v3_repeatability_audit.py` | locks the 66-record sample, then reports agreement and kappa |
+| `stage_c_v3_negative_control.py` | builds the disclosure-gate negative control |
 | `stage_c_v3_build_judge_inputs.py` | builds the blinded records |
 | `stage_c_v3_validate_judge_output.py` | refuses an incomplete or unevidenced pass |
 | `axis3_v3_aggregate.py` | the final metrics, with no `exact_set` |
