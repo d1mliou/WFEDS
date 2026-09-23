@@ -94,7 +94,7 @@ stage_c_pass =
 **The two event lists are separate gates, closed by the author 2026-09-22.** The gold
 carries one event list with a `kind` on every entry; the record splits it at render
 time and the gold's per-case content is untouched. Question 3 is answered on the 60
-`transition` and 33 `final_outcome` events. Question 4 is answered on the 29
+`transition` and 33 `final_outcome` events. Question 4 is answered on the 25
 `policy_disclosure` events, which carry the forecast-weather, front-count and
 front-intensity rules of the system prompt. An absent disclosure never fails question 3
 and an absent transition never fails question 4, so a coverage number and a policy
@@ -125,7 +125,7 @@ explicitly:
 Authored per case from the user's actual question, not mechanically from every
 `change_hours` row. A request for the hour-by-hour story requires each transition
 individually; "run the scenario" requires the escalation as a range and the end
-state. **122** events across the 33 cases, between 2 and 7 per case.
+state. **118** events across the 33 cases, between 2 and 7 per case.
 
 **A required event is a real change after hour 0, or the operationally significant
 end state. Closed by the author 2026-09-22.** The hour-0 baseline is a starting
@@ -144,7 +144,7 @@ On the structured arm the `initial_state` slot continues to be checked
 deterministically as field accuracy. That is a different question from narrative
 coverage and the two never merge.
 
-Every event carries a `kind`. 60 are `transition`, 33 are `final_outcome`, and 29 are
+Every event carries a `kind`. 60 are `transition`, 33 are `final_outcome`, and 25 are
 `policy_disclosure`: forecast-weather provenance (rule 2), the independent-front count
 (rule 1) and the final front intensity (rule 4). **Resolved by the author 2026-09-22:**
 they are kept, because dropping them would remove three system-prompt policies from the
@@ -453,6 +453,40 @@ either without the caveat.
 selecting the result. A second judge would reopen exactly the multi-judge machinery this
 design was built to retire. The honest option is the one taken here: measure it, publish
 the rate, and caption every absolute number accordingly.
+
+## 7g. Time-dependent fixture correction, applied 2026-09-23 before any judging
+
+A technical correction of the test fixtures, made after the 660 production runs and
+before a single Stage-C judgement. It is not a finding about any model and not a
+limitation of the study.
+
+**What was wrong.** C01 to C04 give a fixed start date in late August 2026. The tool
+selects forecast weather for a start date close to the wall clock and archived weather
+for an older one. When the gold payloads were first frozen, from the 2026-09-01 runs,
+those dates were a few days old and the tool returned `forecast`; on 2026-09-23, when
+the production runs were made, they were nearly four weeks old and it returned
+`archive`. Every numeric value was identical between the two; only
+`inputs.weather_source` moved. Left uncorrected, all 80 records of these four cases,
+every one of which passed Stage A and Stage B, would have been excluded as
+`NOT_REACHED`, and the gold would have demanded a forecast disclosure that the payload
+no longer supported.
+
+**What was changed.** For C01 to C04 only: the frozen payload's `weather_source` is set
+to `archive` and the forecast-disclosure event is removed, exactly as for every other
+archive case. This restores the cases' own declared design, fixture `pins_archive` and
+no `disclose_forecast_weather` policy. Required events fall from 122 to 118 and policy
+disclosures from 29 to 25; eleven cases now carry no required disclosure.
+
+**Stale wording in two case prompts corrected at the same time.** C01 said "today" and
+C03 "yesterday evening" alongside an explicit date, which stopped being true once the
+date aged. Both are rewritten with the date alone. The date, the time and every
+expected tool argument are unchanged, so no model run is repeated.
+
+**What was not changed.** The raw records are untouched and keep the exact wording the
+models received; the judge is shown that recorded text, because it is what each model
+answered. The other 29 cases are byte-identical in both the gold and the frozen
+payloads. Verified mechanically: after the correction, all 603 production records that
+passed Stage A and Stage B carry a payload identical to the corrected gold.
 
 ## 8. Artefacts
 

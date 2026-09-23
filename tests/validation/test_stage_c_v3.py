@@ -215,6 +215,31 @@ def test_structured_answer_carries_its_factual_slots(tmp_path):
     assert free == "Απλό κείμενο απάντησης."
 
 
+def test_time_dependent_fixture_correction(gold):
+    """C01-C04: the tool returns archive weather for their aged start dates, so their
+    frozen payload is archive and they carry no forecast disclosure. Applied
+    2026-09-23 before any judging."""
+    payloads = json.loads((V / "stage_c_v3_frozen_payloads.json").read_text(
+        encoding="utf-8"))["payloads"]
+    for cid in ("C01", "C02", "C03", "C04"):
+        assert payloads[cid]["inputs"]["weather_source"] == "archive", cid
+        ids = [e["event_id"] for e in gold["cases"][cid]["critical_events"]]
+        assert "E_WEATHER_FORECAST" not in ids, cid
+    disclosures = sum(1 for c in gold["cases"].values() for e in c["critical_events"]
+                      if e["kind"] == "policy_disclosure")
+    total = sum(len(c["critical_events"]) for c in gold["cases"].values())
+    assert (total, disclosures) == (118, 25)
+
+
+def test_no_stage_c_prompt_pairs_a_relative_day_with_an_explicit_date():
+    rows = [json.loads(l) for l in (V / "agent_eval_cases_stagec33.jsonl").read_text(
+        encoding="utf-8").splitlines() if l.strip()]
+    for r in rows:
+        has_date = bool(re.search(r"\d{2}/\d{2}/\d{4}|\d{4}-\d{2}-\d{2}", r["user_text"]))
+        relative = any(w in r["user_text"] for w in ("σήμερα", "χθες", "αύριο"))
+        assert not (has_date and relative), (r["id"], r["user_text"])
+
+
 def test_nospread_cases_guard_against_invented_risk(gold):
     for cid in ("L01", "L02"):
         ev = gold["cases"][cid]["critical_events"]
@@ -562,9 +587,9 @@ def test_audit_never_overwrites_a_primary_label(tmp_path):
 # ------------------------------------------------------------ frozen artefacts
 def test_frozen_artefacts_hash_to_recorded_values():
     expected = {
-        "agent_eval_cases_stagec33.jsonl": "e4fe950afec39f61",
-        "stage_c_v3_frozen_payloads.json": "4550f5d7a065ebb8",
-        "stage_c_v3_gold.json": "158629c36d8cc226",
+        "agent_eval_cases_stagec33.jsonl": "9cd5b4efe9542f93",
+        "stage_c_v3_frozen_payloads.json": "be78b44d733659a9",
+        "stage_c_v3_gold.json": "57a01013a0f0dcd1",
     }
     for name, want in expected.items():
         got = hashlib.sha256((V / name).read_bytes()).hexdigest()[:16]

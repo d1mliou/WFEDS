@@ -917,7 +917,7 @@
     "front_cells": 124,
     "n_fronts_detected": 1,
     "scenario": null,
-    "weather_source": "forecast"
+    "weather_source": "archive"
    },
    "final_hour": {
     "period": 6,
@@ -1017,7 +1017,7 @@
     "front_cells": 124,
     "n_fronts_detected": 1,
     "scenario": null,
-    "weather_source": "forecast"
+    "weather_source": "archive"
    },
    "final_hour": {
     "period": 12,
@@ -1135,7 +1135,7 @@
     "front_cells": 124,
     "n_fronts_detected": 1,
     "scenario": null,
-    "weather_source": "forecast"
+    "weather_source": "archive"
    },
    "final_hour": {
     "period": 10,
@@ -1244,7 +1244,7 @@
     "front_cells": 124,
     "n_fronts_detected": 1,
     "scenario": null,
-    "weather_source": "forecast"
+    "weather_source": "archive"
    },
    "final_hour": {
     "period": 8,

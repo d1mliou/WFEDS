@@ -8,6 +8,10 @@
   "policy_disclosure": "not a transition: a system-prompt policy carried here because the five-question checklist has no policy item. Covers forecast-weather provenance (rule 2), the independent-front count (rule 1) and the final front intensity reading (rule 4). Flagged for the author: a strict reading of the 2026-09-22 rule would exclude these, but dropping them would remove three system-prompt policies from the evaluation entirely."
  },
  "stage_c_pass_rule": "has_contradicted_information is false AND has_unsupported_information is false AND critical_events_complete is true AND required_disclosures_complete is true AND advice_grounded_and_caveated in (true, NOT_APPLICABLE) AND limitations_complete is true",
+ "question_scope": {
+  "critical_events_complete": "events of kind transition and final_outcome only",
+  "required_disclosures_complete": "events of kind policy_disclosure only"
+ },
  "cases": {
   "A01": {
    "case_id": "A01",
@@ -738,7 +742,7 @@
   "C01": {
    "case_id": "C01",
    "category": "timezone_trap",
-   "user_text": "Η πυρκαγιά ξεκίνησε στις 16:45 σήμερα 27/08/2026. Τρέξε 6 ώρες, παράθυρο 12 km.",
+   "user_text": "Η πυρκαγιά ξεκίνησε στις 16:45 στις 27/08/2026. Τρέξε 6 ώρες, παράθυρο 12 km.",
    "fixture": "pins_archive",
    "purpose": "The 2026-07-10 field regression: a local wall-clock time must not be converted.",
    "expected_action": "call the tool exactly once and narrate the result",
@@ -756,14 +760,6 @@
     "limits_statement"
    ],
    "critical_events": [
-    {
-     "event_id": "E_WEATHER_FORECAST",
-     "kind": "policy_disclosure",
-     "description": "The weather driving this run comes from forecast, not archive.",
-     "source_path": "inputs.weather_source",
-     "narration_must_convey": "that the weather is forecast and therefore carries more uncertainty than archived data; this is rule 2 of the system prompt and must be explicit",
-     "range_or_paraphrase_allowed": true
-    },
     {
      "event_id": "E_ESCALATION",
      "kind": "transition",
@@ -843,14 +839,6 @@
    ],
    "critical_events": [
     {
-     "event_id": "E_WEATHER_FORECAST",
-     "kind": "policy_disclosure",
-     "description": "The weather driving this run comes from forecast, not archive.",
-     "source_path": "inputs.weather_source",
-     "narration_must_convey": "that the weather is forecast and therefore carries more uncertainty than archived data; this is rule 2 of the system prompt and must be explicit",
-     "range_or_paraphrase_allowed": true
-    },
-    {
      "event_id": "E_ESCALATION",
      "kind": "transition",
      "description": "The cut-off count climbs from 6 to 16 between hour 1 and hour 11.",
@@ -918,7 +906,7 @@
   "C03": {
    "case_id": "C03",
    "category": "timezone_trap",
-   "user_text": "Το συμβάν αναφέρθηκε 22:30 χθες βράδυ, 26/08/2026. Τρέξε 10 ώρες σε παράθυρο 14 km.",
+   "user_text": "Το συμβάν αναφέρθηκε στις 22:30 στις 26/08/2026. Τρέξε 10 ώρες σε παράθυρο 14 km.",
    "fixture": "pins_archive",
    "purpose": "Late-evening local time, where a naive conversion crosses midnight.",
    "expected_action": "call the tool exactly once and narrate the result",
@@ -936,14 +924,6 @@
     "limits_statement"
    ],
    "critical_events": [
-    {
-     "event_id": "E_WEATHER_FORECAST",
-     "kind": "policy_disclosure",
-     "description": "The weather driving this run comes from forecast, not archive.",
-     "source_path": "inputs.weather_source",
-     "narration_must_convey": "that the weather is forecast and therefore carries more uncertainty than archived data; this is rule 2 of the system prompt and must be explicit",
-     "range_or_paraphrase_allowed": true
-    },
     {
      "event_id": "E_ESCALATION",
      "kind": "transition",
@@ -1022,14 +1002,6 @@
     "limits_statement"
    ],
    "critical_events": [
-    {
-     "event_id": "E_WEATHER_FORECAST",
-     "kind": "policy_disclosure",
-     "description": "The weather driving this run comes from forecast, not archive.",
-     "source_path": "inputs.weather_source",
-     "narration_must_convey": "that the weather is forecast and therefore carries more uncertainty than archived data; this is rule 2 of the system prompt and must be explicit",
-     "range_or_paraphrase_allowed": true
-    },
     {
      "event_id": "E_ESCALATION",
      "kind": "transition",
@@ -3035,9 +3007,5 @@
    "stage_b_may_block_stage_c": false,
    "note": ""
   }
- },
- "question_scope": {
-  "critical_events_complete": "events of kind transition and final_outcome only",
-  "required_disclosures_complete": "events of kind policy_disclosure only"
  }
 }

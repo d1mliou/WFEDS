@@ -75,10 +75,10 @@ PROFILE = {
     "B03": ["weather", "escalation", "final"],
     "B04": ["weather", "rise:1", "rise:3", "rise:4", "rise:5",
             "first_impacted", "final"],
-    "C01": ["weather", "escalation", "final"],
-    "C02": ["weather", "escalation", "rise:11", "final"],
-    "C03": ["weather", "escalation", "final"],
-    "C04": ["weather", "escalation", "final"],
+    "C01": ["escalation", "final"],
+    "C02": ["escalation", "rise:11", "final"],
+    "C03": ["escalation", "final"],
+    "C04": ["escalation", "final"],
     "D04": ["weather", "escalation", "final"],
     "D05": ["weather", "escalation", "final"],
     "D06": ["weather", "escalation", "final"],
@@ -103,6 +103,20 @@ PROFILE = {
     "L02": ["weather", "nospread"],
     "M01": ["weather", "fronts_single", "escalation", "final"],
 }
+
+# Time-dependent fixture correction, applied 2026-09-23 before any Stage-C judging.
+# C01-C04 carry a fixed start date in late August 2026. The tool chooses forecast
+# weather for a start date close to the wall clock and archived weather for an older
+# one, so the same case returned `forecast` when the payloads were first frozen from
+# the 2026-09-01 runs and `archive` on 2026-09-23, when the production runs were made.
+# Every numeric value is identical between the two; only `inputs.weather_source`
+# moved. The gold must describe the payload the judged runs actually received, so
+# for these four cases it is set to `archive`, and their forecast-disclosure event is
+# removed, as it is for every other archive case. This also restores the cases' own
+# declared design: fixture `pins_archive`, and no `disclose_forecast_weather` policy.
+# It is a correction of the fixture's time dependence, not a finding about any model.
+TIME_DEPENDENT_WEATHER = {"C01": "archive", "C02": "archive",
+                          "C03": "archive", "C04": "archive"}
 
 # Whether the user's question calls for an operational recommendation.
 #   required     the user asks for one; its absence is itself a failure
@@ -385,6 +399,10 @@ def main(argv=None) -> int:
                                             ensure_ascii=False).encode()).hexdigest()
             variants.setdefault(row["case_id"], set()).add(key)
             payloads.setdefault(row["case_id"], stripped)
+
+    for cid, source in TIME_DEPENDENT_WEATHER.items():
+        if cid in payloads:
+            payloads[cid]["inputs"]["weather_source"] = source
 
     missing = [c for c in ids if c not in payloads]
     multi = [c for c, v in variants.items() if len(v) != 1]
