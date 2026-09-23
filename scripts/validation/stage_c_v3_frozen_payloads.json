@@ -1,0 +1,3636 @@
+{
+ "note": "numeric tool payload per case, wall-clock stamps removed; derived from the stored 2026-09-01 runs, read only",
+ "time_keys_stripped": [
+  "end_time_utc",
+  "generated_at",
+  "start_time_utc",
+  "time_utc",
+  "timestamp"
+ ],
+ "payloads": {
+  "A01": {
+   "run_id": "fx_pins_archive",
+   "field_meanings": {
+    "at_risk": "ΟΙΚΙΣΜΟΙ σε κίνδυνο (= routed + cut_off + impacted)",
+    "routed": "ΟΙΚΙΣΜΟΙ που έχουν ακόμη διαδρομή διαφυγής",
+    "cut_off": "ΟΙΚΙΣΜΟΙ χωρίς καμία διαδρομή διαφυγής (ΟΧΙ δρόμοι)",
+    "impacted": "ΟΙΚΙΣΜΟΙ μέσα στην περίμετρο της φωτιάς",
+    "population": "κάτοικοι των at_risk οικισμών",
+    "edges_removed": "ΟΔΙΚΑ ΤΜΗΜΑΤΑ που αφαιρέθηκαν - ΜΟΝΟ τελική ώρα",
+    "fire_km2": "καμένη έκταση σε km2",
+    "final_front_class4_pct": "ποσοστό του ΤΕΛΙΚΟΥ μετώπου σε κλάση 4"
+   },
+   "inputs": {
+    "mode": "front",
+    "window_km": 15,
+    "horizon_h": 8,
+    "front_cells": 248,
+    "n_fronts_detected": 1,
+    "scenario": null,
+    "weather_source": "archive"
+   },
+   "final_hour": {
+    "period": 8,
+    "fire_km2": 156.73,
+    "at_risk": 23,
+    "population": 2991,
+    "routed": 7,
+    "cut_off": 15,
+    "impacted": 1,
+    "edges_removed": 473,
+    "longest_route_km": 6.36
+   },
+   "final_front_class4_pct": 96,
+   "change_hours": [
+    {
+     "period": 0,
+     "fire_km2": 38.91,
+     "at_risk": 11,
+     "population": 1301,
+     "routed": 5,
+     "cut_off": 6,
+     "impacted": 0
+    },
+    {
+     "period": 1,
+     "fire_km2": 96.08,
+     "at_risk": 13,
+     "population": 1621,
+     "routed": 4,
+     "cut_off": 9,
+     "impacted": 0
+    },
+    {
+     "period": 2,
+     "fire_km2": 110.75,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 6,
+     "cut_off": 9,
+     "impacted": 1
+    },
+    {
+     "period": 3,
+     "fire_km2": 122.08,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 5,
+     "cut_off": 10,
+     "impacted": 1
+    },
+    {
+     "period": 4,
+     "fire_km2": 134.09,
+     "at_risk": 19,
+     "population": 2589,
+     "routed": 4,
+     "cut_off": 14,
+     "impacted": 1
+    },
+    {
+     "period": 5,
+     "fire_km2": 143.65,
+     "at_risk": 20,
+     "population": 2775,
+     "routed": 4,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 6,
+     "fire_km2": 150.31,
+     "at_risk": 21,
+     "population": 2881,
+     "routed": 5,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 7,
+     "fire_km2": 154.5,
+     "at_risk": 23,
+     "population": 2991,
+     "routed": 7,
+     "cut_off": 15,
+     "impacted": 1
+    }
+   ],
+   "elapsed_min": 3.8
+  },
+  "A02": {
+   "run_id": "fx_pins_archive",
+   "field_meanings": {
+    "at_risk": "ΟΙΚΙΣΜΟΙ σε κίνδυνο (= routed + cut_off + impacted)",
+    "routed": "ΟΙΚΙΣΜΟΙ που έχουν ακόμη διαδρομή διαφυγής",
+    "cut_off": "ΟΙΚΙΣΜΟΙ χωρίς καμία διαδρομή διαφυγής (ΟΧΙ δρόμοι)",
+    "impacted": "ΟΙΚΙΣΜΟΙ μέσα στην περίμετρο της φωτιάς",
+    "population": "κάτοικοι των at_risk οικισμών",
+    "edges_removed": "ΟΔΙΚΑ ΤΜΗΜΑΤΑ που αφαιρέθηκαν - ΜΟΝΟ τελική ώρα",
+    "fire_km2": "καμένη έκταση σε km2",
+    "final_front_class4_pct": "ποσοστό του ΤΕΛΙΚΟΥ μετώπου σε κλάση 4"
+   },
+   "inputs": {
+    "mode": "front",
+    "window_km": 20,
+    "horizon_h": 12,
+    "front_cells": 372,
+    "n_fronts_detected": 1,
+    "scenario": null,
+    "weather_source": "archive"
+   },
+   "final_hour": {
+    "period": 12,
+    "fire_km2": 161.07,
+    "at_risk": 23,
+    "population": 2991,
+    "routed": 6,
+    "cut_off": 16,
+    "impacted": 1,
+    "edges_removed": 489,
+    "longest_route_km": 6.36
+   },
+   "final_front_class4_pct": 96,
+   "change_hours": [
+    {
+     "period": 0,
+     "fire_km2": 38.91,
+     "at_risk": 11,
+     "population": 1301,
+     "routed": 5,
+     "cut_off": 6,
+     "impacted": 0
+    },
+    {
+     "period": 1,
+     "fire_km2": 96.08,
+     "at_risk": 13,
+     "population": 1621,
+     "routed": 4,
+     "cut_off": 9,
+     "impacted": 0
+    },
+    {
+     "period": 2,
+     "fire_km2": 110.75,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 6,
+     "cut_off": 9,
+     "impacted": 1
+    },
+    {
+     "period": 3,
+     "fire_km2": 122.08,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 5,
+     "cut_off": 10,
+     "impacted": 1
+    },
+    {
+     "period": 4,
+     "fire_km2": 134.09,
+     "at_risk": 19,
+     "population": 2589,
+     "routed": 4,
+     "cut_off": 14,
+     "impacted": 1
+    },
+    {
+     "period": 5,
+     "fire_km2": 143.65,
+     "at_risk": 20,
+     "population": 2775,
+     "routed": 4,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 6,
+     "fire_km2": 150.31,
+     "at_risk": 21,
+     "population": 2881,
+     "routed": 5,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 7,
+     "fire_km2": 154.5,
+     "at_risk": 23,
+     "population": 2991,
+     "routed": 7,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 11,
+     "fire_km2": 160.08,
+     "at_risk": 23,
+     "population": 2991,
+     "routed": 6,
+     "cut_off": 16,
+     "impacted": 1
+    }
+   ],
+   "elapsed_min": 5.2
+  },
+  "A03": {
+   "run_id": "fx_pins_archive",
+   "field_meanings": {
+    "at_risk": "ΟΙΚΙΣΜΟΙ σε κίνδυνο (= routed + cut_off + impacted)",
+    "routed": "ΟΙΚΙΣΜΟΙ που έχουν ακόμη διαδρομή διαφυγής",
+    "cut_off": "ΟΙΚΙΣΜΟΙ χωρίς καμία διαδρομή διαφυγής (ΟΧΙ δρόμοι)",
+    "impacted": "ΟΙΚΙΣΜΟΙ μέσα στην περίμετρο της φωτιάς",
+    "population": "κάτοικοι των at_risk οικισμών",
+    "edges_removed": "ΟΔΙΚΑ ΤΜΗΜΑΤΑ που αφαιρέθηκαν - ΜΟΝΟ τελική ώρα",
+    "fire_km2": "καμένη έκταση σε km2",
+    "final_front_class4_pct": "ποσοστό του ΤΕΛΙΚΟΥ μετώπου σε κλάση 4"
+   },
+   "inputs": {
+    "mode": "front",
+    "window_km": 25,
+    "horizon_h": 24,
+    "front_cells": 372,
+    "n_fronts_detected": 1,
+    "scenario": null,
+    "weather_source": "archive"
+   },
+   "final_hour": {
+    "period": 24,
+    "fire_km2": 203.11,
+    "at_risk": 28,
+    "population": 4622,
+    "routed": 4,
+    "cut_off": 23,
+    "impacted": 1,
+    "edges_removed": 737,
+    "longest_route_km": 6.78
+   },
+   "final_front_class4_pct": 96,
+   "change_hours": [
+    {
+     "period": 0,
+     "fire_km2": 38.91,
+     "at_risk": 11,
+     "population": 1301,
+     "routed": 5,
+     "cut_off": 6,
+     "impacted": 0
+    },
+    {
+     "period": 1,
+     "fire_km2": 96.08,
+     "at_risk": 13,
+     "population": 1621,
+     "routed": 4,
+     "cut_off": 9,
+     "impacted": 0
+    },
+    {
+     "period": 2,
+     "fire_km2": 110.75,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 6,
+     "cut_off": 9,
+     "impacted": 1
+    },
+    {
+     "period": 3,
+     "fire_km2": 122.08,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 5,
+     "cut_off": 10,
+     "impacted": 1
+    },
+    {
+     "period": 4,
+     "fire_km2": 134.09,
+     "at_risk": 19,
+     "population": 2589,
+     "routed": 4,
+     "cut_off": 14,
+     "impacted": 1
+    },
+    {
+     "period": 5,
+     "fire_km2": 143.65,
+     "at_risk": 20,
+     "population": 2775,
+     "routed": 4,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 6,
+     "fire_km2": 150.31,
+     "at_risk": 21,
+     "population": 2881,
+     "routed": 5,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 7,
+     "fire_km2": 154.5,
+     "at_risk": 23,
+     "population": 2991,
+     "routed": 7,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 11,
+     "fire_km2": 160.08,
+     "at_risk": 23,
+     "population": 2991,
+     "routed": 6,
+     "cut_off": 16,
+     "impacted": 1
+    },
+    {
+     "period": 13,
+     "fire_km2": 162.22,
+     "at_risk": 23,
+     "population": 2991,
+     "routed": 5,
+     "cut_off": 17,
+     "impacted": 1
+    },
+    {
+     "period": 14,
+     "fire_km2": 163.76,
+     "at_risk": 24,
+     "population": 3347,
+     "routed": 6,
+     "cut_off": 17,
+     "impacted": 1
+    },
+    {
+     "period": 18,
+     "fire_km2": 179.87,
+     "at_risk": 25,
+     "population": 3435,
+     "routed": 7,
+     "cut_off": 17,
+     "impacted": 1
+    },
+    {
+     "period": 20,
+     "fire_km2": 191.2,
+     "at_risk": 26,
+     "population": 3950,
+     "routed": 7,
+     "cut_off": 18,
+     "impacted": 1
+    },
+    {
+     "period": 21,
+     "fire_km2": 194.56,
+     "at_risk": 28,
+     "population": 4622,
+     "routed": 4,
+     "cut_off": 23,
+     "impacted": 1
+    }
+   ],
+   "elapsed_min": 9.4
+  },
+  "A04": {
+   "run_id": "fx_multifront",
+   "field_meanings": {
+    "at_risk": "ΟΙΚΙΣΜΟΙ σε κίνδυνο (= routed + cut_off + impacted)",
+    "routed": "ΟΙΚΙΣΜΟΙ που έχουν ακόμη διαδρομή διαφυγής",
+    "cut_off": "ΟΙΚΙΣΜΟΙ χωρίς καμία διαδρομή διαφυγής (ΟΧΙ δρόμοι)",
+    "impacted": "ΟΙΚΙΣΜΟΙ μέσα στην περίμετρο της φωτιάς",
+    "population": "κάτοικοι των at_risk οικισμών",
+    "edges_removed": "ΟΔΙΚΑ ΤΜΗΜΑΤΑ που αφαιρέθηκαν - ΜΟΝΟ τελική ώρα",
+    "fire_km2": "καμένη έκταση σε km2",
+    "final_front_class4_pct": "ποσοστό του ΤΕΛΙΚΟΥ μετώπου σε κλάση 4"
+   },
+   "inputs": {
+    "mode": "multi_front",
+    "window_km": 30,
+    "horizon_h": 10,
+    "front_cells": 248,
+    "n_fronts_detected": 2,
+    "scenario": null,
+    "weather_source": "archive"
+   },
+   "final_hour": {
+    "period": 10,
+    "fire_km2": 159.1,
+    "at_risk": 23,
+    "population": 2991,
+    "routed": 7,
+    "cut_off": 15,
+    "impacted": 1,
+    "edges_removed": 483,
+    "longest_route_km": 6.36
+   },
+   "final_front_class4_pct": 96,
+   "change_hours": [
+    {
+     "period": 0,
+     "fire_km2": 38.91,
+     "at_risk": 11,
+     "population": 1301,
+     "routed": 5,
+     "cut_off": 6,
+     "impacted": 0
+    },
+    {
+     "period": 1,
+     "fire_km2": 96.08,
+     "at_risk": 13,
+     "population": 1621,
+     "routed": 4,
+     "cut_off": 9,
+     "impacted": 0
+    },
+    {
+     "period": 2,
+     "fire_km2": 110.75,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 6,
+     "cut_off": 9,
+     "impacted": 1
+    },
+    {
+     "period": 3,
+     "fire_km2": 122.08,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 5,
+     "cut_off": 10,
+     "impacted": 1
+    },
+    {
+     "period": 4,
+     "fire_km2": 134.09,
+     "at_risk": 19,
+     "population": 2589,
+     "routed": 4,
+     "cut_off": 14,
+     "impacted": 1
+    },
+    {
+     "period": 5,
+     "fire_km2": 143.65,
+     "at_risk": 20,
+     "population": 2775,
+     "routed": 4,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 6,
+     "fire_km2": 150.31,
+     "at_risk": 21,
+     "population": 2881,
+     "routed": 5,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 7,
+     "fire_km2": 154.5,
+     "at_risk": 23,
+     "population": 2991,
+     "routed": 7,
+     "cut_off": 15,
+     "impacted": 1
+    }
+   ],
+   "elapsed_min": 4.5
+  },
+  "B01": {
+   "run_id": "fx_pins_forecast",
+   "field_meanings": {
+    "at_risk": "ΟΙΚΙΣΜΟΙ σε κίνδυνο (= routed + cut_off + impacted)",
+    "routed": "ΟΙΚΙΣΜΟΙ που έχουν ακόμη διαδρομή διαφυγής",
+    "cut_off": "ΟΙΚΙΣΜΟΙ χωρίς καμία διαδρομή διαφυγής (ΟΧΙ δρόμοι)",
+    "impacted": "ΟΙΚΙΣΜΟΙ μέσα στην περίμετρο της φωτιάς",
+    "population": "κάτοικοι των at_risk οικισμών",
+    "edges_removed": "ΟΔΙΚΑ ΤΜΗΜΑΤΑ που αφαιρέθηκαν - ΜΟΝΟ τελική ώρα",
+    "fire_km2": "καμένη έκταση σε km2",
+    "final_front_class4_pct": "ποσοστό του ΤΕΛΙΚΟΥ μετώπου σε κλάση 4"
+   },
+   "inputs": {
+    "mode": "front",
+    "window_km": 12,
+    "horizon_h": 6,
+    "front_cells": 124,
+    "n_fronts_detected": 1,
+    "scenario": null,
+    "weather_source": "forecast"
+   },
+   "final_hour": {
+    "period": 6,
+    "fire_km2": 150.31,
+    "at_risk": 21,
+    "population": 2881,
+    "routed": 5,
+    "cut_off": 15,
+    "impacted": 1,
+    "edges_removed": 439,
+    "longest_route_km": 6.36
+   },
+   "final_front_class4_pct": 96,
+   "change_hours": [
+    {
+     "period": 0,
+     "fire_km2": 38.91,
+     "at_risk": 11,
+     "population": 1301,
+     "routed": 5,
+     "cut_off": 6,
+     "impacted": 0
+    },
+    {
+     "period": 1,
+     "fire_km2": 96.08,
+     "at_risk": 13,
+     "population": 1621,
+     "routed": 4,
+     "cut_off": 9,
+     "impacted": 0
+    },
+    {
+     "period": 2,
+     "fire_km2": 110.75,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 6,
+     "cut_off": 9,
+     "impacted": 1
+    },
+    {
+     "period": 3,
+     "fire_km2": 122.08,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 5,
+     "cut_off": 10,
+     "impacted": 1
+    },
+    {
+     "period": 4,
+     "fire_km2": 134.09,
+     "at_risk": 19,
+     "population": 2589,
+     "routed": 4,
+     "cut_off": 14,
+     "impacted": 1
+    },
+    {
+     "period": 5,
+     "fire_km2": 143.65,
+     "at_risk": 20,
+     "population": 2775,
+     "routed": 4,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 6,
+     "fire_km2": 150.31,
+     "at_risk": 21,
+     "population": 2881,
+     "routed": 5,
+     "cut_off": 15,
+     "impacted": 1
+    }
+   ],
+   "elapsed_min": 3.1
+  },
+  "B02": {
+   "run_id": "fx_pins_forecast",
+   "field_meanings": {
+    "at_risk": "ΟΙΚΙΣΜΟΙ σε κίνδυνο (= routed + cut_off + impacted)",
+    "routed": "ΟΙΚΙΣΜΟΙ που έχουν ακόμη διαδρομή διαφυγής",
+    "cut_off": "ΟΙΚΙΣΜΟΙ χωρίς καμία διαδρομή διαφυγής (ΟΧΙ δρόμοι)",
+    "impacted": "ΟΙΚΙΣΜΟΙ μέσα στην περίμετρο της φωτιάς",
+    "population": "κάτοικοι των at_risk οικισμών",
+    "edges_removed": "ΟΔΙΚΑ ΤΜΗΜΑΤΑ που αφαιρέθηκαν - ΜΟΝΟ τελική ώρα",
+    "fire_km2": "καμένη έκταση σε km2",
+    "final_front_class4_pct": "ποσοστό του ΤΕΛΙΚΟΥ μετώπου σε κλάση 4"
+   },
+   "inputs": {
+    "mode": "front",
+    "window_km": 10,
+    "horizon_h": 4,
+    "front_cells": 248,
+    "n_fronts_detected": 1,
+    "scenario": null,
+    "weather_source": "forecast"
+   },
+   "final_hour": {
+    "period": 4,
+    "fire_km2": 134.09,
+    "at_risk": 19,
+    "population": 2589,
+    "routed": 4,
+    "cut_off": 14,
+    "impacted": 1,
+    "edges_removed": 361,
+    "longest_route_km": 6.06
+   },
+   "final_front_class4_pct": 96,
+   "change_hours": [
+    {
+     "period": 0,
+     "fire_km2": 38.91,
+     "at_risk": 11,
+     "population": 1301,
+     "routed": 5,
+     "cut_off": 6,
+     "impacted": 0
+    },
+    {
+     "period": 1,
+     "fire_km2": 96.08,
+     "at_risk": 13,
+     "population": 1621,
+     "routed": 4,
+     "cut_off": 9,
+     "impacted": 0
+    },
+    {
+     "period": 2,
+     "fire_km2": 110.75,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 6,
+     "cut_off": 9,
+     "impacted": 1
+    },
+    {
+     "period": 3,
+     "fire_km2": 122.08,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 5,
+     "cut_off": 10,
+     "impacted": 1
+    },
+    {
+     "period": 4,
+     "fire_km2": 134.09,
+     "at_risk": 19,
+     "population": 2589,
+     "routed": 4,
+     "cut_off": 14,
+     "impacted": 1
+    }
+   ],
+   "elapsed_min": 2.4
+  },
+  "B03": {
+   "run_id": "fx_pins_forecast",
+   "field_meanings": {
+    "at_risk": "ΟΙΚΙΣΜΟΙ σε κίνδυνο (= routed + cut_off + impacted)",
+    "routed": "ΟΙΚΙΣΜΟΙ που έχουν ακόμη διαδρομή διαφυγής",
+    "cut_off": "ΟΙΚΙΣΜΟΙ χωρίς καμία διαδρομή διαφυγής (ΟΧΙ δρόμοι)",
+    "impacted": "ΟΙΚΙΣΜΟΙ μέσα στην περίμετρο της φωτιάς",
+    "population": "κάτοικοι των at_risk οικισμών",
+    "edges_removed": "ΟΔΙΚΑ ΤΜΗΜΑΤΑ που αφαιρέθηκαν - ΜΟΝΟ τελική ώρα",
+    "fire_km2": "καμένη έκταση σε km2",
+    "final_front_class4_pct": "ποσοστό του ΤΕΛΙΚΟΥ μετώπου σε κλάση 4"
+   },
+   "inputs": {
+    "mode": "front",
+    "window_km": 15,
+    "horizon_h": 8,
+    "front_cells": 124,
+    "n_fronts_detected": 1,
+    "scenario": null,
+    "weather_source": "forecast"
+   },
+   "final_hour": {
+    "period": 8,
+    "fire_km2": 156.73,
+    "at_risk": 23,
+    "population": 2991,
+    "routed": 7,
+    "cut_off": 15,
+    "impacted": 1,
+    "edges_removed": 473,
+    "longest_route_km": 6.36
+   },
+   "final_front_class4_pct": 96,
+   "change_hours": [
+    {
+     "period": 0,
+     "fire_km2": 38.91,
+     "at_risk": 11,
+     "population": 1301,
+     "routed": 5,
+     "cut_off": 6,
+     "impacted": 0
+    },
+    {
+     "period": 1,
+     "fire_km2": 96.08,
+     "at_risk": 13,
+     "population": 1621,
+     "routed": 4,
+     "cut_off": 9,
+     "impacted": 0
+    },
+    {
+     "period": 2,
+     "fire_km2": 110.75,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 6,
+     "cut_off": 9,
+     "impacted": 1
+    },
+    {
+     "period": 3,
+     "fire_km2": 122.08,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 5,
+     "cut_off": 10,
+     "impacted": 1
+    },
+    {
+     "period": 4,
+     "fire_km2": 134.09,
+     "at_risk": 19,
+     "population": 2589,
+     "routed": 4,
+     "cut_off": 14,
+     "impacted": 1
+    },
+    {
+     "period": 5,
+     "fire_km2": 143.65,
+     "at_risk": 20,
+     "population": 2775,
+     "routed": 4,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 6,
+     "fire_km2": 150.31,
+     "at_risk": 21,
+     "population": 2881,
+     "routed": 5,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 7,
+     "fire_km2": 154.5,
+     "at_risk": 23,
+     "population": 2991,
+     "routed": 7,
+     "cut_off": 15,
+     "impacted": 1
+    }
+   ],
+   "elapsed_min": 3.8
+  },
+  "B04": {
+   "run_id": "fx_cutoff",
+   "field_meanings": {
+    "at_risk": "ΟΙΚΙΣΜΟΙ σε κίνδυνο (= routed + cut_off + impacted)",
+    "routed": "ΟΙΚΙΣΜΟΙ που έχουν ακόμη διαδρομή διαφυγής",
+    "cut_off": "ΟΙΚΙΣΜΟΙ χωρίς καμία διαδρομή διαφυγής (ΟΧΙ δρόμοι)",
+    "impacted": "ΟΙΚΙΣΜΟΙ μέσα στην περίμετρο της φωτιάς",
+    "population": "κάτοικοι των at_risk οικισμών",
+    "edges_removed": "ΟΔΙΚΑ ΤΜΗΜΑΤΑ που αφαιρέθηκαν - ΜΟΝΟ τελική ώρα",
+    "fire_km2": "καμένη έκταση σε km2",
+    "final_front_class4_pct": "ποσοστό του ΤΕΛΙΚΟΥ μετώπου σε κλάση 4"
+   },
+   "inputs": {
+    "mode": "front",
+    "window_km": 12,
+    "horizon_h": 6,
+    "front_cells": 248,
+    "n_fronts_detected": 1,
+    "scenario": null,
+    "weather_source": "forecast"
+   },
+   "final_hour": {
+    "period": 6,
+    "fire_km2": 150.31,
+    "at_risk": 21,
+    "population": 2881,
+    "routed": 5,
+    "cut_off": 15,
+    "impacted": 1,
+    "edges_removed": 439,
+    "longest_route_km": 6.36
+   },
+   "final_front_class4_pct": 96,
+   "change_hours": [
+    {
+     "period": 0,
+     "fire_km2": 38.91,
+     "at_risk": 11,
+     "population": 1301,
+     "routed": 5,
+     "cut_off": 6,
+     "impacted": 0
+    },
+    {
+     "period": 1,
+     "fire_km2": 96.08,
+     "at_risk": 13,
+     "population": 1621,
+     "routed": 4,
+     "cut_off": 9,
+     "impacted": 0
+    },
+    {
+     "period": 2,
+     "fire_km2": 110.75,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 6,
+     "cut_off": 9,
+     "impacted": 1
+    },
+    {
+     "period": 3,
+     "fire_km2": 122.08,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 5,
+     "cut_off": 10,
+     "impacted": 1
+    },
+    {
+     "period": 4,
+     "fire_km2": 134.09,
+     "at_risk": 19,
+     "population": 2589,
+     "routed": 4,
+     "cut_off": 14,
+     "impacted": 1
+    },
+    {
+     "period": 5,
+     "fire_km2": 143.65,
+     "at_risk": 20,
+     "population": 2775,
+     "routed": 4,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 6,
+     "fire_km2": 150.31,
+     "at_risk": 21,
+     "population": 2881,
+     "routed": 5,
+     "cut_off": 15,
+     "impacted": 1
+    }
+   ],
+   "elapsed_min": 3.1
+  },
+  "C01": {
+   "run_id": "fx_pins_archive",
+   "field_meanings": {
+    "at_risk": "ΟΙΚΙΣΜΟΙ σε κίνδυνο (= routed + cut_off + impacted)",
+    "routed": "ΟΙΚΙΣΜΟΙ που έχουν ακόμη διαδρομή διαφυγής",
+    "cut_off": "ΟΙΚΙΣΜΟΙ χωρίς καμία διαδρομή διαφυγής (ΟΧΙ δρόμοι)",
+    "impacted": "ΟΙΚΙΣΜΟΙ μέσα στην περίμετρο της φωτιάς",
+    "population": "κάτοικοι των at_risk οικισμών",
+    "edges_removed": "ΟΔΙΚΑ ΤΜΗΜΑΤΑ που αφαιρέθηκαν - ΜΟΝΟ τελική ώρα",
+    "fire_km2": "καμένη έκταση σε km2",
+    "final_front_class4_pct": "ποσοστό του ΤΕΛΙΚΟΥ μετώπου σε κλάση 4"
+   },
+   "inputs": {
+    "mode": "front",
+    "window_km": 12,
+    "horizon_h": 6,
+    "front_cells": 124,
+    "n_fronts_detected": 1,
+    "scenario": null,
+    "weather_source": "forecast"
+   },
+   "final_hour": {
+    "period": 6,
+    "fire_km2": 150.31,
+    "at_risk": 21,
+    "population": 2881,
+    "routed": 5,
+    "cut_off": 15,
+    "impacted": 1,
+    "edges_removed": 439,
+    "longest_route_km": 6.36
+   },
+   "final_front_class4_pct": 96,
+   "change_hours": [
+    {
+     "period": 0,
+     "fire_km2": 38.91,
+     "at_risk": 11,
+     "population": 1301,
+     "routed": 5,
+     "cut_off": 6,
+     "impacted": 0
+    },
+    {
+     "period": 1,
+     "fire_km2": 96.08,
+     "at_risk": 13,
+     "population": 1621,
+     "routed": 4,
+     "cut_off": 9,
+     "impacted": 0
+    },
+    {
+     "period": 2,
+     "fire_km2": 110.75,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 6,
+     "cut_off": 9,
+     "impacted": 1
+    },
+    {
+     "period": 3,
+     "fire_km2": 122.08,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 5,
+     "cut_off": 10,
+     "impacted": 1
+    },
+    {
+     "period": 4,
+     "fire_km2": 134.09,
+     "at_risk": 19,
+     "population": 2589,
+     "routed": 4,
+     "cut_off": 14,
+     "impacted": 1
+    },
+    {
+     "period": 5,
+     "fire_km2": 143.65,
+     "at_risk": 20,
+     "population": 2775,
+     "routed": 4,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 6,
+     "fire_km2": 150.31,
+     "at_risk": 21,
+     "population": 2881,
+     "routed": 5,
+     "cut_off": 15,
+     "impacted": 1
+    }
+   ],
+   "elapsed_min": 3.1
+  },
+  "C02": {
+   "run_id": "fx_pins_archive",
+   "field_meanings": {
+    "at_risk": "ΟΙΚΙΣΜΟΙ σε κίνδυνο (= routed + cut_off + impacted)",
+    "routed": "ΟΙΚΙΣΜΟΙ που έχουν ακόμη διαδρομή διαφυγής",
+    "cut_off": "ΟΙΚΙΣΜΟΙ χωρίς καμία διαδρομή διαφυγής (ΟΧΙ δρόμοι)",
+    "impacted": "ΟΙΚΙΣΜΟΙ μέσα στην περίμετρο της φωτιάς",
+    "population": "κάτοικοι των at_risk οικισμών",
+    "edges_removed": "ΟΔΙΚΑ ΤΜΗΜΑΤΑ που αφαιρέθηκαν - ΜΟΝΟ τελική ώρα",
+    "fire_km2": "καμένη έκταση σε km2",
+    "final_front_class4_pct": "ποσοστό του ΤΕΛΙΚΟΥ μετώπου σε κλάση 4"
+   },
+   "inputs": {
+    "mode": "front",
+    "window_km": 18,
+    "horizon_h": 12,
+    "front_cells": 124,
+    "n_fronts_detected": 1,
+    "scenario": null,
+    "weather_source": "forecast"
+   },
+   "final_hour": {
+    "period": 12,
+    "fire_km2": 161.07,
+    "at_risk": 23,
+    "population": 2991,
+    "routed": 6,
+    "cut_off": 16,
+    "impacted": 1,
+    "edges_removed": 489,
+    "longest_route_km": 6.36
+   },
+   "final_front_class4_pct": 96,
+   "change_hours": [
+    {
+     "period": 0,
+     "fire_km2": 38.91,
+     "at_risk": 11,
+     "population": 1301,
+     "routed": 5,
+     "cut_off": 6,
+     "impacted": 0
+    },
+    {
+     "period": 1,
+     "fire_km2": 96.08,
+     "at_risk": 13,
+     "population": 1621,
+     "routed": 4,
+     "cut_off": 9,
+     "impacted": 0
+    },
+    {
+     "period": 2,
+     "fire_km2": 110.75,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 6,
+     "cut_off": 9,
+     "impacted": 1
+    },
+    {
+     "period": 3,
+     "fire_km2": 122.08,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 5,
+     "cut_off": 10,
+     "impacted": 1
+    },
+    {
+     "period": 4,
+     "fire_km2": 134.09,
+     "at_risk": 19,
+     "population": 2589,
+     "routed": 4,
+     "cut_off": 14,
+     "impacted": 1
+    },
+    {
+     "period": 5,
+     "fire_km2": 143.65,
+     "at_risk": 20,
+     "population": 2775,
+     "routed": 4,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 6,
+     "fire_km2": 150.31,
+     "at_risk": 21,
+     "population": 2881,
+     "routed": 5,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 7,
+     "fire_km2": 154.5,
+     "at_risk": 23,
+     "population": 2991,
+     "routed": 7,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 11,
+     "fire_km2": 160.08,
+     "at_risk": 23,
+     "population": 2991,
+     "routed": 6,
+     "cut_off": 16,
+     "impacted": 1
+    }
+   ],
+   "elapsed_min": 5.2
+  },
+  "C03": {
+   "run_id": "fx_pins_archive",
+   "field_meanings": {
+    "at_risk": "ΟΙΚΙΣΜΟΙ σε κίνδυνο (= routed + cut_off + impacted)",
+    "routed": "ΟΙΚΙΣΜΟΙ που έχουν ακόμη διαδρομή διαφυγής",
+    "cut_off": "ΟΙΚΙΣΜΟΙ χωρίς καμία διαδρομή διαφυγής (ΟΧΙ δρόμοι)",
+    "impacted": "ΟΙΚΙΣΜΟΙ μέσα στην περίμετρο της φωτιάς",
+    "population": "κάτοικοι των at_risk οικισμών",
+    "edges_removed": "ΟΔΙΚΑ ΤΜΗΜΑΤΑ που αφαιρέθηκαν - ΜΟΝΟ τελική ώρα",
+    "fire_km2": "καμένη έκταση σε km2",
+    "final_front_class4_pct": "ποσοστό του ΤΕΛΙΚΟΥ μετώπου σε κλάση 4"
+   },
+   "inputs": {
+    "mode": "front",
+    "window_km": 14,
+    "horizon_h": 10,
+    "front_cells": 124,
+    "n_fronts_detected": 1,
+    "scenario": null,
+    "weather_source": "forecast"
+   },
+   "final_hour": {
+    "period": 10,
+    "fire_km2": 159.1,
+    "at_risk": 23,
+    "population": 2991,
+    "routed": 7,
+    "cut_off": 15,
+    "impacted": 1,
+    "edges_removed": 483,
+    "longest_route_km": 6.36
+   },
+   "final_front_class4_pct": 96,
+   "change_hours": [
+    {
+     "period": 0,
+     "fire_km2": 38.91,
+     "at_risk": 11,
+     "population": 1301,
+     "routed": 5,
+     "cut_off": 6,
+     "impacted": 0
+    },
+    {
+     "period": 1,
+     "fire_km2": 96.08,
+     "at_risk": 13,
+     "population": 1621,
+     "routed": 4,
+     "cut_off": 9,
+     "impacted": 0
+    },
+    {
+     "period": 2,
+     "fire_km2": 110.75,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 6,
+     "cut_off": 9,
+     "impacted": 1
+    },
+    {
+     "period": 3,
+     "fire_km2": 122.08,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 5,
+     "cut_off": 10,
+     "impacted": 1
+    },
+    {
+     "period": 4,
+     "fire_km2": 134.09,
+     "at_risk": 19,
+     "population": 2589,
+     "routed": 4,
+     "cut_off": 14,
+     "impacted": 1
+    },
+    {
+     "period": 5,
+     "fire_km2": 143.65,
+     "at_risk": 20,
+     "population": 2775,
+     "routed": 4,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 6,
+     "fire_km2": 150.31,
+     "at_risk": 21,
+     "population": 2881,
+     "routed": 5,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 7,
+     "fire_km2": 154.5,
+     "at_risk": 23,
+     "population": 2991,
+     "routed": 7,
+     "cut_off": 15,
+     "impacted": 1
+    }
+   ],
+   "elapsed_min": 4.5
+  },
+  "C04": {
+   "run_id": "fx_pins_archive",
+   "field_meanings": {
+    "at_risk": "ΟΙΚΙΣΜΟΙ σε κίνδυνο (= routed + cut_off + impacted)",
+    "routed": "ΟΙΚΙΣΜΟΙ που έχουν ακόμη διαδρομή διαφυγής",
+    "cut_off": "ΟΙΚΙΣΜΟΙ χωρίς καμία διαδρομή διαφυγής (ΟΧΙ δρόμοι)",
+    "impacted": "ΟΙΚΙΣΜΟΙ μέσα στην περίμετρο της φωτιάς",
+    "population": "κάτοικοι των at_risk οικισμών",
+    "edges_removed": "ΟΔΙΚΑ ΤΜΗΜΑΤΑ που αφαιρέθηκαν - ΜΟΝΟ τελική ώρα",
+    "fire_km2": "καμένη έκταση σε km2",
+    "final_front_class4_pct": "ποσοστό του ΤΕΛΙΚΟΥ μετώπου σε κλάση 4"
+   },
+   "inputs": {
+    "mode": "front",
+    "window_km": 12,
+    "horizon_h": 8,
+    "front_cells": 124,
+    "n_fronts_detected": 1,
+    "scenario": null,
+    "weather_source": "forecast"
+   },
+   "final_hour": {
+    "period": 8,
+    "fire_km2": 156.73,
+    "at_risk": 23,
+    "population": 2991,
+    "routed": 7,
+    "cut_off": 15,
+    "impacted": 1,
+    "edges_removed": 473,
+    "longest_route_km": 6.36
+   },
+   "final_front_class4_pct": 96,
+   "change_hours": [
+    {
+     "period": 0,
+     "fire_km2": 38.91,
+     "at_risk": 11,
+     "population": 1301,
+     "routed": 5,
+     "cut_off": 6,
+     "impacted": 0
+    },
+    {
+     "period": 1,
+     "fire_km2": 96.08,
+     "at_risk": 13,
+     "population": 1621,
+     "routed": 4,
+     "cut_off": 9,
+     "impacted": 0
+    },
+    {
+     "period": 2,
+     "fire_km2": 110.75,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 6,
+     "cut_off": 9,
+     "impacted": 1
+    },
+    {
+     "period": 3,
+     "fire_km2": 122.08,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 5,
+     "cut_off": 10,
+     "impacted": 1
+    },
+    {
+     "period": 4,
+     "fire_km2": 134.09,
+     "at_risk": 19,
+     "population": 2589,
+     "routed": 4,
+     "cut_off": 14,
+     "impacted": 1
+    },
+    {
+     "period": 5,
+     "fire_km2": 143.65,
+     "at_risk": 20,
+     "population": 2775,
+     "routed": 4,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 6,
+     "fire_km2": 150.31,
+     "at_risk": 21,
+     "population": 2881,
+     "routed": 5,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 7,
+     "fire_km2": 154.5,
+     "at_risk": 23,
+     "population": 2991,
+     "routed": 7,
+     "cut_off": 15,
+     "impacted": 1
+    }
+   ],
+   "elapsed_min": 3.8
+  },
+  "D04": {
+   "run_id": "fx_pins_forecast",
+   "field_meanings": {
+    "at_risk": "ΟΙΚΙΣΜΟΙ σε κίνδυνο (= routed + cut_off + impacted)",
+    "routed": "ΟΙΚΙΣΜΟΙ που έχουν ακόμη διαδρομή διαφυγής",
+    "cut_off": "ΟΙΚΙΣΜΟΙ χωρίς καμία διαδρομή διαφυγής (ΟΧΙ δρόμοι)",
+    "impacted": "ΟΙΚΙΣΜΟΙ μέσα στην περίμετρο της φωτιάς",
+    "population": "κάτοικοι των at_risk οικισμών",
+    "edges_removed": "ΟΔΙΚΑ ΤΜΗΜΑΤΑ που αφαιρέθηκαν - ΜΟΝΟ τελική ώρα",
+    "fire_km2": "καμένη έκταση σε km2",
+    "final_front_class4_pct": "ποσοστό του ΤΕΛΙΚΟΥ μετώπου σε κλάση 4"
+   },
+   "inputs": {
+    "mode": "front",
+    "window_km": 12,
+    "horizon_h": 6,
+    "front_cells": 124,
+    "n_fronts_detected": 1,
+    "scenario": null,
+    "weather_source": "forecast"
+   },
+   "final_hour": {
+    "period": 6,
+    "fire_km2": 150.31,
+    "at_risk": 21,
+    "population": 2881,
+    "routed": 5,
+    "cut_off": 15,
+    "impacted": 1,
+    "edges_removed": 439,
+    "longest_route_km": 6.36
+   },
+   "final_front_class4_pct": 96,
+   "change_hours": [
+    {
+     "period": 0,
+     "fire_km2": 38.91,
+     "at_risk": 11,
+     "population": 1301,
+     "routed": 5,
+     "cut_off": 6,
+     "impacted": 0
+    },
+    {
+     "period": 1,
+     "fire_km2": 96.08,
+     "at_risk": 13,
+     "population": 1621,
+     "routed": 4,
+     "cut_off": 9,
+     "impacted": 0
+    },
+    {
+     "period": 2,
+     "fire_km2": 110.75,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 6,
+     "cut_off": 9,
+     "impacted": 1
+    },
+    {
+     "period": 3,
+     "fire_km2": 122.08,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 5,
+     "cut_off": 10,
+     "impacted": 1
+    },
+    {
+     "period": 4,
+     "fire_km2": 134.09,
+     "at_risk": 19,
+     "population": 2589,
+     "routed": 4,
+     "cut_off": 14,
+     "impacted": 1
+    },
+    {
+     "period": 5,
+     "fire_km2": 143.65,
+     "at_risk": 20,
+     "population": 2775,
+     "routed": 4,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 6,
+     "fire_km2": 150.31,
+     "at_risk": 21,
+     "population": 2881,
+     "routed": 5,
+     "cut_off": 15,
+     "impacted": 1
+    }
+   ],
+   "elapsed_min": 3.1
+  },
+  "D05": {
+   "run_id": "fx_pins_forecast",
+   "field_meanings": {
+    "at_risk": "ΟΙΚΙΣΜΟΙ σε κίνδυνο (= routed + cut_off + impacted)",
+    "routed": "ΟΙΚΙΣΜΟΙ που έχουν ακόμη διαδρομή διαφυγής",
+    "cut_off": "ΟΙΚΙΣΜΟΙ χωρίς καμία διαδρομή διαφυγής (ΟΧΙ δρόμοι)",
+    "impacted": "ΟΙΚΙΣΜΟΙ μέσα στην περίμετρο της φωτιάς",
+    "population": "κάτοικοι των at_risk οικισμών",
+    "edges_removed": "ΟΔΙΚΑ ΤΜΗΜΑΤΑ που αφαιρέθηκαν - ΜΟΝΟ τελική ώρα",
+    "fire_km2": "καμένη έκταση σε km2",
+    "final_front_class4_pct": "ποσοστό του ΤΕΛΙΚΟΥ μετώπου σε κλάση 4"
+   },
+   "inputs": {
+    "mode": "front",
+    "window_km": 12,
+    "horizon_h": 6,
+    "front_cells": 248,
+    "n_fronts_detected": 1,
+    "scenario": null,
+    "weather_source": "forecast"
+   },
+   "final_hour": {
+    "period": 6,
+    "fire_km2": 150.31,
+    "at_risk": 21,
+    "population": 2881,
+    "routed": 5,
+    "cut_off": 15,
+    "impacted": 1,
+    "edges_removed": 439,
+    "longest_route_km": 6.36
+   },
+   "final_front_class4_pct": 96,
+   "change_hours": [
+    {
+     "period": 0,
+     "fire_km2": 38.91,
+     "at_risk": 11,
+     "population": 1301,
+     "routed": 5,
+     "cut_off": 6,
+     "impacted": 0
+    },
+    {
+     "period": 1,
+     "fire_km2": 96.08,
+     "at_risk": 13,
+     "population": 1621,
+     "routed": 4,
+     "cut_off": 9,
+     "impacted": 0
+    },
+    {
+     "period": 2,
+     "fire_km2": 110.75,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 6,
+     "cut_off": 9,
+     "impacted": 1
+    },
+    {
+     "period": 3,
+     "fire_km2": 122.08,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 5,
+     "cut_off": 10,
+     "impacted": 1
+    },
+    {
+     "period": 4,
+     "fire_km2": 134.09,
+     "at_risk": 19,
+     "population": 2589,
+     "routed": 4,
+     "cut_off": 14,
+     "impacted": 1
+    },
+    {
+     "period": 5,
+     "fire_km2": 143.65,
+     "at_risk": 20,
+     "population": 2775,
+     "routed": 4,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 6,
+     "fire_km2": 150.31,
+     "at_risk": 21,
+     "population": 2881,
+     "routed": 5,
+     "cut_off": 15,
+     "impacted": 1
+    }
+   ],
+   "elapsed_min": 3.1
+  },
+  "D06": {
+   "run_id": "fx_pins_forecast",
+   "field_meanings": {
+    "at_risk": "ΟΙΚΙΣΜΟΙ σε κίνδυνο (= routed + cut_off + impacted)",
+    "routed": "ΟΙΚΙΣΜΟΙ που έχουν ακόμη διαδρομή διαφυγής",
+    "cut_off": "ΟΙΚΙΣΜΟΙ χωρίς καμία διαδρομή διαφυγής (ΟΧΙ δρόμοι)",
+    "impacted": "ΟΙΚΙΣΜΟΙ μέσα στην περίμετρο της φωτιάς",
+    "population": "κάτοικοι των at_risk οικισμών",
+    "edges_removed": "ΟΔΙΚΑ ΤΜΗΜΑΤΑ που αφαιρέθηκαν - ΜΟΝΟ τελική ώρα",
+    "fire_km2": "καμένη έκταση σε km2",
+    "final_front_class4_pct": "ποσοστό του ΤΕΛΙΚΟΥ μετώπου σε κλάση 4"
+   },
+   "inputs": {
+    "mode": "front",
+    "window_km": 12,
+    "horizon_h": 10,
+    "front_cells": 124,
+    "n_fronts_detected": 1,
+    "scenario": null,
+    "weather_source": "forecast"
+   },
+   "final_hour": {
+    "period": 10,
+    "fire_km2": 159.1,
+    "at_risk": 23,
+    "population": 2991,
+    "routed": 7,
+    "cut_off": 15,
+    "impacted": 1,
+    "edges_removed": 483,
+    "longest_route_km": 6.36
+   },
+   "final_front_class4_pct": 96,
+   "change_hours": [
+    {
+     "period": 0,
+     "fire_km2": 38.91,
+     "at_risk": 11,
+     "population": 1301,
+     "routed": 5,
+     "cut_off": 6,
+     "impacted": 0
+    },
+    {
+     "period": 1,
+     "fire_km2": 96.08,
+     "at_risk": 13,
+     "population": 1621,
+     "routed": 4,
+     "cut_off": 9,
+     "impacted": 0
+    },
+    {
+     "period": 2,
+     "fire_km2": 110.75,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 6,
+     "cut_off": 9,
+     "impacted": 1
+    },
+    {
+     "period": 3,
+     "fire_km2": 122.08,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 5,
+     "cut_off": 10,
+     "impacted": 1
+    },
+    {
+     "period": 4,
+     "fire_km2": 134.09,
+     "at_risk": 19,
+     "population": 2589,
+     "routed": 4,
+     "cut_off": 14,
+     "impacted": 1
+    },
+    {
+     "period": 5,
+     "fire_km2": 143.65,
+     "at_risk": 20,
+     "population": 2775,
+     "routed": 4,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 6,
+     "fire_km2": 150.31,
+     "at_risk": 21,
+     "population": 2881,
+     "routed": 5,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 7,
+     "fire_km2": 154.5,
+     "at_risk": 23,
+     "population": 2991,
+     "routed": 7,
+     "cut_off": 15,
+     "impacted": 1
+    }
+   ],
+   "elapsed_min": 4.5
+  },
+  "D07": {
+   "run_id": "fx_pins_forecast",
+   "field_meanings": {
+    "at_risk": "ΟΙΚΙΣΜΟΙ σε κίνδυνο (= routed + cut_off + impacted)",
+    "routed": "ΟΙΚΙΣΜΟΙ που έχουν ακόμη διαδρομή διαφυγής",
+    "cut_off": "ΟΙΚΙΣΜΟΙ χωρίς καμία διαδρομή διαφυγής (ΟΧΙ δρόμοι)",
+    "impacted": "ΟΙΚΙΣΜΟΙ μέσα στην περίμετρο της φωτιάς",
+    "population": "κάτοικοι των at_risk οικισμών",
+    "edges_removed": "ΟΔΙΚΑ ΤΜΗΜΑΤΑ που αφαιρέθηκαν - ΜΟΝΟ τελική ώρα",
+    "fire_km2": "καμένη έκταση σε km2",
+    "final_front_class4_pct": "ποσοστό του ΤΕΛΙΚΟΥ μετώπου σε κλάση 4"
+   },
+   "inputs": {
+    "mode": "front",
+    "window_km": 20,
+    "horizon_h": 6,
+    "front_cells": 124,
+    "n_fronts_detected": 1,
+    "scenario": null,
+    "weather_source": "forecast"
+   },
+   "final_hour": {
+    "period": 6,
+    "fire_km2": 150.31,
+    "at_risk": 21,
+    "population": 2881,
+    "routed": 5,
+    "cut_off": 15,
+    "impacted": 1,
+    "edges_removed": 439,
+    "longest_route_km": 6.36
+   },
+   "final_front_class4_pct": 96,
+   "change_hours": [
+    {
+     "period": 0,
+     "fire_km2": 38.91,
+     "at_risk": 11,
+     "population": 1301,
+     "routed": 5,
+     "cut_off": 6,
+     "impacted": 0
+    },
+    {
+     "period": 1,
+     "fire_km2": 96.08,
+     "at_risk": 13,
+     "population": 1621,
+     "routed": 4,
+     "cut_off": 9,
+     "impacted": 0
+    },
+    {
+     "period": 2,
+     "fire_km2": 110.75,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 6,
+     "cut_off": 9,
+     "impacted": 1
+    },
+    {
+     "period": 3,
+     "fire_km2": 122.08,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 5,
+     "cut_off": 10,
+     "impacted": 1
+    },
+    {
+     "period": 4,
+     "fire_km2": 134.09,
+     "at_risk": 19,
+     "population": 2589,
+     "routed": 4,
+     "cut_off": 14,
+     "impacted": 1
+    },
+    {
+     "period": 5,
+     "fire_km2": 143.65,
+     "at_risk": 20,
+     "population": 2775,
+     "routed": 4,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 6,
+     "fire_km2": 150.31,
+     "at_risk": 21,
+     "population": 2881,
+     "routed": 5,
+     "cut_off": 15,
+     "impacted": 1
+    }
+   ],
+   "elapsed_min": 3.1
+  },
+  "E01": {
+   "run_id": "north_evia_2021_validation",
+   "field_meanings": {
+    "at_risk": "ΟΙΚΙΣΜΟΙ σε κίνδυνο (= routed + cut_off + impacted)",
+    "routed": "ΟΙΚΙΣΜΟΙ που έχουν ακόμη διαδρομή διαφυγής",
+    "cut_off": "ΟΙΚΙΣΜΟΙ χωρίς καμία διαδρομή διαφυγής (ΟΧΙ δρόμοι)",
+    "impacted": "ΟΙΚΙΣΜΟΙ μέσα στην περίμετρο της φωτιάς",
+    "population": "κάτοικοι των at_risk οικισμών",
+    "edges_removed": "ΟΔΙΚΑ ΤΜΗΜΑΤΑ που αφαιρέθηκαν - ΜΟΝΟ τελική ώρα",
+    "fire_km2": "καμένη έκταση σε km2",
+    "final_front_class4_pct": "ποσοστό του ΤΕΛΙΚΟΥ μετώπου σε κλάση 4"
+   },
+   "inputs": {
+    "mode": "scenario",
+    "window_km": null,
+    "horizon_h": 24,
+    "front_cells": 39190,
+    "n_fronts_detected": 242,
+    "scenario": "north_evia_2021",
+    "weather_source": "archive"
+   },
+   "final_hour": {
+    "period": 24,
+    "fire_km2": 203.11,
+    "at_risk": 28,
+    "population": 4622,
+    "routed": 4,
+    "cut_off": 23,
+    "impacted": 1,
+    "edges_removed": 737,
+    "longest_route_km": 6.78
+   },
+   "final_front_class4_pct": 96,
+   "change_hours": [
+    {
+     "period": 0,
+     "fire_km2": 38.91,
+     "at_risk": 11,
+     "population": 1301,
+     "routed": 5,
+     "cut_off": 6,
+     "impacted": 0
+    },
+    {
+     "period": 1,
+     "fire_km2": 96.08,
+     "at_risk": 13,
+     "population": 1621,
+     "routed": 4,
+     "cut_off": 9,
+     "impacted": 0
+    },
+    {
+     "period": 2,
+     "fire_km2": 110.75,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 6,
+     "cut_off": 9,
+     "impacted": 1
+    },
+    {
+     "period": 3,
+     "fire_km2": 122.08,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 5,
+     "cut_off": 10,
+     "impacted": 1
+    },
+    {
+     "period": 4,
+     "fire_km2": 134.09,
+     "at_risk": 19,
+     "population": 2589,
+     "routed": 4,
+     "cut_off": 14,
+     "impacted": 1
+    },
+    {
+     "period": 5,
+     "fire_km2": 143.65,
+     "at_risk": 20,
+     "population": 2775,
+     "routed": 4,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 6,
+     "fire_km2": 150.31,
+     "at_risk": 21,
+     "population": 2881,
+     "routed": 5,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 7,
+     "fire_km2": 154.5,
+     "at_risk": 23,
+     "population": 2991,
+     "routed": 7,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 11,
+     "fire_km2": 160.08,
+     "at_risk": 23,
+     "population": 2991,
+     "routed": 6,
+     "cut_off": 16,
+     "impacted": 1
+    },
+    {
+     "period": 13,
+     "fire_km2": 162.22,
+     "at_risk": 23,
+     "population": 2991,
+     "routed": 5,
+     "cut_off": 17,
+     "impacted": 1
+    },
+    {
+     "period": 14,
+     "fire_km2": 163.76,
+     "at_risk": 24,
+     "population": 3347,
+     "routed": 6,
+     "cut_off": 17,
+     "impacted": 1
+    },
+    {
+     "period": 18,
+     "fire_km2": 179.87,
+     "at_risk": 25,
+     "population": 3435,
+     "routed": 7,
+     "cut_off": 17,
+     "impacted": 1
+    },
+    {
+     "period": 20,
+     "fire_km2": 191.2,
+     "at_risk": 26,
+     "population": 3950,
+     "routed": 7,
+     "cut_off": 18,
+     "impacted": 1
+    },
+    {
+     "period": 21,
+     "fire_km2": 194.56,
+     "at_risk": 28,
+     "population": 4622,
+     "routed": 4,
+     "cut_off": 23,
+     "impacted": 1
+    }
+   ],
+   "elapsed_min": 17.7
+  },
+  "E02": {
+   "run_id": "north_evia_2021_validation",
+   "field_meanings": {
+    "at_risk": "ΟΙΚΙΣΜΟΙ σε κίνδυνο (= routed + cut_off + impacted)",
+    "routed": "ΟΙΚΙΣΜΟΙ που έχουν ακόμη διαδρομή διαφυγής",
+    "cut_off": "ΟΙΚΙΣΜΟΙ χωρίς καμία διαδρομή διαφυγής (ΟΧΙ δρόμοι)",
+    "impacted": "ΟΙΚΙΣΜΟΙ μέσα στην περίμετρο της φωτιάς",
+    "population": "κάτοικοι των at_risk οικισμών",
+    "edges_removed": "ΟΔΙΚΑ ΤΜΗΜΑΤΑ που αφαιρέθηκαν - ΜΟΝΟ τελική ώρα",
+    "fire_km2": "καμένη έκταση σε km2",
+    "final_front_class4_pct": "ποσοστό του ΤΕΛΙΚΟΥ μετώπου σε κλάση 4"
+   },
+   "inputs": {
+    "mode": "scenario",
+    "window_km": null,
+    "horizon_h": 24,
+    "front_cells": 39190,
+    "n_fronts_detected": 242,
+    "scenario": "north_evia_2021",
+    "weather_source": "archive"
+   },
+   "final_hour": {
+    "period": 24,
+    "fire_km2": 203.11,
+    "at_risk": 28,
+    "population": 4622,
+    "routed": 4,
+    "cut_off": 23,
+    "impacted": 1,
+    "edges_removed": 737,
+    "longest_route_km": 6.78
+   },
+   "final_front_class4_pct": 96,
+   "change_hours": [
+    {
+     "period": 0,
+     "fire_km2": 38.91,
+     "at_risk": 11,
+     "population": 1301,
+     "routed": 5,
+     "cut_off": 6,
+     "impacted": 0
+    },
+    {
+     "period": 1,
+     "fire_km2": 96.08,
+     "at_risk": 13,
+     "population": 1621,
+     "routed": 4,
+     "cut_off": 9,
+     "impacted": 0
+    },
+    {
+     "period": 2,
+     "fire_km2": 110.75,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 6,
+     "cut_off": 9,
+     "impacted": 1
+    },
+    {
+     "period": 3,
+     "fire_km2": 122.08,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 5,
+     "cut_off": 10,
+     "impacted": 1
+    },
+    {
+     "period": 4,
+     "fire_km2": 134.09,
+     "at_risk": 19,
+     "population": 2589,
+     "routed": 4,
+     "cut_off": 14,
+     "impacted": 1
+    },
+    {
+     "period": 5,
+     "fire_km2": 143.65,
+     "at_risk": 20,
+     "population": 2775,
+     "routed": 4,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 6,
+     "fire_km2": 150.31,
+     "at_risk": 21,
+     "population": 2881,
+     "routed": 5,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 7,
+     "fire_km2": 154.5,
+     "at_risk": 23,
+     "population": 2991,
+     "routed": 7,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 11,
+     "fire_km2": 160.08,
+     "at_risk": 23,
+     "population": 2991,
+     "routed": 6,
+     "cut_off": 16,
+     "impacted": 1
+    },
+    {
+     "period": 13,
+     "fire_km2": 162.22,
+     "at_risk": 23,
+     "population": 2991,
+     "routed": 5,
+     "cut_off": 17,
+     "impacted": 1
+    },
+    {
+     "period": 14,
+     "fire_km2": 163.76,
+     "at_risk": 24,
+     "population": 3347,
+     "routed": 6,
+     "cut_off": 17,
+     "impacted": 1
+    },
+    {
+     "period": 18,
+     "fire_km2": 179.87,
+     "at_risk": 25,
+     "population": 3435,
+     "routed": 7,
+     "cut_off": 17,
+     "impacted": 1
+    },
+    {
+     "period": 20,
+     "fire_km2": 191.2,
+     "at_risk": 26,
+     "population": 3950,
+     "routed": 7,
+     "cut_off": 18,
+     "impacted": 1
+    },
+    {
+     "period": 21,
+     "fire_km2": 194.56,
+     "at_risk": 28,
+     "population": 4622,
+     "routed": 4,
+     "cut_off": 23,
+     "impacted": 1
+    }
+   ],
+   "elapsed_min": 17.7
+  },
+  "E03": {
+   "run_id": "north_evia_2021_validation",
+   "field_meanings": {
+    "at_risk": "ΟΙΚΙΣΜΟΙ σε κίνδυνο (= routed + cut_off + impacted)",
+    "routed": "ΟΙΚΙΣΜΟΙ που έχουν ακόμη διαδρομή διαφυγής",
+    "cut_off": "ΟΙΚΙΣΜΟΙ χωρίς καμία διαδρομή διαφυγής (ΟΧΙ δρόμοι)",
+    "impacted": "ΟΙΚΙΣΜΟΙ μέσα στην περίμετρο της φωτιάς",
+    "population": "κάτοικοι των at_risk οικισμών",
+    "edges_removed": "ΟΔΙΚΑ ΤΜΗΜΑΤΑ που αφαιρέθηκαν - ΜΟΝΟ τελική ώρα",
+    "fire_km2": "καμένη έκταση σε km2",
+    "final_front_class4_pct": "ποσοστό του ΤΕΛΙΚΟΥ μετώπου σε κλάση 4"
+   },
+   "inputs": {
+    "mode": "scenario",
+    "window_km": null,
+    "horizon_h": 24,
+    "front_cells": 39190,
+    "n_fronts_detected": 242,
+    "scenario": "north_evia_2021",
+    "weather_source": "archive"
+   },
+   "final_hour": {
+    "period": 24,
+    "fire_km2": 203.11,
+    "at_risk": 28,
+    "population": 4622,
+    "routed": 4,
+    "cut_off": 23,
+    "impacted": 1,
+    "edges_removed": 737,
+    "longest_route_km": 6.78
+   },
+   "final_front_class4_pct": 96,
+   "change_hours": [
+    {
+     "period": 0,
+     "fire_km2": 38.91,
+     "at_risk": 11,
+     "population": 1301,
+     "routed": 5,
+     "cut_off": 6,
+     "impacted": 0
+    },
+    {
+     "period": 1,
+     "fire_km2": 96.08,
+     "at_risk": 13,
+     "population": 1621,
+     "routed": 4,
+     "cut_off": 9,
+     "impacted": 0
+    },
+    {
+     "period": 2,
+     "fire_km2": 110.75,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 6,
+     "cut_off": 9,
+     "impacted": 1
+    },
+    {
+     "period": 3,
+     "fire_km2": 122.08,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 5,
+     "cut_off": 10,
+     "impacted": 1
+    },
+    {
+     "period": 4,
+     "fire_km2": 134.09,
+     "at_risk": 19,
+     "population": 2589,
+     "routed": 4,
+     "cut_off": 14,
+     "impacted": 1
+    },
+    {
+     "period": 5,
+     "fire_km2": 143.65,
+     "at_risk": 20,
+     "population": 2775,
+     "routed": 4,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 6,
+     "fire_km2": 150.31,
+     "at_risk": 21,
+     "population": 2881,
+     "routed": 5,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 7,
+     "fire_km2": 154.5,
+     "at_risk": 23,
+     "population": 2991,
+     "routed": 7,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 11,
+     "fire_km2": 160.08,
+     "at_risk": 23,
+     "population": 2991,
+     "routed": 6,
+     "cut_off": 16,
+     "impacted": 1
+    },
+    {
+     "period": 13,
+     "fire_km2": 162.22,
+     "at_risk": 23,
+     "population": 2991,
+     "routed": 5,
+     "cut_off": 17,
+     "impacted": 1
+    },
+    {
+     "period": 14,
+     "fire_km2": 163.76,
+     "at_risk": 24,
+     "population": 3347,
+     "routed": 6,
+     "cut_off": 17,
+     "impacted": 1
+    },
+    {
+     "period": 18,
+     "fire_km2": 179.87,
+     "at_risk": 25,
+     "population": 3435,
+     "routed": 7,
+     "cut_off": 17,
+     "impacted": 1
+    },
+    {
+     "period": 20,
+     "fire_km2": 191.2,
+     "at_risk": 26,
+     "population": 3950,
+     "routed": 7,
+     "cut_off": 18,
+     "impacted": 1
+    },
+    {
+     "period": 21,
+     "fire_km2": 194.56,
+     "at_risk": 28,
+     "population": 4622,
+     "routed": 4,
+     "cut_off": 23,
+     "impacted": 1
+    }
+   ],
+   "elapsed_min": 17.7
+  },
+  "I01": {
+   "run_id": "fx_pins_forecast",
+   "field_meanings": {
+    "at_risk": "ΟΙΚΙΣΜΟΙ σε κίνδυνο (= routed + cut_off + impacted)",
+    "routed": "ΟΙΚΙΣΜΟΙ που έχουν ακόμη διαδρομή διαφυγής",
+    "cut_off": "ΟΙΚΙΣΜΟΙ χωρίς καμία διαδρομή διαφυγής (ΟΧΙ δρόμοι)",
+    "impacted": "ΟΙΚΙΣΜΟΙ μέσα στην περίμετρο της φωτιάς",
+    "population": "κάτοικοι των at_risk οικισμών",
+    "edges_removed": "ΟΔΙΚΑ ΤΜΗΜΑΤΑ που αφαιρέθηκαν - ΜΟΝΟ τελική ώρα",
+    "fire_km2": "καμένη έκταση σε km2",
+    "final_front_class4_pct": "ποσοστό του ΤΕΛΙΚΟΥ μετώπου σε κλάση 4"
+   },
+   "inputs": {
+    "mode": "front",
+    "window_km": 12,
+    "horizon_h": 6,
+    "front_cells": 248,
+    "n_fronts_detected": 1,
+    "scenario": null,
+    "weather_source": "forecast"
+   },
+   "final_hour": {
+    "period": 6,
+    "fire_km2": 150.31,
+    "at_risk": 21,
+    "population": 2881,
+    "routed": 5,
+    "cut_off": 15,
+    "impacted": 1,
+    "edges_removed": 439,
+    "longest_route_km": 6.36
+   },
+   "final_front_class4_pct": 96,
+   "change_hours": [
+    {
+     "period": 0,
+     "fire_km2": 38.91,
+     "at_risk": 11,
+     "population": 1301,
+     "routed": 5,
+     "cut_off": 6,
+     "impacted": 0
+    },
+    {
+     "period": 1,
+     "fire_km2": 96.08,
+     "at_risk": 13,
+     "population": 1621,
+     "routed": 4,
+     "cut_off": 9,
+     "impacted": 0
+    },
+    {
+     "period": 2,
+     "fire_km2": 110.75,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 6,
+     "cut_off": 9,
+     "impacted": 1
+    },
+    {
+     "period": 3,
+     "fire_km2": 122.08,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 5,
+     "cut_off": 10,
+     "impacted": 1
+    },
+    {
+     "period": 4,
+     "fire_km2": 134.09,
+     "at_risk": 19,
+     "population": 2589,
+     "routed": 4,
+     "cut_off": 14,
+     "impacted": 1
+    },
+    {
+     "period": 5,
+     "fire_km2": 143.65,
+     "at_risk": 20,
+     "population": 2775,
+     "routed": 4,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 6,
+     "fire_km2": 150.31,
+     "at_risk": 21,
+     "population": 2881,
+     "routed": 5,
+     "cut_off": 15,
+     "impacted": 1
+    }
+   ],
+   "elapsed_min": 3.1
+  },
+  "I02": {
+   "run_id": "fx_cutoff",
+   "field_meanings": {
+    "at_risk": "ΟΙΚΙΣΜΟΙ σε κίνδυνο (= routed + cut_off + impacted)",
+    "routed": "ΟΙΚΙΣΜΟΙ που έχουν ακόμη διαδρομή διαφυγής",
+    "cut_off": "ΟΙΚΙΣΜΟΙ χωρίς καμία διαδρομή διαφυγής (ΟΧΙ δρόμοι)",
+    "impacted": "ΟΙΚΙΣΜΟΙ μέσα στην περίμετρο της φωτιάς",
+    "population": "κάτοικοι των at_risk οικισμών",
+    "edges_removed": "ΟΔΙΚΑ ΤΜΗΜΑΤΑ που αφαιρέθηκαν - ΜΟΝΟ τελική ώρα",
+    "fire_km2": "καμένη έκταση σε km2",
+    "final_front_class4_pct": "ποσοστό του ΤΕΛΙΚΟΥ μετώπου σε κλάση 4"
+   },
+   "inputs": {
+    "mode": "front",
+    "window_km": 15,
+    "horizon_h": 12,
+    "front_cells": 248,
+    "n_fronts_detected": 1,
+    "scenario": null,
+    "weather_source": "forecast"
+   },
+   "final_hour": {
+    "period": 12,
+    "fire_km2": 161.07,
+    "at_risk": 23,
+    "population": 2991,
+    "routed": 6,
+    "cut_off": 16,
+    "impacted": 1,
+    "edges_removed": 489,
+    "longest_route_km": 6.36
+   },
+   "final_front_class4_pct": 96,
+   "change_hours": [
+    {
+     "period": 0,
+     "fire_km2": 38.91,
+     "at_risk": 11,
+     "population": 1301,
+     "routed": 5,
+     "cut_off": 6,
+     "impacted": 0
+    },
+    {
+     "period": 1,
+     "fire_km2": 96.08,
+     "at_risk": 13,
+     "population": 1621,
+     "routed": 4,
+     "cut_off": 9,
+     "impacted": 0
+    },
+    {
+     "period": 2,
+     "fire_km2": 110.75,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 6,
+     "cut_off": 9,
+     "impacted": 1
+    },
+    {
+     "period": 3,
+     "fire_km2": 122.08,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 5,
+     "cut_off": 10,
+     "impacted": 1
+    },
+    {
+     "period": 4,
+     "fire_km2": 134.09,
+     "at_risk": 19,
+     "population": 2589,
+     "routed": 4,
+     "cut_off": 14,
+     "impacted": 1
+    },
+    {
+     "period": 5,
+     "fire_km2": 143.65,
+     "at_risk": 20,
+     "population": 2775,
+     "routed": 4,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 6,
+     "fire_km2": 150.31,
+     "at_risk": 21,
+     "population": 2881,
+     "routed": 5,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 7,
+     "fire_km2": 154.5,
+     "at_risk": 23,
+     "population": 2991,
+     "routed": 7,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 11,
+     "fire_km2": 160.08,
+     "at_risk": 23,
+     "population": 2991,
+     "routed": 6,
+     "cut_off": 16,
+     "impacted": 1
+    }
+   ],
+   "elapsed_min": 5.2
+  },
+  "I03": {
+   "run_id": "fx_pins_forecast",
+   "field_meanings": {
+    "at_risk": "ΟΙΚΙΣΜΟΙ σε κίνδυνο (= routed + cut_off + impacted)",
+    "routed": "ΟΙΚΙΣΜΟΙ που έχουν ακόμη διαδρομή διαφυγής",
+    "cut_off": "ΟΙΚΙΣΜΟΙ χωρίς καμία διαδρομή διαφυγής (ΟΧΙ δρόμοι)",
+    "impacted": "ΟΙΚΙΣΜΟΙ μέσα στην περίμετρο της φωτιάς",
+    "population": "κάτοικοι των at_risk οικισμών",
+    "edges_removed": "ΟΔΙΚΑ ΤΜΗΜΑΤΑ που αφαιρέθηκαν - ΜΟΝΟ τελική ώρα",
+    "fire_km2": "καμένη έκταση σε km2",
+    "final_front_class4_pct": "ποσοστό του ΤΕΛΙΚΟΥ μετώπου σε κλάση 4"
+   },
+   "inputs": {
+    "mode": "front",
+    "window_km": 12,
+    "horizon_h": 8,
+    "front_cells": 124,
+    "n_fronts_detected": 1,
+    "scenario": null,
+    "weather_source": "forecast"
+   },
+   "final_hour": {
+    "period": 8,
+    "fire_km2": 156.73,
+    "at_risk": 23,
+    "population": 2991,
+    "routed": 7,
+    "cut_off": 15,
+    "impacted": 1,
+    "edges_removed": 473,
+    "longest_route_km": 6.36
+   },
+   "final_front_class4_pct": 96,
+   "change_hours": [
+    {
+     "period": 0,
+     "fire_km2": 38.91,
+     "at_risk": 11,
+     "population": 1301,
+     "routed": 5,
+     "cut_off": 6,
+     "impacted": 0
+    },
+    {
+     "period": 1,
+     "fire_km2": 96.08,
+     "at_risk": 13,
+     "population": 1621,
+     "routed": 4,
+     "cut_off": 9,
+     "impacted": 0
+    },
+    {
+     "period": 2,
+     "fire_km2": 110.75,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 6,
+     "cut_off": 9,
+     "impacted": 1
+    },
+    {
+     "period": 3,
+     "fire_km2": 122.08,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 5,
+     "cut_off": 10,
+     "impacted": 1
+    },
+    {
+     "period": 4,
+     "fire_km2": 134.09,
+     "at_risk": 19,
+     "population": 2589,
+     "routed": 4,
+     "cut_off": 14,
+     "impacted": 1
+    },
+    {
+     "period": 5,
+     "fire_km2": 143.65,
+     "at_risk": 20,
+     "population": 2775,
+     "routed": 4,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 6,
+     "fire_km2": 150.31,
+     "at_risk": 21,
+     "population": 2881,
+     "routed": 5,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 7,
+     "fire_km2": 154.5,
+     "at_risk": 23,
+     "population": 2991,
+     "routed": 7,
+     "cut_off": 15,
+     "impacted": 1
+    }
+   ],
+   "elapsed_min": 3.8
+  },
+  "I04": {
+   "run_id": "fx_cutoff",
+   "field_meanings": {
+    "at_risk": "ΟΙΚΙΣΜΟΙ σε κίνδυνο (= routed + cut_off + impacted)",
+    "routed": "ΟΙΚΙΣΜΟΙ που έχουν ακόμη διαδρομή διαφυγής",
+    "cut_off": "ΟΙΚΙΣΜΟΙ χωρίς καμία διαδρομή διαφυγής (ΟΧΙ δρόμοι)",
+    "impacted": "ΟΙΚΙΣΜΟΙ μέσα στην περίμετρο της φωτιάς",
+    "population": "κάτοικοι των at_risk οικισμών",
+    "edges_removed": "ΟΔΙΚΑ ΤΜΗΜΑΤΑ που αφαιρέθηκαν - ΜΟΝΟ τελική ώρα",
+    "fire_km2": "καμένη έκταση σε km2",
+    "final_front_class4_pct": "ποσοστό του ΤΕΛΙΚΟΥ μετώπου σε κλάση 4"
+   },
+   "inputs": {
+    "mode": "front",
+    "window_km": 12,
+    "horizon_h": 6,
+    "front_cells": 248,
+    "n_fronts_detected": 1,
+    "scenario": null,
+    "weather_source": "forecast"
+   },
+   "final_hour": {
+    "period": 6,
+    "fire_km2": 150.31,
+    "at_risk": 21,
+    "population": 2881,
+    "routed": 5,
+    "cut_off": 15,
+    "impacted": 1,
+    "edges_removed": 439,
+    "longest_route_km": 6.36
+   },
+   "final_front_class4_pct": 96,
+   "change_hours": [
+    {
+     "period": 0,
+     "fire_km2": 38.91,
+     "at_risk": 11,
+     "population": 1301,
+     "routed": 5,
+     "cut_off": 6,
+     "impacted": 0
+    },
+    {
+     "period": 1,
+     "fire_km2": 96.08,
+     "at_risk": 13,
+     "population": 1621,
+     "routed": 4,
+     "cut_off": 9,
+     "impacted": 0
+    },
+    {
+     "period": 2,
+     "fire_km2": 110.75,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 6,
+     "cut_off": 9,
+     "impacted": 1
+    },
+    {
+     "period": 3,
+     "fire_km2": 122.08,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 5,
+     "cut_off": 10,
+     "impacted": 1
+    },
+    {
+     "period": 4,
+     "fire_km2": 134.09,
+     "at_risk": 19,
+     "population": 2589,
+     "routed": 4,
+     "cut_off": 14,
+     "impacted": 1
+    },
+    {
+     "period": 5,
+     "fire_km2": 143.65,
+     "at_risk": 20,
+     "population": 2775,
+     "routed": 4,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 6,
+     "fire_km2": 150.31,
+     "at_risk": 21,
+     "population": 2881,
+     "routed": 5,
+     "cut_off": 15,
+     "impacted": 1
+    }
+   ],
+   "elapsed_min": 3.1
+  },
+  "I05": {
+   "run_id": "fx_multifront",
+   "field_meanings": {
+    "at_risk": "ΟΙΚΙΣΜΟΙ σε κίνδυνο (= routed + cut_off + impacted)",
+    "routed": "ΟΙΚΙΣΜΟΙ που έχουν ακόμη διαδρομή διαφυγής",
+    "cut_off": "ΟΙΚΙΣΜΟΙ χωρίς καμία διαδρομή διαφυγής (ΟΧΙ δρόμοι)",
+    "impacted": "ΟΙΚΙΣΜΟΙ μέσα στην περίμετρο της φωτιάς",
+    "population": "κάτοικοι των at_risk οικισμών",
+    "edges_removed": "ΟΔΙΚΑ ΤΜΗΜΑΤΑ που αφαιρέθηκαν - ΜΟΝΟ τελική ώρα",
+    "fire_km2": "καμένη έκταση σε km2",
+    "final_front_class4_pct": "ποσοστό του ΤΕΛΙΚΟΥ μετώπου σε κλάση 4"
+   },
+   "inputs": {
+    "mode": "multi_front",
+    "window_km": 30,
+    "horizon_h": 10,
+    "front_cells": 248,
+    "n_fronts_detected": 2,
+    "scenario": null,
+    "weather_source": "forecast"
+   },
+   "final_hour": {
+    "period": 10,
+    "fire_km2": 159.1,
+    "at_risk": 23,
+    "population": 2991,
+    "routed": 7,
+    "cut_off": 15,
+    "impacted": 1,
+    "edges_removed": 483,
+    "longest_route_km": 6.36
+   },
+   "final_front_class4_pct": 96,
+   "change_hours": [
+    {
+     "period": 0,
+     "fire_km2": 38.91,
+     "at_risk": 11,
+     "population": 1301,
+     "routed": 5,
+     "cut_off": 6,
+     "impacted": 0
+    },
+    {
+     "period": 1,
+     "fire_km2": 96.08,
+     "at_risk": 13,
+     "population": 1621,
+     "routed": 4,
+     "cut_off": 9,
+     "impacted": 0
+    },
+    {
+     "period": 2,
+     "fire_km2": 110.75,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 6,
+     "cut_off": 9,
+     "impacted": 1
+    },
+    {
+     "period": 3,
+     "fire_km2": 122.08,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 5,
+     "cut_off": 10,
+     "impacted": 1
+    },
+    {
+     "period": 4,
+     "fire_km2": 134.09,
+     "at_risk": 19,
+     "population": 2589,
+     "routed": 4,
+     "cut_off": 14,
+     "impacted": 1
+    },
+    {
+     "period": 5,
+     "fire_km2": 143.65,
+     "at_risk": 20,
+     "population": 2775,
+     "routed": 4,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 6,
+     "fire_km2": 150.31,
+     "at_risk": 21,
+     "population": 2881,
+     "routed": 5,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 7,
+     "fire_km2": 154.5,
+     "at_risk": 23,
+     "population": 2991,
+     "routed": 7,
+     "cut_off": 15,
+     "impacted": 1
+    }
+   ],
+   "elapsed_min": 4.5
+  },
+  "J01": {
+   "run_id": "fx_pins_forecast",
+   "field_meanings": {
+    "at_risk": "ΟΙΚΙΣΜΟΙ σε κίνδυνο (= routed + cut_off + impacted)",
+    "routed": "ΟΙΚΙΣΜΟΙ που έχουν ακόμη διαδρομή διαφυγής",
+    "cut_off": "ΟΙΚΙΣΜΟΙ χωρίς καμία διαδρομή διαφυγής (ΟΧΙ δρόμοι)",
+    "impacted": "ΟΙΚΙΣΜΟΙ μέσα στην περίμετρο της φωτιάς",
+    "population": "κάτοικοι των at_risk οικισμών",
+    "edges_removed": "ΟΔΙΚΑ ΤΜΗΜΑΤΑ που αφαιρέθηκαν - ΜΟΝΟ τελική ώρα",
+    "fire_km2": "καμένη έκταση σε km2",
+    "final_front_class4_pct": "ποσοστό του ΤΕΛΙΚΟΥ μετώπου σε κλάση 4"
+   },
+   "inputs": {
+    "mode": "front",
+    "window_km": 12,
+    "horizon_h": 6,
+    "front_cells": 124,
+    "n_fronts_detected": 1,
+    "scenario": null,
+    "weather_source": "forecast"
+   },
+   "final_hour": {
+    "period": 6,
+    "fire_km2": 150.31,
+    "at_risk": 21,
+    "population": 2881,
+    "routed": 5,
+    "cut_off": 15,
+    "impacted": 1,
+    "edges_removed": 439,
+    "longest_route_km": 6.36
+   },
+   "final_front_class4_pct": 96,
+   "change_hours": [
+    {
+     "period": 0,
+     "fire_km2": 38.91,
+     "at_risk": 11,
+     "population": 1301,
+     "routed": 5,
+     "cut_off": 6,
+     "impacted": 0
+    },
+    {
+     "period": 1,
+     "fire_km2": 96.08,
+     "at_risk": 13,
+     "population": 1621,
+     "routed": 4,
+     "cut_off": 9,
+     "impacted": 0
+    },
+    {
+     "period": 2,
+     "fire_km2": 110.75,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 6,
+     "cut_off": 9,
+     "impacted": 1
+    },
+    {
+     "period": 3,
+     "fire_km2": 122.08,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 5,
+     "cut_off": 10,
+     "impacted": 1
+    },
+    {
+     "period": 4,
+     "fire_km2": 134.09,
+     "at_risk": 19,
+     "population": 2589,
+     "routed": 4,
+     "cut_off": 14,
+     "impacted": 1
+    },
+    {
+     "period": 5,
+     "fire_km2": 143.65,
+     "at_risk": 20,
+     "population": 2775,
+     "routed": 4,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 6,
+     "fire_km2": 150.31,
+     "at_risk": 21,
+     "population": 2881,
+     "routed": 5,
+     "cut_off": 15,
+     "impacted": 1
+    }
+   ],
+   "elapsed_min": 3.1
+  },
+  "J02": {
+   "run_id": "fx_pins_forecast",
+   "field_meanings": {
+    "at_risk": "ΟΙΚΙΣΜΟΙ σε κίνδυνο (= routed + cut_off + impacted)",
+    "routed": "ΟΙΚΙΣΜΟΙ που έχουν ακόμη διαδρομή διαφυγής",
+    "cut_off": "ΟΙΚΙΣΜΟΙ χωρίς καμία διαδρομή διαφυγής (ΟΧΙ δρόμοι)",
+    "impacted": "ΟΙΚΙΣΜΟΙ μέσα στην περίμετρο της φωτιάς",
+    "population": "κάτοικοι των at_risk οικισμών",
+    "edges_removed": "ΟΔΙΚΑ ΤΜΗΜΑΤΑ που αφαιρέθηκαν - ΜΟΝΟ τελική ώρα",
+    "fire_km2": "καμένη έκταση σε km2",
+    "final_front_class4_pct": "ποσοστό του ΤΕΛΙΚΟΥ μετώπου σε κλάση 4"
+   },
+   "inputs": {
+    "mode": "front",
+    "window_km": 12,
+    "horizon_h": 6,
+    "front_cells": 124,
+    "n_fronts_detected": 1,
+    "scenario": null,
+    "weather_source": "forecast"
+   },
+   "final_hour": {
+    "period": 6,
+    "fire_km2": 150.31,
+    "at_risk": 21,
+    "population": 2881,
+    "routed": 5,
+    "cut_off": 15,
+    "impacted": 1,
+    "edges_removed": 439,
+    "longest_route_km": 6.36
+   },
+   "final_front_class4_pct": 96,
+   "change_hours": [
+    {
+     "period": 0,
+     "fire_km2": 38.91,
+     "at_risk": 11,
+     "population": 1301,
+     "routed": 5,
+     "cut_off": 6,
+     "impacted": 0
+    },
+    {
+     "period": 1,
+     "fire_km2": 96.08,
+     "at_risk": 13,
+     "population": 1621,
+     "routed": 4,
+     "cut_off": 9,
+     "impacted": 0
+    },
+    {
+     "period": 2,
+     "fire_km2": 110.75,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 6,
+     "cut_off": 9,
+     "impacted": 1
+    },
+    {
+     "period": 3,
+     "fire_km2": 122.08,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 5,
+     "cut_off": 10,
+     "impacted": 1
+    },
+    {
+     "period": 4,
+     "fire_km2": 134.09,
+     "at_risk": 19,
+     "population": 2589,
+     "routed": 4,
+     "cut_off": 14,
+     "impacted": 1
+    },
+    {
+     "period": 5,
+     "fire_km2": 143.65,
+     "at_risk": 20,
+     "population": 2775,
+     "routed": 4,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 6,
+     "fire_km2": 150.31,
+     "at_risk": 21,
+     "population": 2881,
+     "routed": 5,
+     "cut_off": 15,
+     "impacted": 1
+    }
+   ],
+   "elapsed_min": 3.1
+  },
+  "J03": {
+   "run_id": "fx_cutoff",
+   "field_meanings": {
+    "at_risk": "ΟΙΚΙΣΜΟΙ σε κίνδυνο (= routed + cut_off + impacted)",
+    "routed": "ΟΙΚΙΣΜΟΙ που έχουν ακόμη διαδρομή διαφυγής",
+    "cut_off": "ΟΙΚΙΣΜΟΙ χωρίς καμία διαδρομή διαφυγής (ΟΧΙ δρόμοι)",
+    "impacted": "ΟΙΚΙΣΜΟΙ μέσα στην περίμετρο της φωτιάς",
+    "population": "κάτοικοι των at_risk οικισμών",
+    "edges_removed": "ΟΔΙΚΑ ΤΜΗΜΑΤΑ που αφαιρέθηκαν - ΜΟΝΟ τελική ώρα",
+    "fire_km2": "καμένη έκταση σε km2",
+    "final_front_class4_pct": "ποσοστό του ΤΕΛΙΚΟΥ μετώπου σε κλάση 4"
+   },
+   "inputs": {
+    "mode": "front",
+    "window_km": 12,
+    "horizon_h": 6,
+    "front_cells": 124,
+    "n_fronts_detected": 1,
+    "scenario": null,
+    "weather_source": "forecast"
+   },
+   "final_hour": {
+    "period": 6,
+    "fire_km2": 150.31,
+    "at_risk": 21,
+    "population": 2881,
+    "routed": 5,
+    "cut_off": 15,
+    "impacted": 1,
+    "edges_removed": 439,
+    "longest_route_km": 6.36
+   },
+   "final_front_class4_pct": 96,
+   "change_hours": [
+    {
+     "period": 0,
+     "fire_km2": 38.91,
+     "at_risk": 11,
+     "population": 1301,
+     "routed": 5,
+     "cut_off": 6,
+     "impacted": 0
+    },
+    {
+     "period": 1,
+     "fire_km2": 96.08,
+     "at_risk": 13,
+     "population": 1621,
+     "routed": 4,
+     "cut_off": 9,
+     "impacted": 0
+    },
+    {
+     "period": 2,
+     "fire_km2": 110.75,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 6,
+     "cut_off": 9,
+     "impacted": 1
+    },
+    {
+     "period": 3,
+     "fire_km2": 122.08,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 5,
+     "cut_off": 10,
+     "impacted": 1
+    },
+    {
+     "period": 4,
+     "fire_km2": 134.09,
+     "at_risk": 19,
+     "population": 2589,
+     "routed": 4,
+     "cut_off": 14,
+     "impacted": 1
+    },
+    {
+     "period": 5,
+     "fire_km2": 143.65,
+     "at_risk": 20,
+     "population": 2775,
+     "routed": 4,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 6,
+     "fire_km2": 150.31,
+     "at_risk": 21,
+     "population": 2881,
+     "routed": 5,
+     "cut_off": 15,
+     "impacted": 1
+    }
+   ],
+   "elapsed_min": 3.1
+  },
+  "J04": {
+   "run_id": "fx_cutoff",
+   "field_meanings": {
+    "at_risk": "ΟΙΚΙΣΜΟΙ σε κίνδυνο (= routed + cut_off + impacted)",
+    "routed": "ΟΙΚΙΣΜΟΙ που έχουν ακόμη διαδρομή διαφυγής",
+    "cut_off": "ΟΙΚΙΣΜΟΙ χωρίς καμία διαδρομή διαφυγής (ΟΧΙ δρόμοι)",
+    "impacted": "ΟΙΚΙΣΜΟΙ μέσα στην περίμετρο της φωτιάς",
+    "population": "κάτοικοι των at_risk οικισμών",
+    "edges_removed": "ΟΔΙΚΑ ΤΜΗΜΑΤΑ που αφαιρέθηκαν - ΜΟΝΟ τελική ώρα",
+    "fire_km2": "καμένη έκταση σε km2",
+    "final_front_class4_pct": "ποσοστό του ΤΕΛΙΚΟΥ μετώπου σε κλάση 4"
+   },
+   "inputs": {
+    "mode": "front",
+    "window_km": 12,
+    "horizon_h": 8,
+    "front_cells": 124,
+    "n_fronts_detected": 1,
+    "scenario": null,
+    "weather_source": "forecast"
+   },
+   "final_hour": {
+    "period": 8,
+    "fire_km2": 156.73,
+    "at_risk": 23,
+    "population": 2991,
+    "routed": 7,
+    "cut_off": 15,
+    "impacted": 1,
+    "edges_removed": 473,
+    "longest_route_km": 6.36
+   },
+   "final_front_class4_pct": 96,
+   "change_hours": [
+    {
+     "period": 0,
+     "fire_km2": 38.91,
+     "at_risk": 11,
+     "population": 1301,
+     "routed": 5,
+     "cut_off": 6,
+     "impacted": 0
+    },
+    {
+     "period": 1,
+     "fire_km2": 96.08,
+     "at_risk": 13,
+     "population": 1621,
+     "routed": 4,
+     "cut_off": 9,
+     "impacted": 0
+    },
+    {
+     "period": 2,
+     "fire_km2": 110.75,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 6,
+     "cut_off": 9,
+     "impacted": 1
+    },
+    {
+     "period": 3,
+     "fire_km2": 122.08,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 5,
+     "cut_off": 10,
+     "impacted": 1
+    },
+    {
+     "period": 4,
+     "fire_km2": 134.09,
+     "at_risk": 19,
+     "population": 2589,
+     "routed": 4,
+     "cut_off": 14,
+     "impacted": 1
+    },
+    {
+     "period": 5,
+     "fire_km2": 143.65,
+     "at_risk": 20,
+     "population": 2775,
+     "routed": 4,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 6,
+     "fire_km2": 150.31,
+     "at_risk": 21,
+     "population": 2881,
+     "routed": 5,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 7,
+     "fire_km2": 154.5,
+     "at_risk": 23,
+     "population": 2991,
+     "routed": 7,
+     "cut_off": 15,
+     "impacted": 1
+    }
+   ],
+   "elapsed_min": 3.8
+  },
+  "K01": {
+   "run_id": "fx_pins_forecast",
+   "field_meanings": {
+    "at_risk": "ΟΙΚΙΣΜΟΙ σε κίνδυνο (= routed + cut_off + impacted)",
+    "routed": "ΟΙΚΙΣΜΟΙ που έχουν ακόμη διαδρομή διαφυγής",
+    "cut_off": "ΟΙΚΙΣΜΟΙ χωρίς καμία διαδρομή διαφυγής (ΟΧΙ δρόμοι)",
+    "impacted": "ΟΙΚΙΣΜΟΙ μέσα στην περίμετρο της φωτιάς",
+    "population": "κάτοικοι των at_risk οικισμών",
+    "edges_removed": "ΟΔΙΚΑ ΤΜΗΜΑΤΑ που αφαιρέθηκαν - ΜΟΝΟ τελική ώρα",
+    "fire_km2": "καμένη έκταση σε km2",
+    "final_front_class4_pct": "ποσοστό του ΤΕΛΙΚΟΥ μετώπου σε κλάση 4"
+   },
+   "inputs": {
+    "mode": "front",
+    "window_km": 12,
+    "horizon_h": 6,
+    "front_cells": 124,
+    "n_fronts_detected": 1,
+    "scenario": null,
+    "weather_source": "forecast"
+   },
+   "final_hour": {
+    "period": 6,
+    "fire_km2": 150.31,
+    "at_risk": 21,
+    "population": 2881,
+    "routed": 5,
+    "cut_off": 15,
+    "impacted": 1,
+    "edges_removed": 439,
+    "longest_route_km": 6.36
+   },
+   "final_front_class4_pct": 96,
+   "change_hours": [
+    {
+     "period": 0,
+     "fire_km2": 38.91,
+     "at_risk": 11,
+     "population": 1301,
+     "routed": 5,
+     "cut_off": 6,
+     "impacted": 0
+    },
+    {
+     "period": 1,
+     "fire_km2": 96.08,
+     "at_risk": 13,
+     "population": 1621,
+     "routed": 4,
+     "cut_off": 9,
+     "impacted": 0
+    },
+    {
+     "period": 2,
+     "fire_km2": 110.75,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 6,
+     "cut_off": 9,
+     "impacted": 1
+    },
+    {
+     "period": 3,
+     "fire_km2": 122.08,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 5,
+     "cut_off": 10,
+     "impacted": 1
+    },
+    {
+     "period": 4,
+     "fire_km2": 134.09,
+     "at_risk": 19,
+     "population": 2589,
+     "routed": 4,
+     "cut_off": 14,
+     "impacted": 1
+    },
+    {
+     "period": 5,
+     "fire_km2": 143.65,
+     "at_risk": 20,
+     "population": 2775,
+     "routed": 4,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 6,
+     "fire_km2": 150.31,
+     "at_risk": 21,
+     "population": 2881,
+     "routed": 5,
+     "cut_off": 15,
+     "impacted": 1
+    }
+   ],
+   "elapsed_min": 3.1
+  },
+  "L01": {
+   "run_id": "fx_nospread",
+   "field_meanings": {
+    "at_risk": "ΟΙΚΙΣΜΟΙ σε κίνδυνο (= routed + cut_off + impacted)",
+    "routed": "ΟΙΚΙΣΜΟΙ που έχουν ακόμη διαδρομή διαφυγής",
+    "cut_off": "ΟΙΚΙΣΜΟΙ χωρίς καμία διαδρομή διαφυγής (ΟΧΙ δρόμοι)",
+    "impacted": "ΟΙΚΙΣΜΟΙ μέσα στην περίμετρο της φωτιάς",
+    "population": "κάτοικοι των at_risk οικισμών",
+    "edges_removed": "ΟΔΙΚΑ ΤΜΗΜΑΤΑ που αφαιρέθηκαν - ΜΟΝΟ τελική ώρα",
+    "fire_km2": "καμένη έκταση σε km2",
+    "final_front_class4_pct": "ποσοστό του ΤΕΛΙΚΟΥ μετώπου σε κλάση 4"
+   },
+   "inputs": {
+    "mode": "point_ignition",
+    "window_km": 12,
+    "horizon_h": 6,
+    "front_cells": 124,
+    "n_fronts_detected": 1,
+    "scenario": null,
+    "weather_source": "forecast"
+   },
+   "final_hour": {
+    "period": 6,
+    "fire_km2": 0.46,
+    "at_risk": 0,
+    "population": 0,
+    "routed": 0,
+    "cut_off": 0,
+    "impacted": 0,
+    "edges_removed": 0,
+    "longest_route_km": null
+   },
+   "final_front_class4_pct": 3,
+   "change_hours": [
+    {
+     "period": 0,
+     "fire_km2": 0.34,
+     "at_risk": 0,
+     "population": 0,
+     "routed": 0,
+     "cut_off": 0,
+     "impacted": 0
+    }
+   ],
+   "elapsed_min": 1.1
+  },
+  "L02": {
+   "run_id": "fx_nospread",
+   "field_meanings": {
+    "at_risk": "ΟΙΚΙΣΜΟΙ σε κίνδυνο (= routed + cut_off + impacted)",
+    "routed": "ΟΙΚΙΣΜΟΙ που έχουν ακόμη διαδρομή διαφυγής",
+    "cut_off": "ΟΙΚΙΣΜΟΙ χωρίς καμία διαδρομή διαφυγής (ΟΧΙ δρόμοι)",
+    "impacted": "ΟΙΚΙΣΜΟΙ μέσα στην περίμετρο της φωτιάς",
+    "population": "κάτοικοι των at_risk οικισμών",
+    "edges_removed": "ΟΔΙΚΑ ΤΜΗΜΑΤΑ που αφαιρέθηκαν - ΜΟΝΟ τελική ώρα",
+    "fire_km2": "καμένη έκταση σε km2",
+    "final_front_class4_pct": "ποσοστό του ΤΕΛΙΚΟΥ μετώπου σε κλάση 4"
+   },
+   "inputs": {
+    "mode": "point_ignition",
+    "window_km": 12,
+    "horizon_h": 6,
+    "front_cells": 124,
+    "n_fronts_detected": 1,
+    "scenario": null,
+    "weather_source": "forecast"
+   },
+   "final_hour": {
+    "period": 6,
+    "fire_km2": 0.46,
+    "at_risk": 0,
+    "population": 0,
+    "routed": 0,
+    "cut_off": 0,
+    "impacted": 0,
+    "edges_removed": 0,
+    "longest_route_km": null
+   },
+   "final_front_class4_pct": 3,
+   "change_hours": [
+    {
+     "period": 0,
+     "fire_km2": 0.34,
+     "at_risk": 0,
+     "population": 0,
+     "routed": 0,
+     "cut_off": 0,
+     "impacted": 0
+    }
+   ],
+   "elapsed_min": 1.1
+  },
+  "M01": {
+   "run_id": "fx_pins_forecast",
+   "field_meanings": {
+    "at_risk": "ΟΙΚΙΣΜΟΙ σε κίνδυνο (= routed + cut_off + impacted)",
+    "routed": "ΟΙΚΙΣΜΟΙ που έχουν ακόμη διαδρομή διαφυγής",
+    "cut_off": "ΟΙΚΙΣΜΟΙ χωρίς καμία διαδρομή διαφυγής (ΟΧΙ δρόμοι)",
+    "impacted": "ΟΙΚΙΣΜΟΙ μέσα στην περίμετρο της φωτιάς",
+    "population": "κάτοικοι των at_risk οικισμών",
+    "edges_removed": "ΟΔΙΚΑ ΤΜΗΜΑΤΑ που αφαιρέθηκαν - ΜΟΝΟ τελική ώρα",
+    "fire_km2": "καμένη έκταση σε km2",
+    "final_front_class4_pct": "ποσοστό του ΤΕΛΙΚΟΥ μετώπου σε κλάση 4"
+   },
+   "inputs": {
+    "mode": "front",
+    "window_km": 12,
+    "horizon_h": 6,
+    "front_cells": 248,
+    "n_fronts_detected": 1,
+    "scenario": null,
+    "weather_source": "forecast"
+   },
+   "final_hour": {
+    "period": 6,
+    "fire_km2": 150.31,
+    "at_risk": 21,
+    "population": 2881,
+    "routed": 5,
+    "cut_off": 15,
+    "impacted": 1,
+    "edges_removed": 439,
+    "longest_route_km": 6.36
+   },
+   "final_front_class4_pct": 96,
+   "change_hours": [
+    {
+     "period": 0,
+     "fire_km2": 38.91,
+     "at_risk": 11,
+     "population": 1301,
+     "routed": 5,
+     "cut_off": 6,
+     "impacted": 0
+    },
+    {
+     "period": 1,
+     "fire_km2": 96.08,
+     "at_risk": 13,
+     "population": 1621,
+     "routed": 4,
+     "cut_off": 9,
+     "impacted": 0
+    },
+    {
+     "period": 2,
+     "fire_km2": 110.75,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 6,
+     "cut_off": 9,
+     "impacted": 1
+    },
+    {
+     "period": 3,
+     "fire_km2": 122.08,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 5,
+     "cut_off": 10,
+     "impacted": 1
+    },
+    {
+     "period": 4,
+     "fire_km2": 134.09,
+     "at_risk": 19,
+     "population": 2589,
+     "routed": 4,
+     "cut_off": 14,
+     "impacted": 1
+    },
+    {
+     "period": 5,
+     "fire_km2": 143.65,
+     "at_risk": 20,
+     "population": 2775,
+     "routed": 4,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 6,
+     "fire_km2": 150.31,
+     "at_risk": 21,
+     "population": 2881,
+     "routed": 5,
+     "cut_off": 15,
+     "impacted": 1
+    }
+   ],
+   "elapsed_min": 3.1
+  },
+  "E04": {
+   "run_id": "north_evia_2021_validation",
+   "field_meanings": {
+    "at_risk": "ΟΙΚΙΣΜΟΙ σε κίνδυνο (= routed + cut_off + impacted)",
+    "routed": "ΟΙΚΙΣΜΟΙ που έχουν ακόμη διαδρομή διαφυγής",
+    "cut_off": "ΟΙΚΙΣΜΟΙ χωρίς καμία διαδρομή διαφυγής (ΟΧΙ δρόμοι)",
+    "impacted": "ΟΙΚΙΣΜΟΙ μέσα στην περίμετρο της φωτιάς",
+    "population": "κάτοικοι των at_risk οικισμών",
+    "edges_removed": "ΟΔΙΚΑ ΤΜΗΜΑΤΑ που αφαιρέθηκαν - ΜΟΝΟ τελική ώρα",
+    "fire_km2": "καμένη έκταση σε km2",
+    "final_front_class4_pct": "ποσοστό του ΤΕΛΙΚΟΥ μετώπου σε κλάση 4"
+   },
+   "inputs": {
+    "mode": "scenario",
+    "window_km": null,
+    "horizon_h": 24,
+    "front_cells": 39190,
+    "n_fronts_detected": 242,
+    "scenario": "north_evia_2021",
+    "weather_source": "archive"
+   },
+   "final_hour": {
+    "period": 24,
+    "fire_km2": 203.11,
+    "at_risk": 28,
+    "population": 4622,
+    "routed": 4,
+    "cut_off": 23,
+    "impacted": 1,
+    "edges_removed": 737,
+    "longest_route_km": 6.78
+   },
+   "final_front_class4_pct": 96,
+   "change_hours": [
+    {
+     "period": 0,
+     "fire_km2": 38.91,
+     "at_risk": 11,
+     "population": 1301,
+     "routed": 5,
+     "cut_off": 6,
+     "impacted": 0
+    },
+    {
+     "period": 1,
+     "fire_km2": 96.08,
+     "at_risk": 13,
+     "population": 1621,
+     "routed": 4,
+     "cut_off": 9,
+     "impacted": 0
+    },
+    {
+     "period": 2,
+     "fire_km2": 110.75,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 6,
+     "cut_off": 9,
+     "impacted": 1
+    },
+    {
+     "period": 3,
+     "fire_km2": 122.08,
+     "at_risk": 16,
+     "population": 2107,
+     "routed": 5,
+     "cut_off": 10,
+     "impacted": 1
+    },
+    {
+     "period": 4,
+     "fire_km2": 134.09,
+     "at_risk": 19,
+     "population": 2589,
+     "routed": 4,
+     "cut_off": 14,
+     "impacted": 1
+    },
+    {
+     "period": 5,
+     "fire_km2": 143.65,
+     "at_risk": 20,
+     "population": 2775,
+     "routed": 4,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 6,
+     "fire_km2": 150.31,
+     "at_risk": 21,
+     "population": 2881,
+     "routed": 5,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 7,
+     "fire_km2": 154.5,
+     "at_risk": 23,
+     "population": 2991,
+     "routed": 7,
+     "cut_off": 15,
+     "impacted": 1
+    },
+    {
+     "period": 11,
+     "fire_km2": 160.08,
+     "at_risk": 23,
+     "population": 2991,
+     "routed": 6,
+     "cut_off": 16,
+     "impacted": 1
+    },
+    {
+     "period": 13,
+     "fire_km2": 162.22,
+     "at_risk": 23,
+     "population": 2991,
+     "routed": 5,
+     "cut_off": 17,
+     "impacted": 1
+    },
+    {
+     "period": 14,
+     "fire_km2": 163.76,
+     "at_risk": 24,
+     "population": 3347,
+     "routed": 6,
+     "cut_off": 17,
+     "impacted": 1
+    },
+    {
+     "period": 18,
+     "fire_km2": 179.87,
+     "at_risk": 25,
+     "population": 3435,
+     "routed": 7,
+     "cut_off": 17,
+     "impacted": 1
+    },
+    {
+     "period": 20,
+     "fire_km2": 191.2,
+     "at_risk": 26,
+     "population": 3950,
+     "routed": 7,
+     "cut_off": 18,
+     "impacted": 1
+    },
+    {
+     "period": 21,
+     "fire_km2": 194.56,
+     "at_risk": 28,
+     "population": 4622,
+     "routed": 4,
+     "cut_off": 23,
+     "impacted": 1
+    }
+   ],
+   "elapsed_min": 17.7
+  }
+ }
+}

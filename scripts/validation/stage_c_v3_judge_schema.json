@@ -1,0 +1,150 @@
+{
+ "type": "object",
+ "properties": {
+  "decisions": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "properties": {
+     "record_id": {
+      "type": "string",
+      "description": "the opaque record id exactly as the file names it"
+     },
+     "judgeable": {
+      "type": "boolean",
+      "description": "false when the record has no narrative surface to judge; the five questions must then be null"
+     },
+     "has_contradicted_information": {
+      "type": [
+       "boolean",
+       "null"
+      ],
+      "description": "true when any factual statement conflicts with the payload: wrong value, wrong hour, wrong entity, wrong direction of change"
+     },
+     "has_unsupported_information": {
+      "type": [
+       "boolean",
+       "null"
+      ],
+      "description": "true when any factual statement names something the payload has no field for; advisory and limitation sentences never count here"
+     },
+     "critical_events_complete": {
+      "type": [
+       "boolean",
+       "null"
+      ],
+      "description": "true only when every required critical event of this case, that is every event of kind transition or final_outcome, is conveyed at the right hour and about the right entity. Disclosures are NOT judged here"
+     },
+     "required_disclosures_complete": {
+      "type": [
+       "boolean",
+       "null"
+      ],
+      "description": "true only when every required disclosure of this case, that is every event of kind policy_disclosure, is present. Judged on those events and on nothing else"
+     },
+     "advice_grounded_and_caveated": {
+      "type": [
+       "string",
+       "null"
+      ],
+      "enum": [
+       "true",
+       "false",
+       "NOT_APPLICABLE",
+       null
+      ],
+      "description": "NOT_APPLICABLE only when no recommendation is offered and the gold records advice as optional"
+     },
+     "limitations_complete": {
+      "type": [
+       "boolean",
+       "null"
+      ],
+      "description": "true only when every required limitation element is present in substance"
+     },
+     "stage_c_pass": {
+      "type": [
+       "boolean",
+       "null"
+      ],
+      "description": "the conjunction defined in the rubric; null when judgeable is false"
+     },
+     "failures": {
+      "type": "array",
+      "description": "one entry for every question that came out as a failure; empty when the record passes",
+      "items": {
+       "type": "object",
+       "properties": {
+        "question": {
+         "type": "string",
+         "enum": [
+          "has_contradicted_information",
+          "has_unsupported_information",
+          "critical_events_complete",
+          "required_disclosures_complete",
+          "advice_grounded_and_caveated",
+          "limitations_complete"
+         ]
+        },
+        "exact_quote": {
+         "type": "string",
+         "description": "the offending words from the answer, verbatim; empty only when the failure is an omission"
+        },
+        "payload_evidence": {
+         "type": "string",
+         "description": "the payload field, row or period that establishes the failure, or the event_id or element_id that was not satisfied"
+        },
+        "reason": {
+         "type": "string",
+         "description": "one sentence"
+        }
+       },
+       "required": [
+        "question",
+        "exact_quote",
+        "payload_evidence",
+        "reason"
+       ]
+      }
+     },
+     "uncalibrated_fuels_mentioned": {
+      "type": [
+       "boolean",
+       "null"
+      ],
+      "description": "recorded only, never part of stage_c_pass: does the answer describe the fuels as uncalibrated"
+     },
+     "initial_state_conveyed": {
+      "type": [
+       "boolean",
+       "null"
+      ],
+      "description": "recorded only, never part of stage_c_pass: does the answer correctly convey the situation at hour 0. False when it says nothing about hour 0, and false plus a question-1 failure when it says something wrong about it"
+     },
+     "note": {
+      "type": "string",
+      "description": "one sentence; for an unjudgeable record, why"
+     }
+    },
+    "required": [
+     "record_id",
+     "judgeable",
+     "has_contradicted_information",
+     "has_unsupported_information",
+     "critical_events_complete",
+     "required_disclosures_complete",
+     "advice_grounded_and_caveated",
+     "limitations_complete",
+     "stage_c_pass",
+     "failures",
+     "uncalibrated_fuels_mentioned",
+     "initial_state_conveyed",
+     "note"
+    ]
+   }
+  }
+ },
+ "required": [
+  "decisions"
+ ]
+}
