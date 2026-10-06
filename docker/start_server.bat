@@ -2,7 +2,7 @@
 rem WFEDS web server - double-click to start, then open http://localhost:8000
 rem Needs: Docker Desktop installed, the wfeds image built once
 rem (docker build -f docker/Dockerfile -t wfeds . from the repo root),
-rem and an LLM key in the repo's .env (GEMINI_API_KEY for the default preset).
+rem and an LLM preset and key in the repo's .env (see README.md).
 
 cd /d "%~dp0.."
 

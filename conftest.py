@@ -17,10 +17,12 @@ import sys
 from pathlib import Path
 
 _ROOT = Path(__file__).resolve().parent
+_TEST_DATA_DIR = _ROOT / "tests" / "fixtures" / "data"
+_TEST_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 # setdefault (not `=`): a developer with a real OneDrive folder configured can still
 # override by exporting WFEDS_DATA_DIR themselves before running pytest.
-os.environ.setdefault("WFEDS_DATA_DIR", str(_ROOT / "tests" / "fixtures" / "data"))
+os.environ.setdefault("WFEDS_DATA_DIR", str(_TEST_DATA_DIR))
 
 # --- Environment landmine found while building tests/helpers/geodata_factories.py ---
 # On at least this dev machine, a machine-wide PROJ_LIB env var (set by a PostgreSQL /

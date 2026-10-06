@@ -63,9 +63,9 @@ docker run --rm -p 8000:8000 --env-file .env `
   the file on the HOST and injects real env vars - this is unrelated to
   `llm_config.py`'s own `.env` loader, which no-ops in the container since
   `/app/.env` is never COPY'd; real env vars win in its `setdefault` logic
-  anyway). Only the active preset's key is needed - `GEMINI_API_KEY` for the
-  default `gemini-pro` preset (or set `WFEDS_LLM_PRESET=claude|gpt` plus its
-  key). `TELEGRAM_BOT_TOKEN` is NOT needed in web mode.
+  anyway). Set `WFEDS_LLM_PRESET=gpt` and `OPENAI_API_KEY` for the thesis
+  configuration. Other provider presets are listed in `scripts/agent/llm_config.py`.
+  `TELEGRAM_BOT_TOKEN` is NOT needed in web mode.
 - Weather is fetched live from Open-Meteo at run time - the container needs
   network egress.
 

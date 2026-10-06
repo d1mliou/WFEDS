@@ -8,20 +8,41 @@ __pycache__/
 # OSMnx HTTP cache (created in the working dir when scripts run)
 cache/
 
-# Thesis proposal - kept local, not pushed
+# Thesis and local project materials
 Proposal.docx
-
-# Obsidian vault - kept locally (synced separately, e.g. OneDrive), no longer
-# git-tracked/pushed as of 2026-07-15 (kept code and vault pushes independent)
 LLM-WFEDS/
 
-# Third-party Claude Code skills (kepano/obsidian-skills) - local-only, not synced via git
-.claude/skills/
-
-# Scratch working area (PDF text dumps, throwaway scripts, one-off outputs).
-# The Axis-3 pilot record is NOT scratch: it lives in
-# scripts/validation/pilot_records/ and is committed.
-tmp/
-
-# Claude Code agent definitions - local tooling, not part of the thesis code
+# Local assistant configuration and scratch exports
+.claude/
+.codex/
 .agents/
+AGENTS.md
+CLAUDE.md
+.tmp*/
+_pytest_tmp*/
+
+# Scratch working area and saved experimental runs
+tmp/
+scripts/validation/pilot_records/
+
+# One-off document and supervisor review utilities
+scripts/validation/update_thesis_attachment.py
+scripts/validation/supervisor_fire_sensitivity.py
+
+# Local evaluation assembly scripts that depend on unpublished run records
+scripts/validation/axis3_arm_neutral_package.py
+scripts/validation/axis3_coverage_package.py
+scripts/validation/axis3_coverage_score.py
+scripts/validation/axis3_final_aggregate.py
+scripts/validation/axis3_final_narrative_recompute.py
+scripts/validation/axis3_narrative_analysis.py
+scripts/validation/axis3_pass_comparison.py
+scripts/validation/axis3_r3_readjudication_package.py
+scripts/validation/axis3_remaining_negative_package.py
+scripts/validation/stage_c_build_batches.py
+scripts/validation/stage_c_build_bundle.py
+scripts/validation/stage_c_calibration.py
+scripts/validation/stage_c_calibration_split.py
+scripts/validation/stage_c_coverage_rubric_frozen.md
+scripts/validation/stage_c_example_overlap_check.py
+scripts/validation/stage_c_rubric_v2_1_judge_clean.md

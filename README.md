@@ -2,7 +2,6 @@
 
 **Developing and Evaluating a Geospatial LLM-Agent Prototype for Wildfire Evacuation Decision Support**
 
-
 ---
 
 ## 1. What the application is
@@ -79,24 +78,22 @@ and open PowerShell inside the extracted folder.
 ### Step 3 - Get the input data folder
 
 The geodata (~230 MB: DEM, slope, fuel raster, road network, settlements, the 2021
-ground truth) is **not** in the repository. Request it from the author and put it
-anywhere on your disk, e.g. `C:\WFEDS_Data`. Remember that path - you'll use it in
-Step 6. (On the author's own machines the folder lives in OneDrive and is found
-automatically; everyone else points to it explicitly.)
+ground truth) is **not** in the repository. Obtain the input data separately and put
+it anywhere on your disk, e.g. `C:\WFEDS_Data`. Remember that path for Step 6.
 
 ### Step 4 - Get an LLM API key and create the .env file
 
-The narration/advisory layer calls an LLM. The default preset uses Google Gemini:
+The narration/advisory layer calls an LLM. For the thesis configuration, use the
+`gpt` preset and provide an OpenAI API key:
 
-1. Get a free API key at <https://aistudio.google.com/apikey> (Google account needed).
-2. In the repo folder, create a plain-text file named exactly `.env` (no .txt
-   extension) with one line:
+1. Create a plain-text file named exactly `.env` in the repository root.
+2. Add these lines, replacing the placeholder with your own key:
    ```
-   GEMINI_API_KEY=το_κλειδί_σου_εδώ
+   OPENAI_API_KEY=your_key_here
+   WFEDS_LLM_PRESET=gpt
    ```
-
-(Alternatives: `ANTHROPIC_API_KEY` or `OPENAI_API_KEY` plus a second line
-`WFEDS_LLM_PRESET=claude` or `gpt`.)
+   This file is excluded from Git. Other provider presets are defined in
+   `scripts/agent/llm_config.py`.
 
 ### Step 5 - Build the container image (once)
 
@@ -112,11 +109,7 @@ Re-running it later is nearly instant unless the code changed.
 
 ### Step 6 - Start the server
 
-**If your data folder is the author's OneDrive setup:** just double-click
-`docker\start_server.bat` - it starts Docker Desktop if needed, finds the data
-folder, launches the server and opens the browser.
-
-**Otherwise (data at a custom path, e.g. `C:\WFEDS_Data`):** run in PowerShell
+With the data at `C:\WFEDS_Data`, run in PowerShell:
 
 ```powershell
 docker run -d --name wfeds_web -p 8000:8000 --env-file .env `

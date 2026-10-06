@@ -1,14 +1,7 @@
-"""Tests for the Axis-3 structured-output contract validator.
+"""Offline tests for the Axis-3 structured-output contract validator.
 
-The oracle for the golden test is section 3.4.5 of
-`scripts/validation/axis3_structured_output_preregistration.md`: a worked table
-over the four stored pilot records. It is pre-registered, so if the code and the
-table disagree the code is wrong, and these tests are written to make that
-disagreement impossible to miss rather than to be adjusted until they pass.
-
-Everything else is synthetic, built on one small compact whose ground truth is
-[1, 3, 4], so that each contract outcome and each metric edge can be exercised
-without a model call and without touching the frozen pilot tree.
+The worked-table cases are reconstructed from small synthetic payloads. Stored
+model runs remain local and are not required by a fresh repository clone.
 """
 import json
 from pathlib import Path
@@ -428,7 +421,7 @@ def test_the_free_arm_gets_no_2_1_numeric_verdict_of_its_own():
 
 
 # --------------------------------------------------------------------------------
-# GOLDEN: the 3.4.5 worked table over the four stored pilot records
+# Worked-table cases rebuilt from synthetic payloads
 # --------------------------------------------------------------------------------
 WORKED_TABLE = {
     ("luna", "A03"): {
@@ -462,28 +455,44 @@ WORKED_TABLE = {
 }
 
 
-def _pilot_rows(preset):
-    """Read only. The pilot tree is a frozen audit record and no test may write
-    into it, which is also what `test_in_place_refuses_the_frozen_pilot_tree`
-    guards at the CLI level."""
-    path = PILOT / preset / "agent_eval_raw.jsonl"
-    if not path.exists():
-        # FAIL, never skip. These four rows are committed evidence (5.8.9) and
-        # they are the only oracle the 3.4.5 worked table has; a tree that has
-        # gone missing means the audit record was deleted or moved, which is a
-        # louder problem than a red test, and a skip would report it as green.
-        pytest.fail(
-            f"the frozen pilot audit record is missing: {path}. It is committed "
-            "evidence (5.8.9) and the oracle for the 3.4.5 worked table, so its "
-            "absence is a failure and never a skip. Restore it from git.")
-    return score_rows([json.loads(line) for line
-                       in path.read_text(encoding="utf-8").splitlines() if line.strip()])
+def _worked_rows(preset):
+    """Recreate the declared event patterns without publishing run records."""
+    if preset == "gemini":
+        return score_rows([
+            row(obj(), error="provider unavailable", case_id=case)
+            for case in ("A03", "B02")
+        ])
+    records = []
+    for case in ("A03", "B02"):
+        expected = WORKED_TABLE[(preset, case)]
+        final_period = 24 if case == "A03" else 4
+        change_hours = []
+        count = 6
+        counts = {}
+        for period in range(final_period + 1):
+            if period in expected["gt"]:
+                count += 1
+            counts[period] = count
+            change_hours.append({"period": period, "cut_off": count})
+        compact = {
+            "change_hours": change_hours,
+            "final_hour": {"period": final_period, "cut_off": count,
+                           "edges_removed": 737},
+        }
+        answer = obj(
+            initial=((0, 6),),
+            critical=tuple((period, counts[period])
+                           for period in expected["emitted"]),
+            final=((final_period, count, 737),),
+        )
+        records.append(row(answer, compact=compact, case_id=case))
+    return score_rows(records)
 
 
 @pytest.mark.parametrize("preset,case", sorted(WORKED_TABLE))
 def test_golden_worked_table_cell_by_cell(preset, case):
     want = WORKED_TABLE[(preset, case)]
-    rows = {r["case_id"]: r for r in _pilot_rows(preset)}
+    rows = {r["case_id"]: r for r in _worked_rows(preset)}
     got = rows[case]
     assert got["contract_outcome"] == want["outcome"]
     assert got["schema_conformant"] is True
@@ -513,7 +522,7 @@ def test_golden_per_preset_rollup():
     # The indicative roll-up of 3.4.5: luna 0/2 exact, 11/11 recall, 6 extras over
     # 17 emitted; terra 2/2 exact, 11/11 recall, 0 extras over 11 emitted.
     for preset, exact, extras, n_em in (("luna", 0, 6, 17), ("terra", 2, 0, 11)):
-        rows = _pilot_rows(preset)
+        rows = _worked_rows(preset)
         assert len(rows) == 2
         assert sum(1 for r in rows if r["ct_exact_set"]) == exact
         assert sum(r["ct_matched"] for r in rows) == 11
@@ -527,19 +536,19 @@ def test_golden_per_preset_rollup():
 
 
 def test_golden_gemini_rows_are_runtime_errors_and_never_scored():
-    for r in _pilot_rows("gemini"):
+    for r in _worked_rows("gemini"):
         assert r["contract_outcome"] == "runtime_error"
         assert r["ct_scored"] is False
         assert r["ct_not_scored_reason"] == "runtime_error"
 
 
 def test_summary_carries_the_mandatory_caveat_and_the_denominators():
-    text = summarize(_pilot_rows("luna"), label="luna")
+    text = summarize(_worked_rows("luna"), label="luna")
     assert "may not be pooled with the gate" in text
     assert "6/17 = 0.353" in text            # ct_extra_rate_emitted
     assert "11/11 = 1.000" in text           # event-level recall
     assert "0/2 = 0.000" in text             # ct_exact_set and contract validity
-    assert per_row_lines(_pilot_rows("luna")).count("\n") == 2
+    assert per_row_lines(_worked_rows("luna")).count("\n") == 2
 
 
 # --------------------------------------------------------------------------------

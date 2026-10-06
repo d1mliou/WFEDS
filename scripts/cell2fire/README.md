@@ -76,6 +76,3 @@ python scripts/cell2fire/visualize_fire.py             # timeline dashboard
 Scenario runs (e.g. a different fire) can be isolated via `WFEDS_SCENARIO_DIR` (read by
 `fire_timesteps.py` + `visualize_fire.py`) so they never overwrite the canonical outputs.
 Operationally, `run_scenario.py` does exactly this in one call - see Stage E above.
-
-(The author's full design/decision notes are kept in a local project vault,
-outside this repository.)

@@ -16,8 +16,7 @@ Every in-code change is tagged with the comment marker **`WFEDS`**.
 > modelled as free-burning (worst credible case) and suppression/evacuation *measures*
 > are handled as decisions in the LLM agent layer, not as engine physics. Only the
 > intensity output (which is calibration-free and feeds the LLM's "where is intervention
-> feasible" reasoning) was kept (decision recorded 2026-07-03 in the author's
-> local decision log, outside this repository).
+> feasible" reasoning) was kept.
 
 ## Apply + rebuild (order matters)
 ```bash
@@ -118,7 +117,7 @@ An earlier version of this patch also had `--SuppressionFactors f1,f2,f3,f4` (pe
 ROS damping). An experiment (aggressive f=0.15/0.25/0.4/0.5) cut the fire only 203.6 →
 167.5 km² and did not close the ~5x over-spread; combined with the decision to treat
 suppression as a decision concern of the LLM agent layer (not engine physics), the
-damping was removed (recorded 2026-07-03 in the author's local decision log).
+damping was removed.
 
 ## Reverting
 - Day-to-day: just omit `--out-intensity` - the engine is then bit-identical to unpatched.

@@ -11,13 +11,11 @@ reason this file exists at all:
     hash is pinned in 1.2, so that the frozen artefact cannot drift without the
     freeze being renegotiated.
 
-The golden test reads the four REAL stored pilot records. It is read-only by
-construction and must stay so: `scripts/validation/pilot_records/...` is a
-permanent audit record (5.8.9) and nothing in the test suite may write into it.
+The worked-example tests use synthetic final-answer objects. Saved model runs
+are kept outside the repository and are not required by this test suite.
 """
 from __future__ import annotations
 
-import json
 import re
 from pathlib import Path
 
@@ -30,16 +28,7 @@ from scripts.validation.stage_c_render_slots import (
     slot_claim_count,
 )
 
-# Pilot artefacts live beside the code they were produced by, so the path is
-# derived from this file rather than from the process working directory.
 _REPO_ROOT = Path(__file__).resolve().parents[2]
-_PILOT_DIR = (
-    _REPO_ROOT
-    / "scripts"
-    / "validation"
-    / "pilot_records"
-    / "20260921_axis3_structured_contract"
-)
 
 # The pre-registration is the other half of the freeze: 2.2 is where the four
 # templates are declared, and this file exists to prove the module has not
@@ -71,20 +60,27 @@ def _section_2_2_templates() -> list[str]:
     return found
 
 
-def _pilot_object(preset: str, case_id: str) -> dict:
-    """Return the parsed final-answer object of one stored pilot record.
-
-    Selected by `case_id` rather than by line number, so a reordering of the
-    stored file could never silently swap A03 for B02 under a test that then
-    still passed.
-    """
-    path = _PILOT_DIR / preset / "agent_eval_raw.jsonl"
-    with path.open(encoding="utf-8") as handle:
-        for line in handle:
-            row = json.loads(line)
-            if row["case_id"] == case_id:
-                return json.loads(row["reply"])
-    raise AssertionError(f"no {case_id} row in {path}")
+def _example_object(preset: str, case_id: str) -> dict:
+    """Minimal synthetic object with the declared worked-example event pattern."""
+    if case_id == "B02":
+        periods = [1, 2, 3, 4] if preset == "luna" else [1, 3, 4]
+        values = {1: 9, 2: 9, 3: 10, 4: 14}
+        return _ok(
+            [{"period": 0, "settlements_without_route": 6}],
+            [{"period": p, "settlements_without_route": values[p]} for p in periods],
+            [{"period": 4, "settlements_without_route": 14,
+              "road_segments_removed": 361}],
+        )
+    periods = ([1, 2, 3, 4, 5, 6, 7, 11, 13, 14, 18, 20, 21]
+               if preset == "luna" else [1, 3, 4, 5, 11, 13, 20, 21])
+    values = {1: 9, 2: 9, 3: 10, 4: 14, 5: 15, 6: 15, 7: 15,
+              11: 17, 13: 18, 14: 18, 18: 18, 20: 21, 21: 23}
+    return _ok(
+        [{"period": 0, "settlements_without_route": 6}],
+        [{"period": p, "settlements_without_route": values[p]} for p in periods],
+        [{"period": 24, "settlements_without_route": 23,
+          "road_segments_removed": 737}],
+    )
 
 
 def _ok(initial, transitions, final):
@@ -367,13 +363,13 @@ def test_slot_claim_count_raises_on_a_malformed_record():
         slot_claim_count(obj)
 
 
-# --- golden test on the stored pilot records -------------------------------
+# --- synthetic worked examples ---------------------------------------------
 
 
 def test_golden_luna_a03_renders_fifteen_claims():
     # luna over-emitted `critical_transitions` (13 entries against 8 GT events,
     # 3.4.5), so its slot tier is 13 + 2 = 15 claims.
-    obj = _pilot_object("luna", "A03")
+    obj = _example_object("luna", "A03")
     claims = render_slot_claims(obj)
     assert len(claims) == 15
     assert slot_claim_count(obj) == 15
@@ -387,7 +383,7 @@ def test_golden_luna_a03_renders_fifteen_claims():
 
 def test_golden_terra_a03_renders_ten_claims():
     # terra reproduced `cutoff_events()` exactly on A03: 8 entries + 2 = 10.
-    obj = _pilot_object("terra", "A03")
+    obj = _example_object("terra", "A03")
     claims = render_slot_claims(obj)
     assert len(claims) == 10
     assert slot_claim_count(obj) == 10
@@ -399,10 +395,10 @@ def test_golden_terra_a03_renders_ten_claims():
 
 
 def test_golden_b02_records_carry_two_sentences_about_hour_four():
-    # The real B02 records are the case 2.2 names: the final hour (4) is also a
-    # critical transition, on both presets.
+    # In the B02 worked example, the final hour (4) is also a critical
+    # transition in both preset patterns.
     for preset, expected_count in (("luna", 6), ("terra", 5)):
-        claims = render_slot_claims(_pilot_object(preset, "B02"))
+        claims = render_slot_claims(_example_object(preset, "B02"))
         assert len(claims) == expected_count
         assert "Στην ώρα 4: 14 οικισμοί χωρίς καμία διαδρομή διαφυγής." in claims
         assert (
@@ -417,7 +413,7 @@ def test_golden_no_rendered_claim_leaks_a_python_repr():
     # defect charged to the model as a CONTRADICTED claim.
     for preset in ("luna", "terra"):
         for case_id in ("A03", "B02"):
-            for claim in render_slot_claims(_pilot_object(preset, case_id)):
+            for claim in render_slot_claims(_example_object(preset, case_id)):
                 assert "None" not in claim
                 assert "True" not in claim
                 assert "[" not in claim

@@ -1,0 +1,4 @@
+# These frozen fixtures are verified by raw-byte SHA-256 in the test suite.
+scripts/validation/agent_eval_cases_stagec33.jsonl text eol=lf
+scripts/validation/stage_c_v3_frozen_payloads.json text eol=lf
+scripts/validation/stage_c_v3_gold.json text eol=lf
