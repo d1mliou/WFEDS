@@ -1,12 +1,12 @@
 """LLM provider presets - the agent is MODEL-AGNOSTIC by design.
 
 The agent code talks to one interface (LiteLLM model strings); WHICH model runs
-is configuration, never code. Three presets (Gemini / Claude / ChatGPT), default
-**gemini-pro**. Selection order:
+is configuration, never code. Presets for Gemini, Claude and ChatGPT; the default
+is **gpt**, the configuration evaluated in the thesis. Selection order:
 
     1. explicit argument            get_model("claude")
     2. env var                      WFEDS_LLM_PRESET=gpt
-    3. DEFAULT_PRESET below         ("gemini-pro")
+    3. DEFAULT_PRESET below         ("gpt")
 
 API keys are NEVER hardcoded or committed: they come from the environment or a
 local `.env` file at the repo root (gitignored; see `.env.example`). This also
@@ -14,7 +14,7 @@ enables the thesis evaluation axis "same scenario, different models".
 
 Usage:
     from llm_config import get_model
-    model, key = get_model()          # -> ("gemini/gemini-2.5-pro", "<key>")
+    model, key = get_model()          # -> ("openai/gpt-5.6-luna", "<key>")
 """
 
 import os
@@ -37,7 +37,7 @@ PRESETS = {
     "gpt-terra":  {"model": "openai/gpt-5.6-terra", "key_env": "OPENAI_API_KEY",
                    "params": {"reasoning_effort": "none"}},
 }
-DEFAULT_PRESET = "gemini-pro"
+DEFAULT_PRESET = "gpt"
 
 # Sampling applies to EVERY preset. It was never set before 2026-09-01, so all
 # runs up to then used the provider default (1.0), a creative-writing setting

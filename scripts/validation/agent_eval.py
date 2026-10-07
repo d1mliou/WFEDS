@@ -52,7 +52,7 @@ renamed filenames rather than deleting them.
 
 Run:
     python scripts/validation/agent_eval.py [--k 5] [--cases FILE] [--limit N]
-                                            [--preset gemini-pro] [--dry-run]
+                                            [--preset gpt] [--dry-run]
                                             [--out-dir DIR [--resume]]
 """
 
@@ -1192,8 +1192,8 @@ def main():
         # the file it is rescoring, and write_outputs then overwrites
         # agent_eval_raw.jsonl plus all four reports in place, wiping a frozen
         # run the thesis and the downstream scripts already cite. With no
-        # --preset, the metrics resolve the model name from DEFAULT_PRESET
-        # ("gemini-pro"), stamping into agent_eval_metrics.json a model that
+        # --preset, the metrics resolve the model name from DEFAULT_PRESET,
+        # stamping into agent_eval_metrics.json a model that
         # never produced these replies, and that string is exactly what
         # axis3_full_system.py prints in its report table.
         missing = [flag for flag, value in (("--out-dir", a.out_dir),

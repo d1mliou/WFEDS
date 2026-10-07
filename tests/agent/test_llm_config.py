@@ -61,12 +61,17 @@ def test_get_model_uses_env_preset_when_no_explicit_arg(monkeypatch):
 
 
 def test_get_model_falls_back_to_default_preset(monkeypatch):
-    monkeypatch.setenv("GEMINI_API_KEY", "test-gemini-key")
+    default = llm_config.PRESETS[llm_config.DEFAULT_PRESET]
+    monkeypatch.setenv(default["key_env"], "test-default-key")
 
     model, key = llm_config.get_model()
 
-    assert model == llm_config.PRESETS[llm_config.DEFAULT_PRESET]["model"]
-    assert key == "test-gemini-key"
+    assert model == default["model"]
+    assert key == "test-default-key"
+
+
+def test_default_preset_is_the_thesis_gpt_configuration():
+    assert llm_config.DEFAULT_PRESET == "gpt"
 
 
 def test_load_dotenv_existing_env_wins_over_dotenv_file(tmp_path, monkeypatch):
