@@ -17,9 +17,9 @@ Protocol (all choices pre-declared, not tuned to the outcome):
     perimeter at or before the pass time.
   * Per pass and pooled over 24 h: inclusion rate (detections inside the
     simulated burn), buffered inclusion at BUFFERS_M (pre-declared: one VIIRS
-    pixel, 500 m, 1 km), distance-to-simulation stats (median + percentiles),
-    and spread direction (bearing from the seed centroid: observed detections
-    vs simulated new growth).
+    pixel, 500 m, 1 km), and distance-to-simulation stats (median +
+    percentiles). Pooled spatial measures combine each detection's own
+    time-matched perimeter; spread direction is reported per pass.
   * Over-spread check: how much simulated growth lies far from EVERY
     subsequent detection, and its distribution by compass sector. Absence of a
     detection does not prove absence of fire - reported, not auto-scored.
@@ -172,6 +172,29 @@ def pass_metrics(dets, sim_poly, growth_poly, origin, buffers=BUFFERS_M):
     return out
 
 
+def pooled_time_matched_metrics(inside, distances_m, buffers=BUFFERS_M):
+    """Pool point outcomes already measured against their matched perimeters.
+
+    Unlike scoring all points against one later perimeter, this preserves the
+    per-pass time matching when producing one detection-weighted summary.
+    """
+    inside = pd.Series(inside, dtype=bool)
+    distances = pd.Series(distances_m, dtype=float)
+    if len(inside) != len(distances) or not len(inside) or distances.isna().any():
+        raise ValueError("Every scored detection needs an inside flag and distance")
+    n = len(inside)
+    out = {
+        "n_detections": n,
+        "n_inside": int(inside.sum()),
+        "inclusion_pct": round(100 * float(inside.mean())),
+    }
+    for b in buffers:
+        out[f"inclusion_within_{int(b)}m_pct"] = round(
+            100 * float((distances <= b).mean()))
+    out["distance"] = distance_stats(distances)
+    return out
+
+
 def sector_polys(origin, radius=60_000.0, n=N_SECTORS):
     """n compass-sector wedges around origin (sector 0 centred on North).
     Returns {sector_name: Polygon}."""
@@ -309,7 +332,7 @@ def md_table(df):
 
 def write_report(run_dir, meta, table, summary, over, context):
     """validation_report.md - the thesis-facing writeup: declared protocol,
-    per-pass table, pooled summary, over-spread, context, limitations."""
+    per-pass table, time-matched pooled summary, over-spread, context, limitations."""
     lines = [
         "# Exploratory spatial validation of free-burning fire spread "
         "using subsequent VIIRS active-fire detections",
@@ -336,7 +359,7 @@ def write_report(run_dir, meta, table, summary, over, context):
         "",
         md_table(table),
         "",
-        "## Pooled 24 h summary (all evaluation passes)",
+        "## Pooled time-matched summary (all evaluation passes)",
         "",
     ]
     if summary:
@@ -350,9 +373,6 @@ def write_report(run_dir, meta, table, summary, over, context):
             f"{summary['distance']['median_m']} m, p90 "
             f"{summary['distance']['p90_m']} m, max "
             f"{summary['distance']['max_m']} m.",
-            f"* Net direction: simulated {summary['sim_bearing_deg']} deg vs "
-            f"observed {summary['obs_bearing_deg']} deg "
-            f"(difference {summary['direction_diff_deg']} deg).",
         ]
     lines += [
         "",
@@ -541,6 +561,7 @@ def main(run_dir_arg=None):
 
     # --- per-pass metrics (the protocol's core table) ---
     per_pass_rows, dets_by_pass = [], []
+    matched_distances = pd.Series(index=eval_set.index, dtype=float)
     for col in ("matched_hour", "distance_m", "inside"):
         eval_set[col] = None
     for b in BUFFERS_M:
@@ -554,6 +575,7 @@ def main(run_dir_arg=None):
             continue
         # per-point attributes (carried into the GIS export for QGIS work)
         nn = grp.geometry.distance(sim_h)
+        matched_distances.loc[grp.index] = nn
         eval_set.loc[grp.index, "matched_hour"] = h
         eval_set.loc[grp.index, "distance_m"] = nn.round().astype(int)
         eval_set.loc[grp.index, "inside"] = grp.geometry.within(sim_h)
@@ -575,22 +597,16 @@ def main(run_dir_arg=None):
         print(f"   direction: sim {m['sim_bearing_deg']}deg vs obs "
               f"{m['obs_bearing_deg']}deg (diff {m['direction_diff_deg']}deg)")
 
-    # --- pooled 24 h summary over the whole evaluation set ---
+    # --- pool each detection's time-matched outcome, not one later perimeter ---
     growth_final = sim.difference(seed) if seeded else sim
     summary = None
     if len(eval_set):
-        h_last = per_pass_rows[-1]["matched_sim_hour"] if per_pass_rows else hours
-        # pooled scoring uses each detection's own matched hour via the per-pass
-        # loop above; for the pooled block, score against the final matched state
-        summary = pass_metrics(eval_set, perims.iloc[h_last].geometry,
-                               perims.iloc[h_last].geometry.difference(seed)
-                               if seeded else perims.iloc[h_last].geometry, origin)
-        print("-- pooled 24 h (all evaluation passes vs the last matched hour "
-              f"+{h_last}) --")
+        summary = pooled_time_matched_metrics(
+            eval_set["inside"].tolist(), matched_distances.tolist())
+        print("-- pooled time-matched summary (all evaluation passes) --")
         print(f"   inclusion {summary['inclusion_pct']}%"
               + "".join(f" | <={int(b)}m {summary[f'inclusion_within_{int(b)}m_pct']}%"
-                        for b in BUFFERS_M)
-              + f" | direction diff {summary['direction_diff_deg']}deg")
+                        for b in BUFFERS_M))
 
     # --- over-spread check (section 10 of the protocol) ---
     eval_footprint = (unary_union(list(eval_all.buffer(VIIRS_PIX / 2).values))
@@ -723,10 +739,9 @@ def main(run_dir_arg=None):
     if summary:
         interp.append(
             f"Within the 24 h horizon, {summary['inclusion_pct']}% of the "
-            f"subsequent VIIRS detections fall inside the simulated burn "
-            f"(median distance {summary['distance']['median_m']} m), and the "
-            f"net simulated direction differs from the observed one by "
-            f"{summary['direction_diff_deg']} deg.")
+            f"scored VIIRS detections fall inside their time-matched simulated "
+            f"perimeters (median distance {summary['distance']['median_m']} m). "
+            "Direction differences are reported separately for each pass.")
     interp.append(
         f"At the same time, {over['growth_far_pct']}% of the simulated growth "
         f"lies farther than {int(FAR_BUFFER_M)} m from every subsequent "

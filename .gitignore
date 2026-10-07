@@ -25,9 +25,8 @@ _pytest_tmp*/
 tmp/
 scripts/validation/pilot_records/
 
-# One-off document and supervisor review utilities
+# One-off document utilities
 scripts/validation/update_thesis_attachment.py
-scripts/validation/supervisor_fire_sensitivity.py
 
 # Local evaluation assembly scripts that depend on unpublished run records
 scripts/validation/axis3_arm_neutral_package.py

@@ -14,7 +14,8 @@ import pytest
 from shapely.geometry import Point, box
 
 from validate_overlay import (BUFFERS_M, ang_diff, bearing, distance_stats,
-                              group_passes, pass_metrics, sector_areas_km2)
+                              group_passes, pass_metrics,
+                              pooled_time_matched_metrics, sector_areas_km2)
 
 
 class TestBearing:
@@ -141,6 +142,23 @@ class TestPassMetrics:
         m = pass_metrics(dets, self.SIM, self.SIM, origin=(0, 0))
         for b in BUFFERS_M:
             assert f"inclusion_within_{int(b)}m_pct" in m
+
+
+class TestPooledTimeMatchedMetrics:
+    def test_uses_each_points_matched_result(self):
+        # The first point is outside its early perimeter but would be inside
+        # the later perimeter matched to the second point.
+        m = pooled_time_matched_metrics([False, True], [400.0, 0.0])
+        assert m["n_detections"] == 2
+        assert m["n_inside"] == 1
+        assert m["inclusion_pct"] == 50
+        assert m["inclusion_within_375m_pct"] == 50
+        assert m["inclusion_within_500m_pct"] == 100
+        assert m["distance"]["median_m"] == 200
+
+    def test_rejects_incomplete_matched_distances(self):
+        with pytest.raises(ValueError):
+            pooled_time_matched_metrics([True, False], [0.0, float("nan")])
 
 
 class TestSectorAreas:
